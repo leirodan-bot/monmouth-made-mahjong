@@ -18,20 +18,20 @@ export default function RecordMatch({ session, player }) {
   const [pendingMatches, setPendingMatches] = useState([])
   const [tab, setTab] = useState('submit')
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  useEffect(() => { fetchData() }, [])
 
   async function fetchData() {
-    const [{ data: playerData }, { data: matchData }] = await Promise.all([
-      supabase.from('players').select('*').order('name'),
-      supabase.from('matches')
-        .select('*, winner:winner_id(name), submitted:submitted_by(name)')
-        .eq('status', 'pending')
-        .contains('loser_ids', player?.id ? [player.id] : [])
-    ])
+    const { data: playerData } = await supabase.from('players').select('*').order('name')
     setPlayers(playerData || [])
-    setPendingMatches(matchData || [])
+
+    if (player?.id) {
+      const { data: matchData } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('status', 'pending')
+        .contains('loser_ids', [player.id])
+      setPendingMatches(matchData || [])
+    }
     setLoading(false)
   }
 
@@ -63,7 +63,9 @@ export default function RecordMatch({ session, player }) {
       loser_elo_before: loserPlayers.map(p => p.elo),
       loser_elo_after: loserPlayers.map(p => p.elo + calcElo(p.elo, winnerPlayer.elo, false)),
       status: 'pending',
-      submitted_by: player.id
+      submitted_by: player.id,
+      confirmations: [],
+      required_confirmations: Math.ceil(opponents.length / 2) + (opponents.length > 1 ? 0 : 0)
     })
 
     if (matchError) {
@@ -72,12 +74,11 @@ export default function RecordMatch({ session, player }) {
       return
     }
 
-    // Create notifications for opponents
     for (const opp of loserPlayers) {
       await supabase.from('notifications').insert({
         player_id: opp.id,
         type: 'confirm_match',
-        message: `${winnerPlayer.name} recorded a match where they won. Please confirm this result.`
+        message: `${winnerPlayer.name} recorded a match where they won. Please confirm or dispute this result.`
       })
     }
 
@@ -86,39 +87,54 @@ export default function RecordMatch({ session, player }) {
     setOpponents([])
     setSaving(false)
     setTimeout(() => setSuccess(false), 4000)
+    fetchData()
   }
 
   async function confirmMatch(matchId) {
     const match = pendingMatches.find(m => m.id === matchId)
     if (!match) return
 
-    const winnerPlayer = players.find(p => p.id === match.winner_id)
-    const loserPlayers = players.filter(p => match.loser_ids.includes(p.id))
+    const currentConfirmations = match.confirmations || []
+    if (currentConfirmations.includes(player.id)) return
 
-    // Update winner elo
-    await supabase.from('players').update({
-      elo: match.winner_elo_after,
-      wins: (winnerPlayer?.wins || 0) + 1,
-      games_played: (winnerPlayer?.games_played || 0) + 1,
-      current_streak: (winnerPlayer?.current_streak || 0) + 1,
-    }).eq('id', match.winner_id)
+    const newConfirmations = [...currentConfirmations, player.id]
+    const required = Math.ceil(match.loser_ids.length / 2) + (match.loser_ids.length > 1 ? 0 : 0)
+    const majority = match.loser_ids.length === 1 ? 1 : Math.ceil(match.loser_ids.length / 2) + (match.loser_ids.length % 2 === 0 ? 0 : 0)
 
-    // Update losers elo
-    for (let i = 0; i < loserPlayers.length; i++) {
-      const lp = loserPlayers[i]
+    if (newConfirmations.length >= majority) {
+      // Majority reached — update Elo
+      const winnerPlayer = players.find(p => p.id === match.winner_id)
+      const loserPlayers = players.filter(p => match.loser_ids.includes(p.id))
+
       await supabase.from('players').update({
-        elo: Math.max(100, match.loser_elo_after[i]),
-        losses: (lp.losses || 0) + 1,
-        games_played: (lp.games_played || 0) + 1,
-        current_streak: 0,
-      }).eq('id', lp.id)
-    }
+        elo: match.winner_elo_after,
+        wins: (winnerPlayer?.wins || 0) + 1,
+        games_played: (winnerPlayer?.games_played || 0) + 1,
+        current_streak: (winnerPlayer?.current_streak || 0) + 1,
+      }).eq('id', match.winner_id)
 
-    // Mark match confirmed
-    await supabase.from('matches').update({
-      status: 'confirmed',
-      confirmed_at: new Date().toISOString()
-    }).eq('id', matchId)
+      for (let i = 0; i < loserPlayers.length; i++) {
+        const lp = loserPlayers[i]
+        await supabase.from('players').update({
+          elo: Math.max(100, match.loser_elo_after[i]),
+          losses: (lp.losses || 0) + 1,
+          games_played: (lp.games_played || 0) + 1,
+          current_streak: 0,
+        }).eq('id', lp.id)
+      }
+
+      await supabase.from('matches').update({
+        status: 'confirmed',
+        confirmations: newConfirmations,
+        confirmed_at: new Date().toISOString()
+      }).eq('id', matchId)
+
+    } else {
+      // Not yet majority — just record confirmation
+      await supabase.from('matches').update({
+        confirmations: newConfirmations
+      }).eq('id', matchId)
+    }
 
     fetchData()
   }
@@ -136,7 +152,9 @@ export default function RecordMatch({ session, player }) {
     <div>
       <div style={{ marginBottom: 16 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>Record a Match</h2>
-        <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Results update Elo ratings once confirmed by opponents</p>
+        <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>
+          Majority of opponents must confirm before Elo updates. Auto-accepted after 48 hours.
+        </p>
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
@@ -149,7 +167,7 @@ export default function RecordMatch({ session, player }) {
             border: tab === t ? 'none' : '0.5px solid #c8cdd6',
             cursor: 'pointer'
           }}>
-            {t === 'submit' ? 'Submit Result' : `Confirm Results ${pendingMatches.length > 0 ? `(${pendingMatches.length})` : ''}`}
+            {t === 'submit' ? 'Submit Result' : `Confirm Results${pendingMatches.length > 0 ? ` (${pendingMatches.length})` : ''}`}
           </button>
         ))}
       </div>
@@ -176,8 +194,11 @@ export default function RecordMatch({ session, player }) {
                 ))}
               </select>
             </div>
+
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', display: 'block', marginBottom: 6 }}>Other players at the table (up to 3)</label>
+              <label style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', display: 'block', marginBottom: 6 }}>
+                Other players at the table (up to 3)
+              </label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                 {availableOpponents.map(p => (
                   <button key={p.id} type="button" onClick={() => toggleOpponent(p.id)} style={{
@@ -201,13 +222,15 @@ export default function RecordMatch({ session, player }) {
                   const lps = players.filter(p => opponents.includes(p.id))
                   const avgLoserElo = Math.round(lps.reduce((s, p) => s + p.elo, 0) / lps.length)
                   const change = calcElo(wp.elo, avgLoserElo, true)
-                  return `${wp.name} gains ${change > 0 ? '+' : ''}${change} Elo → ${wp.elo + change}`
+                  const required = opponents.length === 1 ? 1 : Math.ceil(opponents.length / 2) + (opponents.length === 3 ? 0 : 0)
+                  return `${wp.name} gains +${change} Elo → ${wp.elo + change} · Requires ${required === 1 ? '1' : required} of ${opponents.length} confirmations`
                 })()}
               </div>
             )}
 
             <button type="submit" disabled={!winner || opponents.length === 0 || saving} style={{
-              width: '100%', background: winner && opponents.length > 0 ? '#1a2744' : '#e5e7eb',
+              width: '100%',
+              background: winner && opponents.length > 0 ? '#1a2744' : '#e5e7eb',
               color: winner && opponents.length > 0 ? '#f4f4f2' : '#aaa',
               border: 'none', borderRadius: 8, padding: 11,
               fontSize: 13, fontFamily: 'Playfair Display, serif', fontWeight: 700
@@ -226,24 +249,45 @@ export default function RecordMatch({ session, player }) {
             </div>
           ) : (
             <div style={{ display: 'grid', gap: 10 }}>
-              {pendingMatches.map(match => (
-                <div key={match.id} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 4 }}>
-                    {match.winner?.name} won this game
+              {pendingMatches.map(match => {
+                const winnerPlayer = players.find(p => p.id === match.winner_id)
+                const confirmations = match.confirmations || []
+                const required = match.loser_ids.length === 1 ? 1 : Math.ceil(match.loser_ids.length / 2) + (match.loser_ids.length === 3 ? 0 : 0)
+                const alreadyConfirmed = confirmations.includes(player?.id)
+
+                return (
+                  <div key={match.id} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 4 }}>
+                      {winnerPlayer?.name} won this game
+                    </div>
+                    <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 8 }}>
+                      {new Date(match.played_at).toLocaleDateString()} · {confirmations.length} of {required} confirmations received
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8 }}>
+                      {match.loser_ids.map((_, i) => (
+                        <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: i < confirmations.length ? '#1a2744' : '#e5e7eb' }} />
+                      ))}
+                      <span style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginLeft: 4 }}>
+                        Need {required} to confirm
+                      </span>
+                    </div>
+                    {alreadyConfirmed ? (
+                      <div style={{ fontSize: 12, color: '#065f46', fontFamily: 'sans-serif', background: '#d1fae5', padding: '6px 12px', borderRadius: 6 }}>
+                        ✓ You confirmed this match
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={() => confirmMatch(match.id)} style={{ background: '#1a2744', color: '#f4f4f2', border: 'none', borderRadius: 6, padding: '7px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
+                          ✓ Confirm
+                        </button>
+                        <button onClick={() => disputeMatch(match.id)} style={{ background: 'white', color: '#9f1239', border: '0.5px solid #9f1239', borderRadius: 6, padding: '7px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
+                          Dispute
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 12 }}>
-                    Submitted by {match.submitted?.name} · {new Date(match.played_at).toLocaleDateString()}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={() => confirmMatch(match.id)} style={{ background: '#1a2744', color: '#f4f4f2', border: 'none', borderRadius: 6, padding: '7px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
-                      ✓ Confirm
-                    </button>
-                    <button onClick={() => disputeMatch(match.id)} style={{ background: 'white', color: '#9f1239', border: '0.5px solid #9f1239', borderRadius: 6, padding: '7px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
-                      Dispute
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
