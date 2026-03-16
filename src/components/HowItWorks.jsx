@@ -124,8 +124,8 @@ export default function HowItWorks() {
             {[
               { n: 1, title: 'Create your account', desc: 'Sign up with email or Google. Verify your email to activate your account.' },
               { n: 2, title: 'Set your town', desc: "Tell us which Monmouth County town you represent. Admin will verify — your town can't be changed after verification." },
-              { n: 3, title: 'Join a club', desc: "Browse the Clubs tab to find a group near you. No club nearby? Contact us and we'll help you start one." },
-              { n: 4, title: 'Play and record your first match', desc: 'After your game, record the result under the Record tab. Opponents confirm and your Elo updates automatically.' },
+              { n: 3, title: 'Join a club', desc: "Browse the Clubs tab to find a group near you. Click into a club and hit Request to Join — the organizer will approve you. No club nearby? Contact us and we'll help you start one." },
+              { n: 4, title: 'Play and record your first match', desc: 'After your game, go to the Record tab and submit the result. All other players at the table get notified to confirm. Once the majority confirm, your Elo updates automatically.' },
             ].map(s => (
               <div key={s.n} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 14 }}>
                 <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a2744', color: '#f4f4f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{s.n}</div>
@@ -136,12 +136,38 @@ export default function HowItWorks() {
               </div>
             ))}
           </div>
+
+          {/* Match confirmation explainer */}
+          <div style={{ background: '#eef1f8', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, marginBottom: 24 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 10 }}>How match confirmation works</div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {[
+                { step: '1', label: 'Winner submits result', desc: 'Any player can record the match result from the Record tab.' },
+                { step: '2', label: 'Opponents get notified', desc: 'All other players at the table receive an email and in-app notification.' },
+                { step: '3', label: 'Majority must confirm', desc: 'In a 4-player game, 2 of 3 opponents must confirm. In a 2-player game, the 1 opponent must confirm.' },
+                { step: '4', label: 'Elo updates', desc: 'Once majority confirms, ratings update automatically and the match is locked in.' },
+                { step: '!', label: 'Auto-accept after 48 hours', desc: "If nobody disputes within 48 hours the result is automatically accepted — no matches get stuck forever." },
+              ].map(s => (
+                <div key={s.step} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: s.step === '!' ? '#9f1239' : '#1a2744', color: s.step === '!' ? 'white' : '#f4f4f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, fontFamily: 'sans-serif' }}>{s.step}</div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a2744', fontFamily: 'sans-serif' }}>{s.label}</div>
+                    <div style={{ fontSize: 11, color: '#666', fontFamily: 'sans-serif', lineHeight: 1.5 }}>{s.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden' }}>
             {[
               { q: 'Is this league free to join?', a: 'Yes — completely free. No membership fees or registration costs.' },
               { q: 'Do I need to be an experienced player?', a: 'Not at all. All skill levels welcome. New players start at 800 Elo in the Skilled tier.' },
               { q: 'Can I play in more than one club?', a: 'Yes — your Elo is tied to your account, not your club. All results count toward the same rating.' },
               { q: 'What if my town has no players yet?', a: "That means you'd be the first — a great opportunity to put your town on the map." },
+              { q: 'How many confirmations does a match need?', a: 'In a standard 4-player game, 2 of the 3 other players must confirm. In a 2-player game, the 1 opponent must confirm. Confirmations are tracked with dot indicators in the app.' },
+              { q: 'What happens if someone never confirms?', a: 'After 48 hours the result is automatically accepted. This prevents matches from being stuck forever due to one unresponsive player.' },
+              { q: 'What if a match result is wrong?', a: 'Hit the Dispute button instead of Confirm. The match gets flagged and the league admin reviews it. Never just ignore a wrong result — always dispute it.' },
             ].map(f => <Faq key={f.q} {...f} />)}
           </div>
         </div>
@@ -189,6 +215,12 @@ export default function HowItWorks() {
               </div>
             </div>
           </div>
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 8 }}>How Elo works in a 4-player game</h3>
+            <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, fontFamily: 'sans-serif', fontSize: 12, color: '#555', lineHeight: 1.7 }}>
+              In a 4-player game, the winner's Elo change is calculated against the <strong style={{ color: '#1a2744' }}>average Elo of all three opponents</strong>. Each loser's change is calculated individually against the winner's Elo. This means beating a table of strong players earns you more than beating weaker ones.
+            </div>
+          </div>
           <div>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 8 }}>Season calendar</h3>
             <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif' }}>Seasons run May 1 – April 30. On May 1 each year ratings soft-reset — everyone moves 25% back toward 1,000. A Grand Master at 1,600 starts the new season at 1,450. Progress carries forward, competition stays fresh.</p>
@@ -229,10 +261,11 @@ export default function HowItWorks() {
           <p style={{ fontSize: 13, color: '#444', fontFamily: 'sans-serif', lineHeight: 1.7, marginBottom: 16 }}>Monmouth Made Mahjong is built on friendly competition and mutual respect. All members are expected to uphold the following standards.</p>
           <div style={{ display: 'grid', gap: 8, marginBottom: 20 }}>
             {[
-              { title: 'Confirm results honestly', desc: 'Verify match results accurately. Confirming a result you know to be incorrect is grounds for suspension.', warn: false },
+              { title: 'Confirm results honestly', desc: 'When you receive a match confirmation request, verify it accurately reflects what happened. Confirming a result you know to be incorrect is grounds for suspension.', warn: false },
+              { title: 'Always dispute — never ignore', desc: 'If a submitted match result is wrong, hit the Dispute button immediately. Do not simply ignore the notification — unconfirmed matches auto-accept after 48 hours.', warn: false },
               { title: 'Respect all players', desc: 'Treat every player with courtesy regardless of skill level, town, or club.', warn: false },
               { title: 'Play by the rules', desc: 'Follow standard NMJL rules. Disputes should be resolved calmly. If unresolved, contact the league admin.', warn: false },
-              { title: 'Record games promptly', desc: 'Submit match results within 24 hours. Leaving results unrecorded disrupts rankings.', warn: false },
+              { title: 'Record games promptly', desc: 'Submit match results within 24 hours of playing. Leaving results unrecorded disrupts rankings and is unfair to other players.', warn: false },
               { title: 'Violations & disputes', desc: 'Report suspected violations via the Contact tab. The admin reviews all reports and may issue warnings, point penalties, or suspensions.', warn: true },
             ].map(c => (
               <div key={c.title} style={{ background: 'white', borderLeft: `3px solid ${c.warn ? '#9f1239' : '#1a2744'}`, padding: '12px 14px', borderRadius: '0 8px 8px 0', border: '0.5px solid #c8cdd6', borderLeftWidth: 3, borderLeftColor: c.warn ? '#9f1239' : '#1a2744' }}>
@@ -242,7 +275,7 @@ export default function HowItWorks() {
             ))}
           </div>
           <div style={{ background: '#f4f4f2', borderRadius: 10, padding: '14px 16px', fontSize: 12, color: '#555', fontFamily: 'sans-serif', lineHeight: 1.6 }}>
-            <strong style={{ color: '#1a2744' }}>Match confirmation policy:</strong> Every result requires confirmation from at least one opponent. Confirmations must be completed within 48 hours — after that the result is automatically accepted.
+            <strong style={{ color: '#1a2744' }}>Match confirmation policy:</strong> In a 4-player game, 2 of 3 opponents must confirm before Elo updates. In a 2-player game, the 1 opponent must confirm. All results auto-accept after 48 hours if not disputed. Use the Dispute button if a result is incorrect — do not simply ignore it.
           </div>
         </div>
       )}
