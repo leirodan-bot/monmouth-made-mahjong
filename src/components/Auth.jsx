@@ -69,7 +69,7 @@ export default function Auth() {
           {mode === 'signin' ? 'Sign in to your account' : 'Create your account'}
         </h2>
         <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginBottom: 20 }}>
-          {mode === 'signin' ? 'Welcome back to Monmouth Made Mahjong' : 'Join the Monmouth County Mahjong League'}
+          {mode === 'signin' ? 'Welcome back to Monmouth Made Mah Jongg' : 'Join the Monmouth County Mah Jongg League'}
         </p>
 
         {message && (

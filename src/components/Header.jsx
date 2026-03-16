@@ -21,7 +21,7 @@ const Logo = () => (
       <textPath xlinkHref="#topArc" startOffset="50%" textAnchor="middle">MONMOUTH MADE</textPath>
     </text>
     <text fontFamily="Georgia,serif" fontWeight="700" fill="white" fontSize="13.5">
-      <textPath xlinkHref="#botArc" startOffset="50%" textAnchor="middle">MAHJONG</textPath>
+      <textPath xlinkHref="#botArc" startOffset="50%" textAnchor="middle">MAH JONGG</textPath>
     </text>
     <rect x="127" y="14" width="6" height="6" fill="white" transform="rotate(45 130 17)" opacity="0.5"/>
     <rect x="127" y="241" width="6" height="6" fill="white" transform="rotate(45 130 244)" opacity="0.5"/>
@@ -55,7 +55,7 @@ export default function Header({ session, player, tab, setTab }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <Logo />
             <div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#ffffff', fontFamily: 'Playfair Display, serif' }}>Monmouth Made Mahjong</div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#ffffff', fontFamily: 'Playfair Display, serif' }}>Monmouth Made Mah Jongg</div>
               <div style={{ fontSize: 11, color: '#a0b0c8', fontFamily: 'sans-serif', letterSpacing: '1.5px', marginTop: 3 }}>COUNTY LEAGUE · SEASON 1 · 2025–2026</div>
             </div>
           </div>

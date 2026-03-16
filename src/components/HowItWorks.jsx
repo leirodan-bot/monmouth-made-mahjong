@@ -101,7 +101,7 @@ export default function HowItWorks() {
     <div>
       <div style={{ marginBottom: 16 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>Member Guide</h2>
-        <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Everything you need to know about Monmouth Made Mahjong</p>
+        <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Everything you need to know about Monmouth Made Mah Jongg</p>
       </div>
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
@@ -230,12 +230,12 @@ export default function HowItWorks() {
 
       {tab === 'nmjl' && (
         <div>
-          <p style={{ fontSize: 13, color: '#444', fontFamily: 'sans-serif', lineHeight: 1.7, marginBottom: 16 }}>American Mahjong follows rules set by the National Mah Jongg League (NMJL), founded in 1937. It differs significantly from Chinese and Japanese mahjong.</p>
+          <p style={{ fontSize: 13, color: '#444', fontFamily: 'sans-serif', lineHeight: 1.7, marginBottom: 16 }}>American Mah Jongg follows rules set by the National Mah Jongg League (NMJL), founded in 1937. It differs significantly from Chinese and Japanese mah jongg.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
               { title: 'The Card', desc: 'Each year NMJL publishes a new card listing the only winning hands allowed. You must build one of these exact combinations to win.' },
               { title: '4 Players', desc: 'Always played with exactly 4 players. Each starts with 13 tiles, draws one per turn, discards one. First to complete a valid hand wins.' },
-              { title: 'Jokers', desc: 'American mahjong uses 8 joker tiles. Jokers substitute for any tile in a set of 3 or more — but never in a pair.' },
+              { title: 'Jokers', desc: 'American Mah Jongg uses 8 joker tiles. Jokers substitute for any tile in a set of 3 or more — but never in a pair.' },
               { title: 'Calling tiles', desc: 'You can call any discarded tile to complete your hand — not just the most recent discard.' },
               { title: 'Scoring', desc: 'This league tracks wins and Elo. Winning a hand pays 25¢ per player — monetary scoring stays between players.' },
               { title: 'Where to learn', desc: 'Best free resource: mahjonged.com. The NMJL sells instructional materials at nationalmahjonggleague.org.' },
@@ -248,8 +248,8 @@ export default function HowItWorks() {
           </div>
           <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden' }}>
             {[
-              { q: 'vs Chinese Mahjong', a: 'Chinese mahjong has no jokers and no annual card. American mahjong is more structured — you must match the card exactly.' },
-              { q: 'vs Japanese Riichi', a: 'Riichi is highly strategic with complex point scoring. American mahjong is simpler to score but requires memorizing the annual card.' },
+              { q: 'vs Chinese Mah Jongg', a: 'Chinese mah jongg has no jokers and no annual card. American Mah Jongg is more structured — you must match the card exactly.' },
+              { q: 'vs Japanese Riichi', a: 'Riichi is highly strategic with complex point scoring. American Mah Jongg is simpler to score but requires memorizing the annual card.' },
               { q: "I've never played — how long to learn?", a: 'Most new players can play a full game within 2–3 sessions. All clubs welcome beginners — just show up.' },
             ].map(f => <Faq key={f.q} {...f} />)}
           </div>
@@ -258,7 +258,7 @@ export default function HowItWorks() {
 
       {tab === 'conduct' && (
         <div>
-          <p style={{ fontSize: 13, color: '#444', fontFamily: 'sans-serif', lineHeight: 1.7, marginBottom: 16 }}>Monmouth Made Mahjong is built on friendly competition and mutual respect. All members are expected to uphold the following standards.</p>
+          <p style={{ fontSize: 13, color: '#444', fontFamily: 'sans-serif', lineHeight: 1.7, marginBottom: 16 }}>Monmouth Made Mah Jongg is built on friendly competition and mutual respect. All members are expected to uphold the following standards.</p>
           <div style={{ display: 'grid', gap: 8, marginBottom: 20 }}>
             {[
               { title: 'Confirm results honestly', desc: 'When you receive a match confirmation request, verify it accurately reflects what happened. Confirming a result you know to be incorrect is grounds for suspension.', warn: false },

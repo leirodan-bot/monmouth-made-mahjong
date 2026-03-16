@@ -236,7 +236,7 @@ export default function Clubs({ session, player }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>Clubs</h2>
-          <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Active mahjong clubs in Monmouth County</p>
+          <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Active mah jongg clubs in Monmouth County</p>
         </div>
         {isLeagueAdmin() && (
           <button onClick={() => { setShowForm(!showForm); setEditingClub(null); setName(''); setLocation(''); setMeetDay('') }} style={{ background: '#1a2744', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>

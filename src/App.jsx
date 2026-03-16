@@ -76,7 +76,7 @@ function App() {
         )}
       </main>
       <footer style={{ textAlign: 'center', padding: '24px 16px', fontSize: 11, fontFamily: 'sans-serif', color: '#888', borderTop: '0.5px solid #c8cdd6', marginTop: 40 }}>
-        Monmouth Made Mahjong · Season 1 · 2025–2026 ·{' '}
+        Monmouth Made Mah Jongg · Season 1 · 2025–2026 ·{' '}
         <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setTab('howitworks')}>How It Works</span>
       </footer>
     </div>

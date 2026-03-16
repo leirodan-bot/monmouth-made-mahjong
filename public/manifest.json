@@ -1,7 +1,7 @@
 {
-  "name": "Monmouth Made Mahjong",
-  "short_name": "M3 Mahjong",
-  "description": "The official Monmouth County Mahjong League",
+  "name": "Monmouth Made Mah Jongg",
+  "short_name": "M3 Mah Jongg",
+  "description": "The official Monmouth County Mah Jongg League",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a2744",
