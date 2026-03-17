@@ -50,6 +50,16 @@ export default function Players({ session, player }) {
     canvas.height = h
     const ctx = canvas.getContext('2d')
 
+    // Load logo
+    const logo = new Image()
+    const logoModule = await import('../assets/logo-header.png')
+    logo.src = logoModule.default
+
+    await new Promise((resolve) => {
+      logo.onload = resolve
+      logo.onerror = resolve // continue even if logo fails
+    })
+
     // Background
     ctx.fillStyle = '#1e2b65'
     ctx.fillRect(0, 0, w, h)
@@ -66,10 +76,17 @@ export default function Players({ session, player }) {
     ctx.roundRect(20, 20, w - 40, 70, [16, 16, 0, 0])
     ctx.fill()
 
-    // Title
-    ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 16px Georgia, serif'
-    ctx.fillText('MONMOUTH MADE MAH JONGG', 40, 60)
+    // Draw logo on header bar
+    if (logo.complete && logo.naturalWidth > 0) {
+      const logoH = 36
+      const logoW = (logo.naturalWidth / logo.naturalHeight) * logoH
+      ctx.drawImage(logo, 40, 37, logoW, logoH)
+    } else {
+      // Fallback text if logo fails to load
+      ctx.fillStyle = '#ffffff'
+      ctx.font = 'bold 16px Georgia, serif'
+      ctx.fillText('MONMOUTH MADE MAH JONGG', 40, 60)
+    }
 
     // Player name
     ctx.fillStyle = '#1e2b65'
