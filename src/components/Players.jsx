@@ -45,10 +45,13 @@ export default function Players({ session, player }) {
 
   async function generateShareCard(p, earnedBadges) {
     const canvas = document.createElement('canvas')
-    const w = 600, h = 400
-    canvas.width = w
-    canvas.height = h
+    const w = 600, h = 400, scale = 2
+    canvas.width = w * scale
+    canvas.height = h * scale
+    canvas.style.width = w + 'px'
+    canvas.style.height = h + 'px'
     const ctx = canvas.getContext('2d')
+    ctx.scale(scale, scale)
 
     // Load logo
     const logo = new Image()
