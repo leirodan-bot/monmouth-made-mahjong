@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
-import logoWhite from '../assets/logo-white.svg'
+import logoHeader from '../assets/logo-header.png'
 
 export default function Header({ session, player, tab, setTab }) {
   const [showMenu, setShowMenu] = useState(false)
@@ -11,15 +11,16 @@ export default function Header({ session, player, tab, setTab }) {
   }
 
   const tabs = session
-    ? ['rankings', 'towns', 'players', 'clubs', 'record']
-    : ['rankings', 'towns']
+    ? ['rankings', 'towns', 'players', 'clubs', 'record', 'howitworks']
+    : ['rankings', 'towns', 'howitworks']
 
   const tabLabels = {
     rankings: 'Rankings',
     towns: 'Towns',
     players: 'Players',
     clubs: 'Clubs',
-    record: 'Record'
+    record: 'Record',
+    howitworks: 'How It Works'
   }
 
   return (
@@ -27,7 +28,7 @@ export default function Header({ session, player, tab, setTab }) {
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '16px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <img src={logoWhite} alt="Monmouth Made Mah Jongg" style={{ height: 38 }} />
+            <img src={logoHeader} alt="Monmouth Made Mah Jongg" style={{ height: 40 }} />
             <div style={{ fontSize: 11, color: '#a0b0c8', fontFamily: 'sans-serif', letterSpacing: '1.5px' }}>COUNTY LEAGUE · SEASON 1 · 2025–2026</div>
           </div>
           <div style={{ position: 'relative' }}>

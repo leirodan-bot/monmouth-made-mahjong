@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
+import { getKFactor, getTier, TIERS } from '../eloUtils'
 
-function RankBadge({ label, bg, color, range }) {
+function RankBadge({ name, bg, textColor, range }) {
   return (
     <div style={{ background: bg, borderRadius: 8, padding: '12px 8px', textAlign: 'center' }}>
-      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: 'sans-serif', color, marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 10, fontFamily: 'sans-serif', color, opacity: 0.8 }}>{range}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: 'sans-serif', color: textColor, marginBottom: 2 }}>{name}</div>
+      <div style={{ fontSize: 10, fontFamily: 'sans-serif', color: textColor, opacity: 0.8 }}>{range}</div>
     </div>
   )
 }
@@ -80,19 +81,22 @@ function ContactForm() {
 
 export default function HowItWorks() {
   const [tab, setTab] = useState('start')
-  const [myElo, setMyElo] = useState(1200)
-  const [oppElo, setOppElo] = useState(1200)
+  const [myElo, setMyElo] = useState(800)
+  const [oppElo, setOppElo] = useState(800)
+  const [myGames, setMyGames] = useState(0)
 
-  const K = 32
-  const expected = 1 / (1 + Math.pow(10, (oppElo - myElo) / 400))
-  const winGain = Math.round(K * (1 - expected))
-  const lossLoss = Math.round(K * expected)
+  // Tenhou formula from spec
+  const D = 40
+  const k = getKFactor(myGames)
+  const gapAdj = (oppElo - myElo) / D
+  const winGain = Math.round(k * (30 + gapAdj) * 10) / 10
+  const lossLoss = Math.round(Math.abs(k * (-10 + gapAdj)) * 10) / 10
   const gap = oppElo - myElo
   let ctx = 'Evenly matched'
-  if (gap > 200) ctx = 'You are the underdog — big upside if you win'
-  else if (gap > 100) ctx = 'Opponent is stronger — good chance to gain big'
-  else if (gap < -200) ctx = 'You are the heavy favorite — less to gain'
-  else if (gap < -100) ctx = 'You are favored — moderate gain if you win'
+  if (gap > 150) ctx = 'You are the underdog — big upside if you win'
+  else if (gap > 75) ctx = 'Opponent is stronger — good chance to gain big'
+  else if (gap < -150) ctx = 'You are the heavy favorite — less to gain'
+  else if (gap < -75) ctx = 'You are favored — moderate gain if you win'
 
   const tabs = ['start', 'elo', 'nmjl', 'conduct', 'hof', 'contact']
   const tabLabels = { start: 'Get Started', elo: 'Elo & Ranks', nmjl: 'NMJL Guide', conduct: 'Code of Conduct', hof: 'Hall of Fame', contact: 'Contact' }
@@ -125,7 +129,7 @@ export default function HowItWorks() {
               { n: 1, title: 'Create your account', desc: 'Sign up with email or Google. Verify your email to activate your account.' },
               { n: 2, title: 'Set your town', desc: "Tell us which Monmouth County town you represent. Admin will verify — your town can't be changed after verification." },
               { n: 3, title: 'Join a club', desc: "Browse the Clubs tab to find a group near you. Click into a club and hit Request to Join — the organizer will approve you. No club nearby? Contact us and we'll help you start one." },
-              { n: 4, title: 'Play and record your first match', desc: 'After your game, go to the Record tab and submit the result. All other players at the table get notified to confirm. Once the majority confirm, your Elo updates automatically.' },
+              { n: 4, title: 'Play and record your first game', desc: 'After your game, go to the Record tab and submit the result. Select all players at the table, pick the winner (or mark it as a wall game), and submit. One other player must confirm before Elo updates.' },
             ].map(s => (
               <div key={s.n} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 14 }}>
                 <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1e2b65', color: '#f4f4f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{s.n}</div>
@@ -139,14 +143,14 @@ export default function HowItWorks() {
 
           {/* Match confirmation explainer */}
           <div style={{ background: '#eef1f8', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, marginBottom: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginBottom: 10 }}>How match confirmation works</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginBottom: 10 }}>How game verification works</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {[
-                { step: '1', label: 'Winner submits result', desc: 'Any player can record the match result from the Record tab.' },
-                { step: '2', label: 'Opponents get notified', desc: 'All other players at the table receive an email and in-app notification.' },
-                { step: '3', label: 'Majority must confirm', desc: 'In a 4-player game, 2 of 3 opponents must confirm. In a 2-player game, the 1 opponent must confirm.' },
-                { step: '4', label: 'Elo updates', desc: 'Once majority confirms, ratings update automatically and the match is locked in.' },
-                { step: '!', label: 'Auto-accept after 48 hours', desc: "If nobody disputes within 48 hours the result is automatically accepted — no matches get stuck forever." },
+                { step: '1', label: 'Any player submits the result', desc: 'Go to the Record tab, select all players at the table, pick the winner or mark as wall game.' },
+                { step: '2', label: 'Other players get notified', desc: 'All other players at the table receive a notification to confirm or dispute.' },
+                { step: '3', label: '1 player confirms', desc: 'Just one other player needs to confirm the result for Elo to update.' },
+                { step: '4', label: 'Elo updates automatically', desc: 'Once confirmed, ratings update instantly using the Tenhou-based formula.' },
+                { step: '!', label: 'Auto-verified after 48 hours', desc: "If nobody disputes within 48 hours, the result is automatically accepted." },
               ].map(s => (
                 <div key={s.step} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <div style={{ width: 24, height: 24, borderRadius: '50%', background: s.step === '!' ? '#9f1239' : '#1e2b65', color: s.step === '!' ? 'white' : '#f4f4f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, fontFamily: 'sans-serif' }}>{s.step}</div>
@@ -162,12 +166,13 @@ export default function HowItWorks() {
           <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden' }}>
             {[
               { q: 'Is this league free to join?', a: 'Yes — completely free. No membership fees or registration costs.' },
-              { q: 'Do I need to be an experienced player?', a: 'Not at all. All skill levels welcome. New players start at 800 Elo in the Skilled tier.' },
+              { q: 'Do I need to be an experienced player?', a: 'Not at all. All skill levels welcome. New players start at 800 Elo in the Beginner tier.' },
               { q: 'Can I play in more than one club?', a: 'Yes — your Elo is tied to your account, not your club. All results count toward the same rating.' },
               { q: 'What if my town has no players yet?', a: "That means you'd be the first — a great opportunity to put your town on the map." },
-              { q: 'How many confirmations does a match need?', a: 'In a standard 4-player game, 2 of the 3 other players must confirm. In a 2-player game, the 1 opponent must confirm. Confirmations are tracked with dot indicators in the app.' },
-              { q: 'What happens if someone never confirms?', a: 'After 48 hours the result is automatically accepted. This prevents matches from being stuck forever due to one unresponsive player.' },
-              { q: 'What if a match result is wrong?', a: 'Hit the Dispute button instead of Confirm. The match gets flagged and the league admin reviews it. Never just ignore a wrong result — always dispute it.' },
+              { q: 'How many confirmations does a game need?', a: 'Just 1 other player at the table needs to confirm. If nobody disputes within 48 hours, the result is auto-verified.' },
+              { q: 'What if a game result is wrong?', a: 'Hit the Dispute button instead of Confirm. The game gets flagged and the league admin reviews it. Never just ignore a wrong result — always dispute it.' },
+              { q: 'What is a wall game?', a: 'When the wall runs out of tiles and nobody wins. Wall games count toward your games played (affecting your K-factor) but no ratings change.' },
+              { q: 'When do I appear on the leaderboard?', a: 'After 5 verified games. Until then you\'re listed as "Provisional" with a ? next to your rating.' },
             ].map(f => <Faq key={f.q} {...f} />)}
           </div>
         </div>
@@ -177,33 +182,81 @@ export default function HowItWorks() {
         <div>
           <div style={{ marginBottom: 20 }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 10 }}>Rank tiers</h3>
-            <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', marginBottom: 12 }}>All players start at 800 Elo — right in the Skilled tier.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 8 }}>
-              <RankBadge label="Novice" bg="#e5e7eb" color="#374151" range="0–699" />
-              <RankBadge label="Skilled" bg="#d1fae5" color="#065f46" range="700–999" />
-              <RankBadge label="Expert" bg="#dbeafe" color="#1e40af" range="1,000–1,299" />
-              <RankBadge label="Master" bg="#9f1239" color="white" range="1,300–1,599" />
-              <RankBadge label="Grand Master" bg="#1e2b65" color="#f0c040" range="1,600+" />
+            <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', marginBottom: 12 }}>All players start at 800 Elo — in the Beginner tier. Rating floor is 500 (you can never drop below).</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6 }}>
+              {TIERS.map(t => (
+                <RankBadge key={t.name} name={t.name} bg={t.bg} textColor={t.textColor}
+                  range={t.max === 99999 ? `${t.min}+` : `${t.min}–${t.max}`} />
+              ))}
             </div>
           </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>How the Elo formula works</h3>
+            <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, fontFamily: 'sans-serif', fontSize: 12, color: '#555', lineHeight: 1.7 }}>
+              <p style={{ marginBottom: 10 }}>Our system is based on <strong style={{ color: '#1e2b65' }}>Tenhou.net's battle-tested 4-player Elo</strong>, adapted for American Mah Jongg.</p>
+              <p style={{ marginBottom: 10 }}><strong style={{ color: '#1e2b65' }}>Rating Change = K × (Placement Base + Rating Gap Adjustment)</strong></p>
+              <p style={{ marginBottom: 10 }}>The winner gets a placement base of <strong>+30</strong>. Each loser gets <strong>-10</strong>. This is zero-sum: +30 - 10 - 10 - 10 = 0.</p>
+              <p style={{ marginBottom: 10 }}>The <strong>rating gap adjustment</strong> compares the average opponent rating to yours, divided by 40. Beat stronger opponents, earn more. Lose to weaker ones, lose more.</p>
+              <p style={{ marginBottom: 0 }}>The <strong>K-factor</strong> starts high (~1.0) so new players find their level fast, then decays to 0.2 after 80 games for stability.</p>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>K-Factor decay</h3>
+            <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, fontFamily: 'sans-serif' }}>
+                <thead>
+                  <tr style={{ background: '#1e2b65' }}>
+                    {['Games Played', 'K-Factor', 'Max Win Gain', 'Max Loss'].map(h => (
+                      <th key={h} style={{ padding: '8px 12px', color: '#ffffff', fontSize: 11, fontWeight: 700, textAlign: 'center' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { games: '1', k: '1.00', win: '+30.0', loss: '-10.0' },
+                    { games: '10', k: '0.90', win: '+27.0', loss: '-9.0' },
+                    { games: '20', k: '0.80', win: '+24.0', loss: '-8.0' },
+                    { games: '40', k: '0.60', win: '+18.0', loss: '-6.0' },
+                    { games: '60', k: '0.40', win: '+12.0', loss: '-4.0' },
+                    { games: '80+', k: '0.20', win: '+6.0', loss: '-2.0' },
+                  ].map((r, i) => (
+                    <tr key={r.games} style={{ borderBottom: '0.5px solid #e8e8e4', background: i % 2 ? '#f9f9f7' : 'white' }}>
+                      <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 600 }}>{r.games}</td>
+                      <td style={{ padding: '8px 12px', textAlign: 'center', color: '#1e2b65', fontWeight: 700 }}>{r.k}</td>
+                      <td style={{ padding: '8px 12px', textAlign: 'center', color: '#16a34a' }}>{r.win}</td>
+                      <td style={{ padding: '8px 12px', textAlign: 'center', color: '#dc2626' }}>{r.loss}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div style={{ marginBottom: 20 }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>Elo calculator</h3>
-            <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', marginBottom: 12 }}>Drag the sliders to see exactly how points change hands.</p>
+            <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', marginBottom: 12 }}>Drag the sliders to see exactly how your rating would change.</p>
             <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 20 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 2 }}>Your Elo</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{myElo.toLocaleString()}</div>
-                  <input type="range" min="500" max="1800" value={myElo} onChange={e => setMyElo(parseInt(e.target.value))} style={{ width: '100%' }} />
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{myElo}</div>
+                  <input type="range" min="500" max="1400" value={myElo} onChange={e => setMyElo(parseInt(e.target.value))} style={{ width: '100%' }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 2 }}>Opponent's Elo</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{oppElo.toLocaleString()}</div>
-                  <input type="range" min="500" max="1800" value={oppElo} onChange={e => setOppElo(parseInt(e.target.value))} style={{ width: '100%' }} />
+                  <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 2 }}>Avg Opponent Elo</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{oppElo}</div>
+                  <input type="range" min="500" max="1400" value={oppElo} onChange={e => setOppElo(parseInt(e.target.value))} style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 2 }}>Your Games Played</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{myGames} <span style={{ fontSize: 11, fontWeight: 400, color: '#888' }}>K={k.toFixed(2)}</span></div>
+                  <input type="range" min="0" max="100" value={myGames} onChange={e => setMyGames(parseInt(e.target.value))} style={{ width: '100%' }} />
                 </div>
               </div>
               <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 12 }}>{ctx}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                 <div style={{ background: '#d1fae5', borderRadius: 8, padding: 12, textAlign: 'center' }}>
                   <div style={{ fontSize: 11, fontFamily: 'sans-serif', fontWeight: 600, color: '#065f46', marginBottom: 3 }}>If you WIN</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: '#065f46' }}>+{winGain}</div>
@@ -212,18 +265,33 @@ export default function HowItWorks() {
                   <div style={{ fontSize: 11, fontFamily: 'sans-serif', fontWeight: 600, color: '#991b1b', marginBottom: 3 }}>If you LOSE</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: '#991b1b' }}>−{lossLoss}</div>
                 </div>
+                <div style={{ background: '#f4f4f2', borderRadius: 8, padding: 12, textAlign: 'center' }}>
+                  <div style={{ fontSize: 11, fontFamily: 'sans-serif', fontWeight: 600, color: '#555', marginBottom: 3 }}>WALL GAME</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: '#555' }}>0</div>
+                </div>
               </div>
             </div>
           </div>
+
           <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>How Elo works in a 4-player game</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>Wall games</h3>
             <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, fontFamily: 'sans-serif', fontSize: 12, color: '#555', lineHeight: 1.7 }}>
-              In a 4-player game, the winner's Elo change is calculated against the <strong style={{ color: '#1e2b65' }}>average Elo of all three opponents</strong>. Each loser's change is calculated individually against the winner's Elo. This means beating a table of strong players earns you more than beating weaker ones.
+              When a game ends with no winner, <strong style={{ color: '#1e2b65' }}>no ratings change</strong>. Wall games still count toward your games played (which affects your K-factor decay). This keeps it simple: win = go up, lose = go down, nobody wins = nothing changes.
             </div>
           </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>Provisional period</h3>
+            <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, fontFamily: 'sans-serif', fontSize: 12, color: '#555', lineHeight: 1.7 }}>
+              Players appear on the leaderboard after <strong style={{ color: '#1e2b65' }}>5 verified games</strong>. Before that, your rating shows with a "?" (e.g., "823?") and you're listed in the Provisional section. This prevents a player with 1 lucky win from sitting at #1.
+            </div>
+          </div>
+
           <div>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>Season calendar</h3>
-            <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif' }}>Seasons run May 1 – April 30. On May 1 each year ratings soft-reset — everyone moves 25% back toward 1,000. A Grand Master at 1,600 starts the new season at 1,450. Progress carries forward, competition stays fresh.</p>
+            <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, fontFamily: 'sans-serif', fontSize: 12, color: '#555', lineHeight: 1.7 }}>
+              Seasons run <strong style={{ color: '#1e2b65' }}>May 1 – April 30</strong> (aligned with the NMJL card year). At the start of each new season, ratings undergo a <strong style={{ color: '#1e2b65' }}>soft reset</strong>: New Rating = 800 + 0.6 × (Old Rating - 800). A player at 1000 starts the new season at 920. A player at 700 starts at 740. Your all-time career stats are preserved permanently. There is no rating decay for inactivity — take a break without penalty.
+            </div>
           </div>
         </div>
       )}
@@ -261,11 +329,11 @@ export default function HowItWorks() {
           <p style={{ fontSize: 13, color: '#444', fontFamily: 'sans-serif', lineHeight: 1.7, marginBottom: 16 }}>Monmouth Made Mah Jongg is built on friendly competition and mutual respect. All members are expected to uphold the following standards.</p>
           <div style={{ display: 'grid', gap: 8, marginBottom: 20 }}>
             {[
-              { title: 'Confirm results honestly', desc: 'When you receive a match confirmation request, verify it accurately reflects what happened. Confirming a result you know to be incorrect is grounds for suspension.', warn: false },
-              { title: 'Always dispute — never ignore', desc: 'If a submitted match result is wrong, hit the Dispute button immediately. Do not simply ignore the notification — unconfirmed matches auto-accept after 48 hours.', warn: false },
+              { title: 'Confirm results honestly', desc: 'When you receive a confirmation request, verify it accurately reflects what happened. Confirming a result you know to be incorrect is grounds for suspension.', warn: false },
+              { title: 'Always dispute — never ignore', desc: 'If a submitted result is wrong, hit the Dispute button immediately. Unverified games auto-accept after 48 hours.', warn: false },
               { title: 'Respect all players', desc: 'Treat every player with courtesy regardless of skill level, town, or club.', warn: false },
               { title: 'Play by the rules', desc: 'Follow standard NMJL rules. Disputes should be resolved calmly. If unresolved, contact the league admin.', warn: false },
-              { title: 'Record games promptly', desc: 'Submit match results within 24 hours of playing. Leaving results unrecorded disrupts rankings and is unfair to other players.', warn: false },
+              { title: 'Record games promptly', desc: 'Submit results within 24 hours of playing. Leaving results unrecorded disrupts rankings and is unfair to other players.', warn: false },
               { title: 'Violations & disputes', desc: 'Report suspected violations via the Contact tab. The admin reviews all reports and may issue warnings, point penalties, or suspensions.', warn: true },
             ].map(c => (
               <div key={c.title} style={{ background: 'white', borderLeft: `3px solid ${c.warn ? '#9f1239' : '#1e2b65'}`, padding: '12px 14px', borderRadius: '0 8px 8px 0', border: '0.5px solid #c8cdd6', borderLeftWidth: 3, borderLeftColor: c.warn ? '#9f1239' : '#1e2b65' }}>
@@ -275,7 +343,7 @@ export default function HowItWorks() {
             ))}
           </div>
           <div style={{ background: '#f4f4f2', borderRadius: 10, padding: '14px 16px', fontSize: 12, color: '#555', fontFamily: 'sans-serif', lineHeight: 1.6 }}>
-            <strong style={{ color: '#1e2b65' }}>Match confirmation policy:</strong> In a 4-player game, 2 of 3 opponents must confirm before Elo updates. In a 2-player game, the 1 opponent must confirm. All results auto-accept after 48 hours if not disputed. Use the Dispute button if a result is incorrect — do not simply ignore it.
+            <strong style={{ color: '#1e2b65' }}>Verification policy:</strong> 1 other player must confirm before Elo updates. All results auto-accept after 48 hours if not disputed. Use the Dispute button if a result is incorrect — do not simply ignore it.
           </div>
         </div>
       )}

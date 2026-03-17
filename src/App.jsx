@@ -8,7 +8,7 @@ import Players from './components/Players'
 import Clubs from './components/Clubs'
 import RecordMatch from './components/RecordMatch'
 import HowItWorks from './components/HowItWorks'
-import logoLoading from './assets/logo-white.svg'
+import logoLoading from './assets/logo-header.png'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -45,7 +45,7 @@ function App() {
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#1e2b65' }}>
       <div style={{ textAlign: 'center', color: '#f4f4f2' }}>
-        <img src={logoLoading} alt="Monmouth Made Mah Jongg" style={{ height: 44, opacity: 0.9 }} />
+        <img src={logoLoading} alt="Monmouth Made Mah Jongg" style={{ height: 48 }} />
         <div style={{ marginTop: 16, fontSize: 14, fontFamily: 'sans-serif', opacity: 0.7 }}>Loading...</div>
       </div>
     </div>
@@ -66,8 +66,7 @@ function App() {
         )}
       </main>
       <footer style={{ textAlign: 'center', padding: '24px 16px', fontSize: 11, fontFamily: 'sans-serif', color: '#888', borderTop: '0.5px solid #c8cdd6', marginTop: 40 }}>
-        Monmouth Made Mah Jongg · Season 1 · 2025–2026 ·{' '}
-        <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setTab('howitworks')}>How It Works</span>
+        Monmouth Made Mah Jongg · Season 1 · 2025–2026
       </footer>
     </div>
   )
