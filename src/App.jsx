@@ -53,7 +53,7 @@ function App() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f4f4f2' }}>
+    <div className="floral-bg" style={{ minHeight: '100vh' }}>
       <Header session={session} player={player} tab={tab} setTab={setTab} />
       <main style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px' }}>
         {tab === 'rankings' && <Rankings session={session} player={player} />}

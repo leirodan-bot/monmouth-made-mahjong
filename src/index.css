@@ -10,6 +10,28 @@ body {
   color: #1e2b65;
 }
 
+.floral-bg {
+  position: relative;
+  background-color: #f4f4f2;
+  background-image: url('/bg-floral.jpg');
+  background-repeat: repeat;
+  background-size: 400px auto;
+}
+
+.floral-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(244, 244, 242, 0.82);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.floral-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
 h1, h2, h3, h4 {
   font-family: Playfair Display, serif;
 }
