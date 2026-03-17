@@ -75,7 +75,11 @@ export default function RecordMatch({ session, player }) {
       played_at: new Date().toISOString()
     }
 
-    const { error: matchError } = await supabase.from('matches').insert(matchRecord)
+    const { data: matchData, error: matchError } = await supabase
+      .from('matches')
+      .insert(matchRecord)
+      .select()
+      .single()
 
     if (matchError) {
       setError('Something went wrong. Please try again.')
@@ -89,7 +93,9 @@ export default function RecordMatch({ session, player }) {
     for (const pid of otherPlayers) {
       await supabase.from('notifications').insert({
         player_id: pid,
+        match_id: matchData.id,
         type: 'confirm_match',
+        read: false,
         message: isWallGame
           ? `${submitterName} recorded a wall game. Please confirm.`
           : `${submitterName} recorded a game where ${players.find(p => p.id === winner)?.name} won. Please confirm or dispute.`

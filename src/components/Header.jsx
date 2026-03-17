@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
 import logoHeader from '../assets/logo-header.png'
+import NotificationBell from './NotificationBell'
 
 export default function Header({ session, player, tab, setTab }) {
   const [showMenu, setShowMenu] = useState(false)
@@ -35,7 +36,8 @@ export default function Header({ session, player, tab, setTab }) {
           </div>
           <div style={{ position: 'relative' }}>
             {session ? (
-              <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <NotificationBell player={player} onNavigate={setTab} />
                 <button
                   onClick={() => setShowMenu(!showMenu)}
                   style={{ background: 'rgba(255,255,255,0.1)', border: '0.5px solid rgba(255,255,255,0.2)', borderRadius: 8, padding: '8px 14px', color: '#ffffff', fontSize: 12, fontFamily: 'sans-serif' }}
