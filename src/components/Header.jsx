@@ -29,8 +29,8 @@ export default function Header({ session, player, tab, setTab }) {
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '16px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ height: 36, overflow: 'hidden', borderRadius: 6 }}>
-              <img src={logoHeader} alt="Monmouth Made Mah Jongg" style={{ height: 36, display: 'block' }} />
+            <div style={{ height: 44, overflow: 'hidden', borderRadius: 6 }}>
+              <img src={logoHeader} alt="Monmouth Made Mah Jongg" style={{ height: 44, display: 'block' }} />
             </div>
             <div style={{ fontSize: 11, color: '#a0b0c8', fontFamily: 'sans-serif', letterSpacing: '1.5px' }}>COUNTY LEAGUE · SEASON 1 · 2025–2026</div>
           </div>
