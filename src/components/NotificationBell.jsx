@@ -127,14 +127,20 @@ export default function NotificationBell({ player, onNavigate }) {
       }
 
       // === Check badges for all players in the match ===
-      // Determine first 50 players by join date for Pioneer badge
       const sortedByJoin = [...allPlayersList].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
       const first50Ids = sortedByJoin.slice(0, 50).map(p => p.id)
+      const launchDate = new Date('2025-05-01')
+      const oneMonthAfter = new Date('2025-06-01')
+      const threeMonthsAfter = new Date('2025-08-01')
+
+      // Rank non-provisional players for ranking badges
+      const rankedPlayers = allPlayersList
+        .filter(p => (p.games_played || 0) >= 5)
+        .sort((a, b) => (b.elo || 800) - (a.elo || 800))
 
       for (const update of eloUpdates) {
         const freshPlayer = allPlayersList.find(pl => pl.id === update.id)
         if (!freshPlayer) continue
-        // Build updated player data for badge check
         const isWinner = update.id === match.winner_id
         const isWall = match.is_wall_game
         const updatedP = {
@@ -147,8 +153,64 @@ export default function NotificationBell({ player, onNavigate }) {
           current_streak: isWall ? (freshPlayer.current_streak || 0) : isWinner ? (freshPlayer.current_streak || 0) + 1 : 0,
           best_streak: isWinner ? Math.max(freshPlayer.best_streak || 0, (freshPlayer.current_streak || 0) + 1) : (freshPlayer.best_streak || 0),
         }
-        const extra = { isFirst50: first50Ids.includes(update.id) }
-        // Get existing badges
+
+        // Legacy checks
+        const joinDate = new Date(freshPlayer.created_at)
+
+        // Rankings check
+        let rank = 999
+        if ((updatedP.games_played || 0) >= 5) {
+          const tempRanked = rankedPlayers.filter(rp => rp.id !== update.id)
+          tempRanked.push({ ...updatedP, id: update.id })
+          tempRanked.sort((a, b) => (b.elo || 800) - (a.elo || 800))
+          rank = tempRanked.findIndex(rp => rp.id === update.id) + 1
+        }
+
+        // Mahjong specials — check this match + history
+        let hasJokerlessWin = false
+        let hasConcealedWin = false
+        let hasNewCardWin = false
+        if (isWinner && !isWall) {
+          if (match.jokerless) hasJokerlessWin = true
+          if (match.exposures === 0) hasConcealedWin = true
+          const md = new Date(match.created_at || Date.now())
+          if (md.getMonth() >= 3 && md.getMonth() <= 4) hasNewCardWin = true
+        }
+        const { data: playerMatches } = await supabase.from('matches').select('jokerless, exposures, created_at, winner_id').contains('player_ids', [update.id]).eq('status', 'confirmed')
+        if (playerMatches) {
+          for (const m of playerMatches) {
+            if (m.winner_id === update.id) {
+              if (m.jokerless) hasJokerlessWin = true
+              if (m.exposures === 0) hasConcealedWin = true
+              const md2 = new Date(m.created_at)
+              if (md2.getMonth() >= 3 && md2.getMonth() <= 4) hasNewCardWin = true
+            }
+          }
+        }
+
+        // Games this week for Regular badge
+        const oneWeekAgo = new Date()
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+        const gamesThisWeek = playerMatches ? playerMatches.filter(m => new Date(m.created_at) >= oneWeekAgo).length + 1 : 1
+
+        const extra = {
+          isFirst50: first50Ids.includes(update.id),
+          joinedFirstMonth: joinDate <= oneMonthAfter,
+          joinedFirst3Months: joinDate <= threeMonthsAfter,
+          rank,
+          gamesThisWeek,
+          dedicatedWeeks: 0, // Enhanced later with deeper query
+          consecutiveWeeks: 0, // Enhanced later
+          uniqueClubs: 0, // Enhanced later
+          hasRival: false, // Enhanced later
+          welcomedNewbie: false, // Enhanced later
+          uniqueLocations: 0, // Enhanced later
+          homeGamesHosted: 0, // Enhanced later
+          hasJokerlessWin,
+          hasConcealedWin,
+          hasNewCardWin,
+        }
+
         const { data: existingBadges } = await supabase.from('player_badges').select('badge_id').eq('player_id', update.id)
         const oldBadgeIds = (existingBadges || []).map(b => b.badge_id)
         const newBadgeIds = checkBadges(updatedP, extra)

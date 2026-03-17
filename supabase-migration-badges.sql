@@ -18,6 +18,10 @@ CREATE INDEX IF NOT EXISTS idx_player_badges_player ON player_badges(player_id);
 -- Add best_streak to players if not exists
 ALTER TABLE players ADD COLUMN IF NOT EXISTS best_streak INT DEFAULT 0;
 
+-- Add jokerless and exposures to matches for Mahjong Special badges
+ALTER TABLE matches ADD COLUMN IF NOT EXISTS jokerless BOOLEAN DEFAULT false;
+ALTER TABLE matches ADD COLUMN IF NOT EXISTS exposures INTEGER;
+
 -- RLS policies
 ALTER TABLE player_badges ENABLE ROW LEVEL SECURITY;
 
