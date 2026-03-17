@@ -43,6 +43,146 @@ export default function Players({ session, player }) {
     fetchBadges(p.id)
   }
 
+  async function generateShareCard(p, earnedBadges) {
+    const canvas = document.createElement('canvas')
+    const w = 600, h = 400
+    canvas.width = w
+    canvas.height = h
+    const ctx = canvas.getContext('2d')
+
+    // Background
+    ctx.fillStyle = '#1e2b65'
+    ctx.fillRect(0, 0, w, h)
+
+    // Card area
+    ctx.fillStyle = '#ffffff'
+    ctx.beginPath()
+    ctx.roundRect(20, 20, w - 40, h - 40, 16)
+    ctx.fill()
+
+    // Header bar
+    ctx.fillStyle = '#1e2b65'
+    ctx.beginPath()
+    ctx.roundRect(20, 20, w - 40, 70, [16, 16, 0, 0])
+    ctx.fill()
+
+    // Title
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 16px Georgia, serif'
+    ctx.fillText('MONMOUTH MADE MAH JONGG', 40, 60)
+
+    // Player name
+    ctx.fillStyle = '#1e2b65'
+    ctx.font = 'bold 28px Georgia, serif'
+    ctx.fillText(p.name, 40, 130)
+
+    // Town
+    ctx.fillStyle = '#888888'
+    ctx.font = '14px sans-serif'
+    ctx.fillText(`${p.town || 'Monmouth County'} · Season 1`, 40, 155)
+
+    // Elo rating
+    ctx.fillStyle = '#9f1239'
+    ctx.font = 'bold 48px Georgia, serif'
+    ctx.textAlign = 'right'
+    ctx.fillText(String(p.elo || 800), w - 40, 135)
+
+    // Rank tier
+    const tier = getTier(p.elo || 800)
+    ctx.fillStyle = '#888888'
+    ctx.font = '13px sans-serif'
+    ctx.fillText(tier.name, w - 40, 158)
+    ctx.textAlign = 'left'
+
+    // Stats row
+    const stats = [
+      { label: 'WINS', value: String(p.wins || 0) },
+      { label: 'LOSSES', value: String(p.losses || 0) },
+      { label: 'GAMES', value: String(p.games_played || 0) },
+      { label: 'WIN %', value: (p.games_played || 0) > 0 ? `${Math.round(((p.wins || 0) / p.games_played) * 100)}%` : '—' },
+    ]
+    const statW = (w - 80) / 4
+    stats.forEach((s, i) => {
+      const x = 40 + i * statW
+      ctx.fillStyle = '#f4f4f2'
+      ctx.beginPath()
+      ctx.roundRect(x, 180, statW - 8, 60, 8)
+      ctx.fill()
+      ctx.fillStyle = '#888888'
+      ctx.font = '10px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText(s.label, x + (statW - 8) / 2, 200)
+      ctx.fillStyle = '#1e2b65'
+      ctx.font = 'bold 20px sans-serif'
+      ctx.fillText(s.value, x + (statW - 8) / 2, 228)
+    })
+    ctx.textAlign = 'left'
+
+    // Badges row
+    if (earnedBadges.length > 0) {
+      ctx.fillStyle = '#888888'
+      ctx.font = '11px sans-serif'
+      ctx.fillText(`AWARDS (${earnedBadges.length})`, 40, 272)
+
+      const badgesToShow = earnedBadges.slice(0, 8)
+      badgesToShow.forEach((b, i) => {
+        const x = 40 + i * 66
+        ctx.font = '22px sans-serif'
+        ctx.fillText(b.emoji || '🏆', x, 300)
+        ctx.fillStyle = '#1e2b65'
+        ctx.font = '9px sans-serif'
+        ctx.fillText(b.name || '', x, 316)
+        ctx.fillStyle = '#888888'
+      })
+      if (earnedBadges.length > 8) {
+        ctx.fillStyle = '#888888'
+        ctx.font = '11px sans-serif'
+        ctx.fillText(`+${earnedBadges.length - 8} more`, 40 + 8 * 66, 300)
+      }
+    }
+
+    // Footer
+    ctx.fillStyle = '#c8cdd6'
+    ctx.font = '10px sans-serif'
+    ctx.fillText('monmouthmademahjongg.com', 40, h - 36)
+
+    // Streak
+    if ((p.current_streak || 0) > 1) {
+      ctx.textAlign = 'right'
+      ctx.fillStyle = '#ea580c'
+      ctx.font = 'bold 12px sans-serif'
+      ctx.fillText(`🔥 ${p.current_streak} win streak`, w - 40, h - 36)
+      ctx.textAlign = 'left'
+    }
+
+    // Generate image
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], `${p.name.replace(/\s+/g, '-').toLowerCase()}-mmj.png`, { type: 'image/png' })
+
+      // Try Web Share API first (works on mobile)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: `${p.name} — Monmouth Made Mah Jongg`,
+            text: `Check out ${p.name}'s stats on Monmouth Made Mah Jongg!`,
+            files: [file],
+          })
+          return
+        } catch (e) {
+          // User cancelled or share failed, fall through to download
+        }
+      }
+
+      // Fallback: download
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = file.name
+      a.click()
+      URL.revokeObjectURL(url)
+    }, 'image/png')
+  }
+
   if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: 'sans-serif', color: '#888' }}>Loading players...</div>
 
   if (selected) {
@@ -173,6 +313,16 @@ export default function Players({ session, player }) {
           <div style={{ marginTop: 16, fontSize: 12, color: '#888', fontFamily: 'sans-serif' }}>
             Member since {new Date(selected.join_date || selected.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           </div>
+
+          {/* Share Card Button */}
+          <button onClick={() => generateShareCard(selected, earnedBadges)} style={{
+            marginTop: 16, width: '100%', padding: 11, borderRadius: 8,
+            background: 'white', border: '0.5px solid #c8cdd6',
+            fontSize: 13, fontFamily: 'sans-serif', fontWeight: 600, color: '#1e2b65', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+          }}>
+            📤 Share Player Card
+          </button>
         </div>
       </div>
     )
