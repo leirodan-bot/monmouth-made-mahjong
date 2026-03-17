@@ -131,20 +131,20 @@ export default function Clubs({ session, player }) {
 
     return (
       <div>
-        <button onClick={() => setSelectedClub(null)} style={{ background: 'none', border: '0.5px solid #c8cdd6', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontFamily: 'sans-serif', color: '#1a2744', marginBottom: 16, cursor: 'pointer' }}>
+        <button onClick={() => setSelectedClub(null)} style={{ background: 'none', border: '0.5px solid #c8cdd6', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontFamily: 'sans-serif', color: '#1e2b65', marginBottom: 16, cursor: 'pointer' }}>
           ← Back to clubs
         </button>
 
         <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 12, padding: 24, marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
             <div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a2744' }}>{club.name}</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65' }}>{club.name}</h2>
               <div style={{ fontSize: 13, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>{club.location}</div>
               <div style={{ fontSize: 13, color: '#888', fontFamily: 'sans-serif' }}>Meets: {club.meet_day || 'TBD'}</div>
             </div>
             {canManage && (
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => { setSelectedClub(null); startEdit(club) }} style={{ background: 'white', border: '0.5px solid #1a2744', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontFamily: 'sans-serif', color: '#1a2744', cursor: 'pointer' }}>
+                <button onClick={() => { setSelectedClub(null); startEdit(club) }} style={{ background: 'white', border: '0.5px solid #1e2b65', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontFamily: 'sans-serif', color: '#1e2b65', cursor: 'pointer' }}>
                   Edit
                 </button>
                 {isLeagueAdmin() && (
@@ -158,7 +158,7 @@ export default function Clubs({ session, player }) {
 
           {/* Join button for non-members */}
           {session && player && !myMembership(club.id) && (
-            <button onClick={() => handleRequestJoin(club.id)} style={{ background: '#1a2744', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 13, fontFamily: 'sans-serif', fontWeight: 600, cursor: 'pointer' }}>
+            <button onClick={() => handleRequestJoin(club.id)} style={{ background: '#1e2b65', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 13, fontFamily: 'sans-serif', fontWeight: 600, cursor: 'pointer' }}>
               Request to Join
             </button>
           )}
@@ -177,15 +177,15 @@ export default function Clubs({ session, player }) {
         {/* Pending requests - organizers only */}
         {canManage && pending.length > 0 && (
           <div style={{ background: 'white', border: '0.5px solid #fcd34d', borderRadius: 12, padding: 20, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 12 }}>Pending requests ({pending.length})</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 12 }}>Pending requests ({pending.length})</h3>
             <div style={{ display: 'grid', gap: 8 }}>
               {pending.map(m => {
                 const p = players.find(pl => pl.id === m.player_id)
                 return (
                   <div key={m.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#fffbeb', borderRadius: 8, border: '0.5px solid #fcd34d' }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a2744' }}>{p?.name || 'Unknown'}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1e2b65' }}>{p?.name || 'Unknown'}</div>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button onClick={() => handleApproveMember(m.id, m.player_id, club.name)} style={{ background: '#1a2744', color: 'white', border: 'none', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontFamily: 'sans-serif', cursor: 'pointer' }}>Approve</button>
+                      <button onClick={() => handleApproveMember(m.id, m.player_id, club.name)} style={{ background: '#1e2b65', color: 'white', border: 'none', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontFamily: 'sans-serif', cursor: 'pointer' }}>Approve</button>
                       <button onClick={() => handleRejectMember(m.id)} style={{ background: 'white', color: '#9f1239', border: '0.5px solid #9f1239', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontFamily: 'sans-serif', cursor: 'pointer' }}>Decline</button>
                     </div>
                   </div>
@@ -197,7 +197,7 @@ export default function Clubs({ session, player }) {
 
         {/* Current members */}
         <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 12, padding: 20 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 12 }}>Members ({approved.length})</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 12 }}>Members ({approved.length})</h3>
           {approved.length === 0 ? (
             <div style={{ fontSize: 13, color: '#888', fontFamily: 'sans-serif' }}>No approved members yet.</div>
           ) : (
@@ -207,7 +207,7 @@ export default function Clubs({ session, player }) {
                 return (
                   <div key={m.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#f9f9f7', borderRadius: 8 }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a2744' }}>{p?.name || 'Unknown'}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1e2b65' }}>{p?.name || 'Unknown'}</div>
                       <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif' }}>{m.role === 'organizer' ? '⭐ Club Organizer' : 'Member'}</div>
                     </div>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -215,7 +215,7 @@ export default function Clubs({ session, player }) {
                       {canManage && m.player_id !== player?.id && (
                         <>
                           {m.role !== 'organizer' && (
-                            <button onClick={() => handleMakeOrganizer(m.id)} style={{ background: 'white', color: '#1a2744', border: '0.5px solid #1a2744', borderRadius: 6, padding: '4px 10px', fontSize: 10, fontFamily: 'sans-serif', cursor: 'pointer' }}>Make Organizer</button>
+                            <button onClick={() => handleMakeOrganizer(m.id)} style={{ background: 'white', color: '#1e2b65', border: '0.5px solid #1e2b65', borderRadius: 6, padding: '4px 10px', fontSize: 10, fontFamily: 'sans-serif', cursor: 'pointer' }}>Make Organizer</button>
                           )}
                           <button onClick={() => handleRemoveMember(m.id, m.player_id)} style={{ background: 'white', color: '#9f1239', border: '0.5px solid #9f1239', borderRadius: 6, padding: '4px 10px', fontSize: 10, fontFamily: 'sans-serif', cursor: 'pointer' }}>Remove</button>
                         </>
@@ -235,11 +235,11 @@ export default function Clubs({ session, player }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>Clubs</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>Clubs</h2>
           <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Active mah jongg clubs in Monmouth County</p>
         </div>
         {isLeagueAdmin() && (
-          <button onClick={() => { setShowForm(!showForm); setEditingClub(null); setName(''); setLocation(''); setMeetDay('') }} style={{ background: '#1a2744', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
+          <button onClick={() => { setShowForm(!showForm); setEditingClub(null); setName(''); setLocation(''); setMeetDay('') }} style={{ background: '#1e2b65', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
             {showForm ? 'Cancel' : '+ Add Club'}
           </button>
         )}
@@ -253,7 +253,7 @@ export default function Clubs({ session, player }) {
 
       {showForm && (
         <form onSubmit={handleSaveClub} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 20, marginBottom: 16 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a2744', marginBottom: 12 }}>{editingClub ? 'Edit Club' : 'Add New Club'}</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1e2b65', marginBottom: 12 }}>{editingClub ? 'Edit Club' : 'Add New Club'}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
               <label style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', display: 'block', marginBottom: 4 }}>Club name *</label>
@@ -268,7 +268,7 @@ export default function Clubs({ session, player }) {
               <input value={meetDay} onChange={e => setMeetDay(e.target.value)} placeholder="e.g. Tuesdays" />
             </div>
           </div>
-          <button type="submit" disabled={saving} style={{ background: '#1a2744', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
+          <button type="submit" disabled={saving} style={{ background: '#1e2b65', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
             {saving ? 'Saving...' : editingClub ? 'Save Changes' : 'Add Club'}
           </button>
         </form>
@@ -293,7 +293,7 @@ export default function Clubs({ session, player }) {
                 {pendingCount > 0 && canManage && (
                   <div style={{ position: 'absolute', top: 12, right: 12, background: '#9f1239', color: 'white', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontFamily: 'sans-serif', fontWeight: 700 }}>{pendingCount}</div>
                 )}
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 4 }}>{club.name}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{club.name}</div>
                 <div style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif' }}>{club.location || 'Location TBD'}</div>
                 <div style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginBottom: 12 }}>Meets: {club.meet_day || 'TBD'}</div>
                 {membership && (
@@ -306,7 +306,7 @@ export default function Clubs({ session, player }) {
                 <div style={{ borderTop: '0.5px solid #e8e8e4', paddingTop: 10, display: 'flex', justifyContent: 'space-between' }}>
                   <div>
                     <div style={{ fontSize: 10, color: '#888', fontFamily: 'sans-serif' }}>Members</div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#1a2744' }}>{clubMemberships.length}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#1e2b65' }}>{clubMemberships.length}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 10, color: '#888', fontFamily: 'sans-serif' }}>Avg Elo</div>

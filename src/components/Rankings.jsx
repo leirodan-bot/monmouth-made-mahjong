@@ -44,7 +44,7 @@ export default function Rankings({ session }) {
   if (players.length === 0) return (
     <div>
       <div style={{ marginBottom: 6 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>County Rankings</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>County Rankings</h2>
         <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Season 1 · May 2025 – April 2026 · Elo rating system</p>
       </div>
       <div style={{ background: 'white', border: '0.5px dashed #c8cdd6', borderRadius: 12, padding: 40, textAlign: 'center' }}>
@@ -62,13 +62,13 @@ export default function Rankings({ session }) {
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>County Rankings</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>County Rankings</h2>
         <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Season 1 · May 2025 – April 2026 · Elo rating system</p>
       </div>
 
       {/* Monthly Spotlight */}
       {spotlight && !isProvisional(spotlight.games_played) && (
-        <div style={{ background: '#1a2744', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ background: '#1e2b65', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontSize: 10, color: '#a0b0c8', fontFamily: 'sans-serif', letterSpacing: '1px', marginBottom: 4 }}>CURRENT LEADER</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#ffffff' }}>{spotlight.name}</div>
@@ -97,7 +97,7 @@ export default function Rankings({ session }) {
                 order: idx === 0 ? 2 : idx === 1 ? 1 : 3
               }}>
                 <div style={{ fontSize: 24 }}>{medals[idx]}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginTop: 4 }}>{p.name}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginTop: 4 }}>{p.name}</div>
                 <div style={{ fontSize: 10, color: '#888', fontFamily: 'sans-serif', marginTop: 2 }}>{p.town}</div>
                 <div style={{ fontSize: 22, fontWeight: 700, color: '#9f1239', margin: '6px 0' }}>{Math.round(p.elo).toLocaleString()}</div>
                 <RankBadge elo={p.elo} />
@@ -113,7 +113,7 @@ export default function Rankings({ session }) {
         <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
-              <tr style={{ background: '#1a2744' }}>
+              <tr style={{ background: '#1e2b65' }}>
                 {['#', 'Player', 'Town', 'Club', 'Rank', 'Elo', 'W/L', 'Streak'].map(h => (
                   <th key={h} style={{ padding: '9px 12px', color: '#ffffff', fontSize: 11, fontWeight: 700, textAlign: 'left', fontFamily: 'Playfair Display, serif', letterSpacing: '0.5px' }}>{h}</th>
                 ))}
@@ -129,7 +129,7 @@ export default function Rankings({ session }) {
                     opacity: inactive ? 0.45 : 1
                   }}>
                     <td style={{ padding: '9px 12px', color: '#888', fontWeight: 700 }}>{i + 1}</td>
-                    <td style={{ padding: '9px 12px', fontWeight: 700, color: '#1a2744' }}>
+                    <td style={{ padding: '9px 12px', fontWeight: 700, color: '#1e2b65' }}>
                       {p.name}
                       {inactive && <span style={{ fontSize: 9, color: '#aaa', marginLeft: 4 }}>INACTIVE</span>}
                     </td>
@@ -160,7 +160,7 @@ export default function Rankings({ session }) {
               <tbody>
                 {provisionalPlayers.map(p => (
                   <tr key={p.id} style={{ borderBottom: '0.5px solid #e8e8e4' }}>
-                    <td style={{ padding: '8px 12px', fontWeight: 600, color: '#1a2744' }}>
+                    <td style={{ padding: '8px 12px', fontWeight: 600, color: '#1e2b65' }}>
                       {p.name}
                     </td>
                     <td style={{ padding: '8px 12px', color: '#555', fontFamily: 'sans-serif' }}>{p.town || '—'}</td>
@@ -176,7 +176,7 @@ export default function Rankings({ session }) {
       )}
 
       {!session && (
-        <div style={{ marginTop: 16, background: '#eef1f8', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: '14px 18px', textAlign: 'center', fontFamily: 'sans-serif', fontSize: 13, color: '#1a2744' }}>
+        <div style={{ marginTop: 16, background: '#eef1f8', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: '14px 18px', textAlign: 'center', fontFamily: 'sans-serif', fontSize: 13, color: '#1e2b65' }}>
           <strong>Want to appear on this leaderboard?</strong> Sign up to join the league and start recording games.
         </div>
       )}

@@ -8,6 +8,7 @@ import Players from './components/Players'
 import Clubs from './components/Clubs'
 import RecordMatch from './components/RecordMatch'
 import HowItWorks from './components/HowItWorks'
+import logoLoading from './assets/logo-white.svg'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -42,20 +43,9 @@ function App() {
   }
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#1a2744' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#1e2b65' }}>
       <div style={{ textAlign: 'center', color: '#f4f4f2' }}>
-        <svg width="80" height="80" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="130" cy="130" r="122" fill="#1a2744" stroke="#f4f4f2" strokeWidth="3"/>
-          <circle cx="130" cy="130" r="112" fill="#1a2744" stroke="#f4f4f2" strokeWidth="1.2"/>
-          <rect x="54" y="96" width="58" height="78" rx="7" fill="#f4f4f2"/>
-          <rect x="58" y="100" width="50" height="70" rx="5" fill="white"/>
-          <text x="83" y="148" fontSize="36" fontFamily="Georgia,serif" fontWeight="700" fill="#1a2744" textAnchor="middle">M</text>
-          <rect x="148" y="96" width="58" height="78" rx="7" fill="#f4f4f2"/>
-          <rect x="152" y="100" width="50" height="70" rx="5" fill="white"/>
-          <path d="M157 118 Q163 110 169 118 Q175 126 181 118 Q187 110 193 118" stroke="#1a2744" strokeWidth="2.8" fill="none" strokeLinecap="round"/>
-          <path d="M157 130 Q163 122 169 130 Q175 138 181 130 Q187 122 193 130" stroke="#1a2744" strokeWidth="2.8" fill="none" strokeLinecap="round"/>
-          <path d="M157 142 Q163 134 169 142 Q175 150 181 142 Q187 134 193 142" stroke="#9f1239" strokeWidth="2.8" fill="none" strokeLinecap="round"/>
-        </svg>
+        <img src={logoLoading} alt="Monmouth Made Mah Jongg" style={{ height: 44, opacity: 0.9 }} />
         <div style={{ marginTop: 16, fontSize: 14, fontFamily: 'sans-serif', opacity: 0.7 }}>Loading...</div>
       </div>
     </div>

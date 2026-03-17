@@ -4,8 +4,8 @@
   "description": "The official Monmouth County Mah Jongg League",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a2744",
-  "theme_color": "#1a2744",
+  "background_color": "#1e2b65",
+  "theme_color": "#1e2b65",
   "orientation": "portrait",
   "icons": [
     {

@@ -54,7 +54,7 @@ export default function Towns() {
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>Top Towns</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>Top Towns</h2>
         <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Representing Monmouth County · Score = 70% avg Elo + 30% activity</p>
       </div>
 
@@ -74,7 +74,7 @@ export default function Towns() {
                 order: idx === 0 ? 2 : idx === 1 ? 1 : 3
               }}>
                 <div style={{ fontSize: 22 }}>{medals[idx]}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#1a2744', marginTop: 4 }}>{t.town}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1e2b65', marginTop: 4 }}>{t.town}</div>
                 <div style={{ fontSize: 10, color: '#888', fontFamily: 'sans-serif', marginTop: 2 }}>{t.playerCount} player{t.playerCount !== 1 ? 's' : ''} · avg {t.avgElo}</div>
                 <div style={{ fontSize: 22, fontWeight: 700, color: '#9f1239', margin: '6px 0' }}>{t.score.toLocaleString()}</div>
               </div>
@@ -89,7 +89,7 @@ export default function Towns() {
           <button key={f} onClick={() => setFilter(f)} style={{
             padding: '5px 14px', borderRadius: 20, fontSize: 11, fontFamily: 'sans-serif', fontWeight: 600,
             border: '0.5px solid #c8cdd6',
-            background: filter === f ? '#1a2744' : 'white',
+            background: filter === f ? '#1e2b65' : 'white',
             color: filter === f ? '#f4f4f2' : '#555',
             cursor: 'pointer'
           }}>
@@ -102,7 +102,7 @@ export default function Towns() {
       <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
-            <tr style={{ background: '#1a2744' }}>
+            <tr style={{ background: '#1e2b65' }}>
               {['#', 'Town', 'Players', 'Avg Elo', 'Town Score', ''].map(h => (
                 <th key={h} style={{ padding: '9px 12px', color: '#ffffff', fontSize: 11, fontWeight: 700, textAlign: 'left', fontFamily: 'Playfair Display, serif' }}>{h}</th>
               ))}
@@ -115,7 +115,7 @@ export default function Towns() {
               return (
                 <tr key={t.town} style={{ borderBottom: '0.5px solid #e8e8e4' }}>
                   <td style={{ padding: '9px 12px', color: '#888', fontWeight: 700 }}>{t.playerCount > 0 ? rank : '—'}</td>
-                  <td style={{ padding: '9px 12px', fontWeight: 700, color: t.playerCount > 0 ? '#1a2744' : '#aaa' }}>{t.town}</td>
+                  <td style={{ padding: '9px 12px', fontWeight: 700, color: t.playerCount > 0 ? '#1e2b65' : '#aaa' }}>{t.town}</td>
                   <td style={{ padding: '9px 12px', fontFamily: 'sans-serif' }}>
                     {t.playerCount > 0
                       ? <span style={{ background: '#d1fae5', color: '#065f46', fontSize: 10, padding: '2px 8px', borderRadius: 20, fontFamily: 'sans-serif', fontWeight: 600 }}>{t.playerCount} player{t.playerCount !== 1 ? 's' : ''}</span>
@@ -126,7 +126,7 @@ export default function Towns() {
                   <td style={{ padding: '9px 12px', fontWeight: 700, color: '#9f1239', fontFamily: 'Playfair Display, serif' }}>{t.score > 0 ? t.score.toLocaleString() : '—'}</td>
                   <td style={{ padding: '9px 12px' }}>
                     <div style={{ width: 80, height: 6, background: '#f4f4f2', borderRadius: 3 }}>
-                      <div style={{ width: `${barWidth}%`, height: 6, background: '#1a2744', borderRadius: 3 }} />
+                      <div style={{ width: `${barWidth}%`, height: 6, background: '#1e2b65', borderRadius: 3 }} />
                     </div>
                   </td>
                 </tr>

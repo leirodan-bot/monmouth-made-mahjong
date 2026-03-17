@@ -189,7 +189,7 @@ export default function RecordMatch({ session, player }) {
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>Record a Game</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>Record a Game</h2>
         <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>
           1 player must confirm. Auto-verified after 48 hours.
         </p>
@@ -200,8 +200,8 @@ export default function RecordMatch({ session, player }) {
           <button key={t} onClick={() => setTab(t)} style={{
             padding: '8px 18px', borderRadius: 8, fontSize: 13,
             fontFamily: 'Playfair Display, serif', fontWeight: 700,
-            background: tab === t ? '#1a2744' : 'white',
-            color: tab === t ? '#f4f4f2' : '#1a2744',
+            background: tab === t ? '#1e2b65' : 'white',
+            color: tab === t ? '#f4f4f2' : '#1e2b65',
             border: tab === t ? 'none' : '0.5px solid #c8cdd6',
             cursor: 'pointer'
           }}>
@@ -238,8 +238,8 @@ export default function RecordMatch({ session, player }) {
                       <div key={id} style={{
                         display: 'flex', alignItems: 'center', gap: 6,
                         padding: '5px 10px', borderRadius: 20,
-                        background: '#eef1f8', border: '1px solid #1a2744',
-                        fontSize: 12, fontFamily: 'sans-serif', fontWeight: 600, color: '#1a2744'
+                        background: '#eef1f8', border: '1px solid #1e2b65',
+                        fontSize: 12, fontFamily: 'sans-serif', fontWeight: 600, color: '#1e2b65'
                       }}>
                         {p?.name}
                         <span style={{ fontSize: 10, color: '#888' }}>{Math.round(p?.elo || 800)}</span>
@@ -261,7 +261,7 @@ export default function RecordMatch({ session, player }) {
                     {filteredPlayers.slice(0, 20).map(p => (
                       <button key={p.id} type="button" onClick={() => { togglePlayer(p.id); setSearchQuery('') }} style={{
                         padding: '6px 8px', borderRadius: 6, fontSize: 12, fontFamily: 'sans-serif',
-                        textAlign: 'left', cursor: 'pointer', background: 'white', border: '0.5px solid #c8cdd6', color: '#1a2744'
+                        textAlign: 'left', cursor: 'pointer', background: 'white', border: '0.5px solid #c8cdd6', color: '#1e2b65'
                       }}>
                         {p.name} <span style={{ fontSize: 10, color: '#888' }}>{Math.round(p.elo)}</span>
                       </button>
@@ -281,8 +281,8 @@ export default function RecordMatch({ session, player }) {
                 <div style={{ marginBottom: 10 }}>
                   <button type="button" onClick={() => { setIsWallGame(!isWallGame); if (!isWallGame) setWinner('') }} style={{
                     padding: '8px 14px', borderRadius: 8, fontSize: 12, fontFamily: 'sans-serif', fontWeight: 600,
-                    background: isWallGame ? '#1a2744' : 'white',
-                    color: isWallGame ? '#f4f4f2' : '#1a2744',
+                    background: isWallGame ? '#1e2b65' : 'white',
+                    color: isWallGame ? '#f4f4f2' : '#1e2b65',
                     border: isWallGame ? 'none' : '0.5px solid #c8cdd6', cursor: 'pointer'
                   }}>
                     {isWallGame ? '🧱 Wall Game (No Winner)' : 'Wall Game?'}
@@ -299,7 +299,7 @@ export default function RecordMatch({ session, player }) {
                           padding: '10px 8px', borderRadius: 8, fontSize: 13, fontFamily: 'sans-serif',
                           textAlign: 'center', cursor: 'pointer', fontWeight: isSelected ? 700 : 400,
                           background: isSelected ? '#fffdf0' : 'white',
-                          border: isSelected ? '2px solid #b8860b' : '0.5px solid #c8cdd6', color: '#1a2744'
+                          border: isSelected ? '2px solid #b8860b' : '0.5px solid #c8cdd6', color: '#1e2b65'
                         }}>
                           {isSelected && '🏆 '}{p?.name}
                         </button>
@@ -321,7 +321,7 @@ export default function RecordMatch({ session, player }) {
                   const isW = u.id === winner
                   return (
                     <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: 12, fontFamily: 'sans-serif' }}>
-                      <span style={{ color: '#1a2744', fontWeight: isW ? 700 : 400 }}>
+                      <span style={{ color: '#1e2b65', fontWeight: isW ? 700 : 400 }}>
                         {isW && '🏆 '}{p?.name}
                       </span>
                       <span style={{ fontWeight: 600, color: u.delta > 0 ? '#16a34a' : u.delta < 0 ? '#dc2626' : '#888' }}>
@@ -336,7 +336,7 @@ export default function RecordMatch({ session, player }) {
 
             <button type="submit" disabled={selectedPlayers.length < 3 || (!isWallGame && !winner) || saving} style={{
               width: '100%',
-              background: (selectedPlayers.length >= 3 && (isWallGame || winner)) ? '#1a2744' : '#e5e7eb',
+              background: (selectedPlayers.length >= 3 && (isWallGame || winner)) ? '#1e2b65' : '#e5e7eb',
               color: (selectedPlayers.length >= 3 && (isWallGame || winner)) ? '#f4f4f2' : '#aaa',
               border: 'none', borderRadius: 8, padding: 11,
               fontSize: 13, fontFamily: 'Playfair Display, serif', fontWeight: 700, cursor: 'pointer'
@@ -361,7 +361,7 @@ export default function RecordMatch({ session, player }) {
                 const alreadyConfirmed = confirmations.includes(player?.id)
                 return (
                   <div key={match.id} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 4 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>
                       {match.is_wall_game ? '🧱 Wall Game' : `🏆 ${winnerPlayer?.name || 'Unknown'} won`}
                     </div>
                     <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 8 }}>
@@ -388,7 +388,7 @@ export default function RecordMatch({ session, player }) {
                       </div>
                     ) : (
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => confirmMatch(match.id)} style={{ background: '#1a2744', color: '#f4f4f2', border: 'none', borderRadius: 6, padding: '7px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
+                        <button onClick={() => confirmMatch(match.id)} style={{ background: '#1e2b65', color: '#f4f4f2', border: 'none', borderRadius: 6, padding: '7px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>
                           ✓ Confirm
                         </button>
                         <button onClick={() => disputeMatch(match.id)} style={{ background: 'white', color: '#9f1239', border: '0.5px solid #9f1239', borderRadius: 6, padding: '7px 16px', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer' }}>

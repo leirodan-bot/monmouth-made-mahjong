@@ -3,7 +3,7 @@ import { supabase } from '../supabase'
 
 function RankBadge({ elo }) {
   let label, bg, color
-  if (elo >= 1600) { label = 'Grand Master'; bg = '#1a2744'; color = '#f0c040' }
+  if (elo >= 1600) { label = 'Grand Master'; bg = '#1e2b65'; color = '#f0c040' }
   else if (elo >= 1300) { label = 'Master'; bg = '#9f1239'; color = 'white' }
   else if (elo >= 1000) { label = 'Expert'; bg = '#2d6a8f'; color = 'white' }
   else if (elo >= 700) { label = 'Skilled'; bg = '#2d7a4f'; color = 'white' }
@@ -35,16 +35,16 @@ export default function Players({ session, player }) {
 
   if (selected) return (
     <div>
-      <button onClick={() => setSelected(null)} style={{ background: 'none', border: '0.5px solid #c8cdd6', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontFamily: 'sans-serif', color: '#1a2744', marginBottom: 16, cursor: 'pointer' }}>
+      <button onClick={() => setSelected(null)} style={{ background: 'none', border: '0.5px solid #c8cdd6', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontFamily: 'sans-serif', color: '#1e2b65', marginBottom: 16, cursor: 'pointer' }}>
         ← Back to players
       </button>
       <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 12, padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#1a2744', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f4f4f2', fontSize: 20, fontWeight: 700 }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#1e2b65', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f4f4f2', fontSize: 20, fontWeight: 700 }}>
             {selected.name.split(' ').map(n => n[0]).join('')}
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#1a2744' }}>{selected.name}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65' }}>{selected.name}</div>
             <div style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 2 }}>{selected.town} · {selected.org || 'Unaffiliated'}</div>
             <div style={{ marginTop: 6 }}><RankBadge elo={selected.elo} /></div>
           </div>
@@ -62,7 +62,7 @@ export default function Players({ session, player }) {
           ].map(s => (
             <div key={s.label} style={{ background: '#f4f4f2', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
               <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 4 }}>{s.label}</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#1a2744' }}>{s.value}</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65' }}>{s.value}</div>
             </div>
           ))}
         </div>
@@ -81,18 +81,18 @@ export default function Players({ session, player }) {
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>Player Directory</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>Player Directory</h2>
         <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>{players.length} registered players · Season 1</p>
       </div>
       <div style={{ display: 'grid', gap: 8 }}>
         {players.map((p, i) => (
           <div key={p.id} onClick={() => setSelected(p)} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#aaa', minWidth: 24 }}>{i + 1}</div>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1a2744', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f4f4f2', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1e2b65', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f4f4f2', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
               {p.name.split(' ').map(n => n[0]).join('')}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744' }}>{p.name} {p.id === player?.id && <span style={{ fontSize: 10, background: '#eef1f8', color: '#1a2744', padding: '1px 6px', borderRadius: 10, fontFamily: 'sans-serif' }}>You</span>}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65' }}>{p.name} {p.id === player?.id && <span style={{ fontSize: 10, background: '#eef1f8', color: '#1e2b65', padding: '1px 6px', borderRadius: 10, fontFamily: 'sans-serif' }}>You</span>}</div>
               <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginTop: 1 }}>{p.town} · {p.org || 'Unaffiliated'}</div>
             </div>
             <RankBadge elo={p.elo} />

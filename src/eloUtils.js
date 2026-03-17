@@ -22,7 +22,7 @@ export const TIERS = [
   { name: 'Skilled',      min: 850,  max: 949,  color: '#71717a', bg: '#a8a8a8', textColor: 'white' },
   { name: 'Expert',       min: 950,  max: 1049, color: '#b8860b', bg: '#d4a745', textColor: 'white' },
   { name: 'Master',       min: 1050, max: 1149, color: '#6b7280', bg: '#8b95a5', textColor: 'white' },
-  { name: 'Grandmaster',  min: 1150, max: 99999, color: '#1a2744', bg: '#1a2744', textColor: '#f0c040' },
+  { name: 'Grandmaster',  min: 1150, max: 99999, color: '#1e2b65', bg: '#1e2b65', textColor: '#f0c040' },
 ]
 
 /**

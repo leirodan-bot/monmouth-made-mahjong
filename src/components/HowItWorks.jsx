@@ -14,7 +14,7 @@ function Faq({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
     <div onClick={() => setOpen(!open)} style={{ padding: '14px 16px', borderBottom: '0.5px solid #e8e8e4', cursor: 'pointer' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, fontWeight: 700, color: '#1a2744' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, fontWeight: 700, color: '#1e2b65' }}>
         {q}
         <span style={{ transform: open ? 'rotate(180deg)' : 'none', display: 'inline-block', transition: 'transform 0.2s', fontSize: 10 }}>▾</span>
       </div>
@@ -71,7 +71,7 @@ function ContactForm() {
         <label style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', display: 'block', marginBottom: 4 }}>Message</label>
         <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Tell us what's on your mind..." required style={{ height: 90, resize: 'vertical' }} />
       </div>
-      <button type="submit" style={{ width: '100%', background: '#1a2744', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: 11, fontSize: 13, fontFamily: 'Playfair Display, serif', fontWeight: 700, cursor: 'pointer' }}>
+      <button type="submit" style={{ width: '100%', background: '#1e2b65', color: '#f4f4f2', border: 'none', borderRadius: 8, padding: 11, fontSize: 13, fontFamily: 'Playfair Display, serif', fontWeight: 700, cursor: 'pointer' }}>
         Send Message
       </button>
     </form>
@@ -100,7 +100,7 @@ export default function HowItWorks() {
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a2744' }}>Member Guide</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>Member Guide</h2>
         <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Everything you need to know about Monmouth Made Mah Jongg</p>
       </div>
 
@@ -109,7 +109,7 @@ export default function HowItWorks() {
           <button key={t} onClick={() => setTab(t)} style={{
             padding: '6px 14px', borderRadius: 20, fontSize: 12,
             fontFamily: 'sans-serif', fontWeight: 600, cursor: 'pointer',
-            background: tab === t ? '#1a2744' : 'white',
+            background: tab === t ? '#1e2b65' : 'white',
             color: tab === t ? '#f4f4f2' : '#555',
             border: tab === t ? 'none' : '0.5px solid #c8cdd6'
           }}>
@@ -128,9 +128,9 @@ export default function HowItWorks() {
               { n: 4, title: 'Play and record your first match', desc: 'After your game, go to the Record tab and submit the result. All other players at the table get notified to confirm. Once the majority confirm, your Elo updates automatically.' },
             ].map(s => (
               <div key={s.n} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 14 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a2744', color: '#f4f4f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{s.n}</div>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1e2b65', color: '#f4f4f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{s.n}</div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 3 }}>{s.title}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginBottom: 3 }}>{s.title}</div>
                   <div style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', lineHeight: 1.5 }}>{s.desc}</div>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export default function HowItWorks() {
 
           {/* Match confirmation explainer */}
           <div style={{ background: '#eef1f8', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, marginBottom: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 10 }}>How match confirmation works</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginBottom: 10 }}>How match confirmation works</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {[
                 { step: '1', label: 'Winner submits result', desc: 'Any player can record the match result from the Record tab.' },
@@ -149,9 +149,9 @@ export default function HowItWorks() {
                 { step: '!', label: 'Auto-accept after 48 hours', desc: "If nobody disputes within 48 hours the result is automatically accepted — no matches get stuck forever." },
               ].map(s => (
                 <div key={s.step} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: s.step === '!' ? '#9f1239' : '#1a2744', color: s.step === '!' ? 'white' : '#f4f4f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, fontFamily: 'sans-serif' }}>{s.step}</div>
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: s.step === '!' ? '#9f1239' : '#1e2b65', color: s.step === '!' ? 'white' : '#f4f4f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, fontFamily: 'sans-serif' }}>{s.step}</div>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a2744', fontFamily: 'sans-serif' }}>{s.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e2b65', fontFamily: 'sans-serif' }}>{s.label}</div>
                     <div style={{ fontSize: 11, color: '#666', fontFamily: 'sans-serif', lineHeight: 1.5 }}>{s.desc}</div>
                   </div>
                 </div>
@@ -176,29 +176,29 @@ export default function HowItWorks() {
       {tab === 'elo' && (
         <div>
           <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 10 }}>Rank tiers</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 10 }}>Rank tiers</h3>
             <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', marginBottom: 12 }}>All players start at 800 Elo — right in the Skilled tier.</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 8 }}>
               <RankBadge label="Novice" bg="#e5e7eb" color="#374151" range="0–699" />
               <RankBadge label="Skilled" bg="#d1fae5" color="#065f46" range="700–999" />
               <RankBadge label="Expert" bg="#dbeafe" color="#1e40af" range="1,000–1,299" />
               <RankBadge label="Master" bg="#9f1239" color="white" range="1,300–1,599" />
-              <RankBadge label="Grand Master" bg="#1a2744" color="#f0c040" range="1,600+" />
+              <RankBadge label="Grand Master" bg="#1e2b65" color="#f0c040" range="1,600+" />
             </div>
           </div>
           <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 8 }}>Elo calculator</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>Elo calculator</h3>
             <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', marginBottom: 12 }}>Drag the sliders to see exactly how points change hands.</p>
             <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 20 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 2 }}>Your Elo</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1a2744', marginBottom: 4 }}>{myElo.toLocaleString()}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{myElo.toLocaleString()}</div>
                   <input type="range" min="500" max="1800" value={myElo} onChange={e => setMyElo(parseInt(e.target.value))} style={{ width: '100%' }} />
                 </div>
                 <div>
                   <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginBottom: 2 }}>Opponent's Elo</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1a2744', marginBottom: 4 }}>{oppElo.toLocaleString()}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{oppElo.toLocaleString()}</div>
                   <input type="range" min="500" max="1800" value={oppElo} onChange={e => setOppElo(parseInt(e.target.value))} style={{ width: '100%' }} />
                 </div>
               </div>
@@ -216,13 +216,13 @@ export default function HowItWorks() {
             </div>
           </div>
           <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 8 }}>How Elo works in a 4-player game</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>How Elo works in a 4-player game</h3>
             <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16, fontFamily: 'sans-serif', fontSize: 12, color: '#555', lineHeight: 1.7 }}>
-              In a 4-player game, the winner's Elo change is calculated against the <strong style={{ color: '#1a2744' }}>average Elo of all three opponents</strong>. Each loser's change is calculated individually against the winner's Elo. This means beating a table of strong players earns you more than beating weaker ones.
+              In a 4-player game, the winner's Elo change is calculated against the <strong style={{ color: '#1e2b65' }}>average Elo of all three opponents</strong>. Each loser's change is calculated individually against the winner's Elo. This means beating a table of strong players earns you more than beating weaker ones.
             </div>
           </div>
           <div>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a2744', marginBottom: 8 }}>Season calendar</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 8 }}>Season calendar</h3>
             <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif' }}>Seasons run May 1 – April 30. On May 1 each year ratings soft-reset — everyone moves 25% back toward 1,000. A Grand Master at 1,600 starts the new season at 1,450. Progress carries forward, competition stays fresh.</p>
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function HowItWorks() {
               { title: 'Where to learn', desc: 'Best free resource: mahjonged.com. The NMJL sells instructional materials at nationalmahjonggleague.org.' },
             ].map(c => (
               <div key={c.title} style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 14 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 4 }}>{c.title}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginBottom: 4 }}>{c.title}</div>
                 <div style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', lineHeight: 1.5 }}>{c.desc}</div>
               </div>
             ))}
@@ -268,14 +268,14 @@ export default function HowItWorks() {
               { title: 'Record games promptly', desc: 'Submit match results within 24 hours of playing. Leaving results unrecorded disrupts rankings and is unfair to other players.', warn: false },
               { title: 'Violations & disputes', desc: 'Report suspected violations via the Contact tab. The admin reviews all reports and may issue warnings, point penalties, or suspensions.', warn: true },
             ].map(c => (
-              <div key={c.title} style={{ background: 'white', borderLeft: `3px solid ${c.warn ? '#9f1239' : '#1a2744'}`, padding: '12px 14px', borderRadius: '0 8px 8px 0', border: '0.5px solid #c8cdd6', borderLeftWidth: 3, borderLeftColor: c.warn ? '#9f1239' : '#1a2744' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 2 }}>{c.title}</div>
+              <div key={c.title} style={{ background: 'white', borderLeft: `3px solid ${c.warn ? '#9f1239' : '#1e2b65'}`, padding: '12px 14px', borderRadius: '0 8px 8px 0', border: '0.5px solid #c8cdd6', borderLeftWidth: 3, borderLeftColor: c.warn ? '#9f1239' : '#1e2b65' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginBottom: 2 }}>{c.title}</div>
                 <div style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', lineHeight: 1.5 }}>{c.desc}</div>
               </div>
             ))}
           </div>
           <div style={{ background: '#f4f4f2', borderRadius: 10, padding: '14px 16px', fontSize: 12, color: '#555', fontFamily: 'sans-serif', lineHeight: 1.6 }}>
-            <strong style={{ color: '#1a2744' }}>Match confirmation policy:</strong> In a 4-player game, 2 of 3 opponents must confirm before Elo updates. In a 2-player game, the 1 opponent must confirm. All results auto-accept after 48 hours if not disputed. Use the Dispute button if a result is incorrect — do not simply ignore it.
+            <strong style={{ color: '#1e2b65' }}>Match confirmation policy:</strong> In a 4-player game, 2 of 3 opponents must confirm before Elo updates. In a 2-player game, the 1 opponent must confirm. All results auto-accept after 48 hours if not disputed. Use the Dispute button if a result is incorrect — do not simply ignore it.
           </div>
         </div>
       )}
@@ -287,7 +287,7 @@ export default function HowItWorks() {
             <div style={{ fontSize: 14, color: '#888', fontFamily: 'sans-serif' }}>Season 1 is underway — check back April 30, 2026 for the first Hall of Fame inductees.</div>
           </div>
           <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, padding: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1a2744', marginBottom: 12 }}>Season end awards</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginBottom: 12 }}>Season end awards</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {[
                 { title: 'County Champion', desc: '#1 Elo at season close' },
@@ -296,7 +296,7 @@ export default function HowItWorks() {
                 { title: 'Club Champion', desc: 'Top player per club' },
               ].map(a => (
                 <div key={a.title} style={{ background: '#f4f4f2', borderRadius: 8, padding: '10px 12px' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a2744', fontFamily: 'sans-serif' }}>{a.title}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1e2b65', fontFamily: 'sans-serif' }}>{a.title}</div>
                   <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginTop: 2 }}>{a.desc}</div>
                 </div>
               ))}
