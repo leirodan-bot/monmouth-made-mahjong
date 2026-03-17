@@ -11,16 +11,16 @@ export default function Header({ session, player, tab, setTab }) {
   }
 
   const tabs = session
-    ? ['rankings', 'towns', 'players', 'clubs', 'record', 'howitworks']
-    : ['rankings', 'towns', 'howitworks']
+    ? ['rankings', 'howitworks', 'towns', 'players', 'clubs', 'record']
+    : ['rankings', 'howitworks', 'towns']
 
   const tabLabels = {
     rankings: 'Rankings',
+    howitworks: 'How It Works',
     towns: 'Towns',
     players: 'Players',
     clubs: 'Clubs',
-    record: 'Record',
-    howitworks: 'How It Works'
+    record: 'Record'
   }
 
   return (
@@ -28,7 +28,9 @@ export default function Header({ session, player, tab, setTab }) {
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '16px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <img src={logoHeader} alt="Monmouth Made Mah Jongg" style={{ height: 40 }} />
+            <div style={{ height: 36, overflow: 'hidden', borderRadius: 6 }}>
+              <img src={logoHeader} alt="Monmouth Made Mah Jongg" style={{ height: 36, display: 'block' }} />
+            </div>
             <div style={{ fontSize: 11, color: '#a0b0c8', fontFamily: 'sans-serif', letterSpacing: '1.5px' }}>COUNTY LEAGUE · SEASON 1 · 2025–2026</div>
           </div>
           <div style={{ position: 'relative' }}>
@@ -61,27 +63,43 @@ export default function Header({ session, player, tab, setTab }) {
             )}
           </div>
         </div>
-        <nav style={{ display: 'flex', gap: 0, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
-          {tabs.map(t => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              style={{
-                padding: '10px 20px',
-                fontSize: 13,
-                fontFamily: 'Playfair Display, serif',
-                fontWeight: 700,
-                color: '#ffffff',
-                WebkitTextFillColor: '#ffffff',
-                background: tab === t ? 'rgba(255,255,255,0.08)' : 'transparent',
-                border: 'none',
-                borderBottom: tab === t ? '3px solid #9f1239' : '3px solid transparent',
-                cursor: 'pointer'
-              }}
-            >
-              {tabLabels[t]}
-            </button>
-          ))}
+        <nav style={{ display: 'flex', gap: 0, borderTop: '1px solid rgba(255,255,255,0.15)', alignItems: 'center' }}>
+          {tabs.map(t => {
+            const isRecord = t === 'record'
+            const isActive = tab === t
+            return (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                style={isRecord ? {
+                  padding: '7px 18px',
+                  margin: '6px 8px 6px 8px',
+                  fontSize: 13,
+                  fontFamily: 'Playfair Display, serif',
+                  fontWeight: 700,
+                  color: '#ffffff',
+                  WebkitTextFillColor: '#ffffff',
+                  background: isActive ? '#9f1239' : '#b91c4a',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer'
+                } : {
+                  padding: '10px 20px',
+                  fontSize: 13,
+                  fontFamily: 'Playfair Display, serif',
+                  fontWeight: 700,
+                  color: '#ffffff',
+                  WebkitTextFillColor: '#ffffff',
+                  background: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
+                  border: 'none',
+                  borderBottom: isActive ? '3px solid #9f1239' : '3px solid transparent',
+                  cursor: 'pointer'
+                }}
+              >
+                {isRecord ? '+ Record Game' : tabLabels[t]}
+              </button>
+            )
+          })}
         </nav>
       </div>
     </header>
