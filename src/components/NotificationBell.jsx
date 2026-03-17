@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
 import { getTier } from '../eloUtils'
+import { checkBadges, getNewBadges, getBadge } from '../badgeUtils'
 
 export default function NotificationBell({ player, onNavigate }) {
   const [notifications, setNotifications] = useState([])
@@ -106,6 +107,8 @@ export default function NotificationBell({ player, onNavigate }) {
         } else if (isWinner) {
           playerUpdate.wins = (p.wins || 0) + 1
           playerUpdate.current_streak = (p.current_streak || 0) + 1
+          const newStreak = (p.current_streak || 0) + 1
+          playerUpdate.best_streak = Math.max(p.best_streak || 0, newStreak)
         } else {
           playerUpdate.losses = (p.losses || 0) + 1
           playerUpdate.current_streak = 0
@@ -121,6 +124,47 @@ export default function NotificationBell({ player, onNavigate }) {
           rating_change: update.delta,
           k_factor: update.kFactor,
         })
+      }
+
+      // === Check badges for all players in the match ===
+      // Determine first 50 players by join date for Pioneer badge
+      const sortedByJoin = [...allPlayersList].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+      const first50Ids = sortedByJoin.slice(0, 50).map(p => p.id)
+
+      for (const update of eloUpdates) {
+        const freshPlayer = allPlayersList.find(pl => pl.id === update.id)
+        if (!freshPlayer) continue
+        // Build updated player data for badge check
+        const isWinner = update.id === match.winner_id
+        const isWall = match.is_wall_game
+        const updatedP = {
+          ...freshPlayer,
+          elo: update.newRating,
+          elo_peak: Math.max(freshPlayer.elo_peak || freshPlayer.elo || 800, update.newRating),
+          games_played: (freshPlayer.games_played || 0) + 1,
+          wins: isWall ? (freshPlayer.wins || 0) : isWinner ? (freshPlayer.wins || 0) + 1 : (freshPlayer.wins || 0),
+          wall_games: isWall ? (freshPlayer.wall_games || 0) + 1 : (freshPlayer.wall_games || 0),
+          current_streak: isWall ? (freshPlayer.current_streak || 0) : isWinner ? (freshPlayer.current_streak || 0) + 1 : 0,
+          best_streak: isWinner ? Math.max(freshPlayer.best_streak || 0, (freshPlayer.current_streak || 0) + 1) : (freshPlayer.best_streak || 0),
+        }
+        const extra = { isFirst50: first50Ids.includes(update.id) }
+        // Get existing badges
+        const { data: existingBadges } = await supabase.from('player_badges').select('badge_id').eq('player_id', update.id)
+        const oldBadgeIds = (existingBadges || []).map(b => b.badge_id)
+        const newBadgeIds = checkBadges(updatedP, extra)
+        const earned = getNewBadges(oldBadgeIds, newBadgeIds)
+        for (const badgeId of earned) {
+          await supabase.from('player_badges').insert({ player_id: update.id, badge_id: badgeId })
+          const badge = getBadge(badgeId)
+          if (badge) {
+            await supabase.from('notifications').insert({
+              player_id: update.id,
+              type: 'badge',
+              read: false,
+              message: `You earned the "${badge.name}" badge! ${badge.emoji}`
+            })
+          }
+        }
       }
 
       await supabase.from('matches').update({
