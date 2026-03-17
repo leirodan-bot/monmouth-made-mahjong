@@ -22,7 +22,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(244, 244, 242, 0.82);
+  background: rgba(244, 244, 242, 0.92);
   pointer-events: none;
   z-index: 0;
 }
