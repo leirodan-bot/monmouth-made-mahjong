@@ -8,6 +8,7 @@ import Players from './components/Players'
 import Clubs from './components/Clubs'
 import RecordMatch from './components/RecordMatch'
 import HowItWorks from './components/HowItWorks'
+import ActivityFeed from './components/ActivityFeed'
 import logoLoading from './assets/logo-header.png'
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
         {tab === 'clubs' && session && <Clubs session={session} player={player} />}
         {tab === 'record' && session && <RecordMatch session={session} player={player} />}
         {tab === 'howitworks' && <HowItWorks />}
+        {tab === 'activity' && <ActivityFeed player={player} />}
         {!session && (tab === 'players' || tab === 'clubs' || tab === 'record') && (
           <Auth onAuth={() => {}} />
         )}

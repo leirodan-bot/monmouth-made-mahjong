@@ -12,12 +12,13 @@ export default function Header({ session, player, tab, setTab }) {
   }
 
   const tabs = session
-    ? ['rankings', 'howitworks', 'towns', 'players', 'clubs', 'record']
+    ? ['rankings', 'howitworks', 'activity', 'towns', 'players', 'clubs', 'record']
     : ['rankings', 'howitworks', 'towns']
 
   const tabLabels = {
     rankings: 'Rankings',
     howitworks: 'How It Works',
+    activity: 'Activity',
     towns: 'Towns',
     players: 'Players',
     clubs: 'Clubs',
