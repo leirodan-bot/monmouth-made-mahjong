@@ -28,7 +28,6 @@ function App() {
       setSession(session)
       if (session) {
         fetchPlayer(session.user.id)
-        // If logged in and still on homepage, go to rankings
         setTab(prev => prev === 'home' ? 'rankings' : prev)
       }
       else setLoading(false)
@@ -40,7 +39,7 @@ function App() {
         fetchPlayer(session.user.id)
         setTab(prev => prev === 'home' ? 'rankings' : prev)
       }
-      else { setPlayer(null); setLoading(false) }
+      else { setPlayer(null); setLoading(false); setTab('home') }
     })
 
     return () => subscription.unsubscribe()
