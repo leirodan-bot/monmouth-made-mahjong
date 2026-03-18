@@ -1,4 +1,3 @@
-cat > src/components/ProfileSetup.jsx << 'EOF'
 import { useState } from 'react'
 import { supabase } from '../supabase'
 
@@ -103,4 +102,3 @@ export default function ProfileSetup({ session, onComplete }) {
     </div>
   )
 }
-EOF
