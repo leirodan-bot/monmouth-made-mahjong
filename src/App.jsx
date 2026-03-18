@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 import Auth from './components/Auth'
 import Header from './components/Header'
+import Homepage from './components/Homepage'
 import Rankings from './components/Rankings'
 import Towns from './components/Towns'
 import Players from './components/Players'
@@ -18,20 +19,27 @@ import logoLoading from './assets/logo-header.png'
 function App() {
   const [session, setSession] = useState(null)
   const [player, setPlayer] = useState(null)
-  const [tab, setTab] = useState('rankings')
+  const [tab, setTab] = useState('home')
   const [loading, setLoading] = useState(true)
   window.__mmjSetTab = setTab
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-      if (session) fetchPlayer(session.user.id)
+      if (session) {
+        fetchPlayer(session.user.id)
+        // If logged in and still on homepage, go to rankings
+        setTab(prev => prev === 'home' ? 'rankings' : prev)
+      }
       else setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (session) fetchPlayer(session.user.id)
+      if (session) {
+        fetchPlayer(session.user.id)
+        setTab(prev => prev === 'home' ? 'rankings' : prev)
+      }
       else { setPlayer(null); setLoading(false) }
     })
 
@@ -63,6 +71,11 @@ function App() {
       </div>
     </div>
   )
+
+  // Homepage is a full-page experience — no Header/Footer wrapper
+  if (tab === 'home') {
+    return <Homepage setTab={setTab} />
+  }
 
   return (
     <div className="floral-bg" style={{ minHeight: '100vh' }}>
