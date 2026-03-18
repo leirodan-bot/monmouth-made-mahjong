@@ -122,6 +122,14 @@ export default function Auth() {
             <label style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', display: 'block', marginBottom: 4 }}>Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
           </div>
+          {mode === 'signup' && (
+            <p style={{ fontSize: 11, fontFamily: 'sans-serif', color: '#888', lineHeight: 1.5, marginBottom: 16, textAlign: 'center' }}>
+              By creating an account, you agree to our{' '}
+              <a href="#" onClick={e => { e.preventDefault(); window.__mmjSetTab?.('terms') }} style={{ color: '#1e2b65', fontWeight: 600, textDecoration: 'underline' }}>Terms of Service</a>
+              {' '}and{' '}
+              <a href="#" onClick={e => { e.preventDefault(); window.__mmjSetTab?.('privacy') }} style={{ color: '#1e2b65', fontWeight: 600, textDecoration: 'underline' }}>Privacy Policy</a>.
+            </p>
+          )}
           <button
             type="submit"
             disabled={loading}
