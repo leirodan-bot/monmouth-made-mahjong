@@ -1,3 +1,4 @@
+cat > src/App.jsx << 'EOF'
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 import Auth from './components/Auth'
@@ -16,14 +17,13 @@ import PrivacyPolicy from './components/PrivacyPolicy'
 import CookiePolicy from './components/CookiePolicy'
 import CookieConsent from './components/CookieConsent'
 import InstallPrompt from './components/InstallPrompt'
+import ProfileSetup from './components/ProfileSetup'
 import logoLoading from './assets/logo-header.png'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() => {
-    // Check if PWA standalone mode
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       || window.navigator.standalone === true
-    // Check screen width
     const isNarrow = window.innerWidth <= 768
     return isStandalone || isNarrow
   })
@@ -98,6 +98,15 @@ function App() {
       </div>
     </div>
   )
+
+  // ===== PROFILE COMPLETION GATE (Google OAuth users) =====
+  if (session && !player) {
+    return (
+      <div className="floral-bg" style={{ minHeight: '100vh' }}>
+        <ProfileSetup session={session} onComplete={() => fetchPlayer(session.user.id)} />
+      </div>
+    )
+  }
 
   // ===== MOBILE / PWA LAYOUT =====
   if (isMobile) {
@@ -195,3 +204,4 @@ function App() {
 }
 
 export default App
+EOF
