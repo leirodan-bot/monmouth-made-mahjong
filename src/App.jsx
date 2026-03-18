@@ -1,4 +1,3 @@
-cat > src/App.jsx << 'EOF'
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 import Auth from './components/Auth'
@@ -204,4 +203,3 @@ function App() {
 }
 
 export default App
-EOF
