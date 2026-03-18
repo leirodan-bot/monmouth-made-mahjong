@@ -3,6 +3,7 @@ import { supabase } from './supabase'
 import Auth from './components/Auth'
 import Header from './components/Header'
 import Homepage from './components/Homepage'
+import MobileShell from './components/MobileShell'
 import Rankings from './components/Rankings'
 import Towns from './components/Towns'
 import Players from './components/Players'
@@ -14,13 +15,39 @@ import TermsOfService from './components/TermsOfService'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import CookiePolicy from './components/CookiePolicy'
 import CookieConsent from './components/CookieConsent'
+import InstallPrompt from './components/InstallPrompt'
 import logoLoading from './assets/logo-header.png'
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => {
+    // Check if PWA standalone mode
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true
+    // Check screen width
+    const isNarrow = window.innerWidth <= 768
+    return isStandalone || isNarrow
+  })
+
+  useEffect(() => {
+    function check() {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+        || window.navigator.standalone === true
+      const isNarrow = window.innerWidth <= 768
+      setIsMobile(isStandalone || isNarrow)
+    }
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  return isMobile
+}
 
 function App() {
   const [session, setSession] = useState(null)
   const [player, setPlayer] = useState(null)
   const [tab, setTab] = useState('home')
   const [loading, setLoading] = useState(true)
+  const isMobile = useIsMobile()
   window.__mmjSetTab = setTab
 
   useEffect(() => {
@@ -28,7 +55,7 @@ function App() {
       setSession(session)
       if (session) {
         fetchPlayer(session.user.id)
-        setTab(prev => prev === 'home' ? 'rankings' : prev)
+        if (!isMobile) setTab(prev => prev === 'home' ? 'rankings' : prev)
       }
       else setLoading(false)
     })
@@ -37,7 +64,7 @@ function App() {
       setSession(session)
       if (session) {
         fetchPlayer(session.user.id)
-        setTab(prev => prev === 'home' ? 'rankings' : prev)
+        if (!isMobile) setTab(prev => prev === 'home' ? 'rankings' : prev)
       }
       else { setPlayer(null); setLoading(false); setTab('home') }
     })
@@ -45,7 +72,6 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Scroll to top when tab changes
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [tab])
@@ -60,7 +86,9 @@ function App() {
     setLoading(false)
   }
 
-  const isLegalPage = tab === 'terms' || tab === 'privacy' || tab === 'cookies'
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+  }
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#1e2b65' }}>
@@ -71,10 +99,30 @@ function App() {
     </div>
   )
 
-  // Homepage is a full-page experience — no Header/Footer wrapper
-  if (tab === 'home') {
-    return <Homepage setTab={setTab} />
+  // ===== MOBILE / PWA LAYOUT =====
+  if (isMobile) {
+    return <MobileShell session={session} player={player} onSignOut={handleSignOut} />
   }
+
+  // ===== DESKTOP LAYOUT =====
+
+  // Homepage for non-logged-in desktop users
+  if (tab === 'home' && !session) {
+    return (
+      <>
+        <Homepage setTab={setTab} />
+        <InstallPrompt />
+      </>
+    )
+  }
+
+  // Logged-in desktop users who somehow land on 'home' go to rankings
+  if (tab === 'home' && session) {
+    setTab('rankings')
+    return null
+  }
+
+  const isLegalPage = tab === 'terms' || tab === 'privacy' || tab === 'cookies'
 
   return (
     <div className="floral-bg" style={{ minHeight: '100vh' }}>
@@ -95,7 +143,6 @@ function App() {
         )}
       </main>
 
-      {/* Footer */}
       <footer style={{
         textAlign: 'center', padding: '24px 16px', fontSize: 11,
         fontFamily: 'sans-serif', color: '#888',
@@ -141,8 +188,8 @@ function App() {
         </div>
       </footer>
 
-      {/* Cookie Consent Banner */}
       <CookieConsent setTab={setTab} />
+      <InstallPrompt />
     </div>
   )
 }
