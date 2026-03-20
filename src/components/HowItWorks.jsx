@@ -166,7 +166,7 @@ export default function HowItWorks() {
           <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden' }}>
             {[
               { q: 'Is this league free to join?', a: 'Yes — completely free. No membership fees or registration costs.' },
-              { q: 'Do I need to be an experienced player?', a: 'Not at all. All skill levels welcome. New players start at 800 Elo in the Beginner tier.' },
+              { q: 'Do I need to be an experienced player?', a: 'Not at all. All skill levels welcome. New players start at 800 Elo in the Skilled tier.' },
               { q: 'Can I play in more than one club?', a: 'Yes — your Elo is tied to your account, not your club. All results count toward the same rating.' },
               { q: 'What if my town has no players yet?', a: "That means you'd be the first — a great opportunity to put your town on the map." },
               { q: 'How many confirmations does a game need?', a: 'Just 1 other player at the table needs to confirm. If nobody disputes within 48 hours, the result is auto-verified.' },
@@ -182,7 +182,7 @@ export default function HowItWorks() {
         <div>
           <div style={{ marginBottom: 20 }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e2b65', marginBottom: 10 }}>Rank tiers</h3>
-            <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', marginBottom: 12 }}>All players start at 800 Elo — in the Beginner tier. Rating floor is 500 (you can never drop below).</p>
+            <p style={{ fontSize: 12, color: '#666', fontFamily: 'sans-serif', marginBottom: 12 }}>All players start at 800 Elo — in the Skilled tier. Rating floor is 500 (you can never drop below).</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6 }}>
               {TIERS.map(t => (
                 <RankBadge key={t.name} name={t.name} bg={t.bg} textColor={t.textColor}

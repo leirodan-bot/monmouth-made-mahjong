@@ -1,11 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
-import { getTier } from '../eloUtils'
-import { checkBadges, getNewBadges, getBadge } from '../badgeUtils'
 
 export default function NotificationBell({ player, onNavigate }) {
   const [notifications, setNotifications] = useState([])
-  const [allPlayers, setAllPlayers] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [confirming, setConfirming] = useState(null)
   const dropdownRef = useRef(null)
@@ -16,7 +13,6 @@ export default function NotificationBell({ player, onNavigate }) {
   useEffect(() => {
     if (player?.id) {
       fetchNotifications()
-      fetchPlayers()
     }
     // Poll every 30 seconds
     const interval = setInterval(() => { if (player?.id) fetchNotifications() }, 30000)
@@ -44,222 +40,39 @@ export default function NotificationBell({ player, onNavigate }) {
     setNotifications(data || [])
   }
 
-  async function fetchPlayers() {
-    const { data } = await supabase.from('players').select('*')
-    setAllPlayers(data || [])
-  }
-
   async function handleConfirm(notif) {
     if (!notif.match_id) return
     setConfirming(notif.id)
 
-    // Fetch the match
-    const { data: match } = await supabase
-      .from('matches')
-      .select('*')
-      .eq('id', notif.match_id)
-      .single()
+    try {
+      const { data, error } = await supabase.rpc('confirm_game', {
+        p_match_id: notif.match_id,
+        p_player_id: player.id
+      })
 
-    if (!match || match.status !== 'pending') {
-      // Already confirmed or disputed
-      await markRead(notif.id)
-      setConfirming(null)
-      fetchNotifications()
-      return
+      if (error) {
+        console.error('Confirm error:', error)
+      }
+    } catch (err) {
+      console.error('Confirm failed:', err)
     }
 
-    const currentConfirmations = match.confirmations || []
-    if (currentConfirmations.includes(player.id)) {
-      await markRead(notif.id)
-      setConfirming(null)
-      return
-    }
-
-    const newConfirmations = [...currentConfirmations, player.id]
-
-    // 1 confirmation needed per spec
-    if (newConfirmations.length >= 1) {
-      const eloUpdates = match.elo_updates || []
-      const allPlayersList = allPlayers.length > 0 ? allPlayers : []
-
-      for (const update of eloUpdates) {
-        const p = allPlayersList.find(pl => pl.id === update.id)
-        if (!p) continue
-
-        const isWinner = update.id === match.winner_id
-        const isWall = match.is_wall_game
-        const newTier = getTier(update.newRating).name
-        const newPeak = Math.max(p.elo_peak || p.elo, update.newRating)
-        const newGamesPlayed = (p.games_played || 0) + 1
-
-        const playerUpdate = {
-          elo: update.newRating,
-          elo_all_time: Math.max(p.elo_all_time || update.newRating, update.newRating),
-          elo_peak: newPeak,
-          elo_rank_tier: newTier,
-          elo_provisional: newGamesPlayed < 5,
-          games_played: newGamesPlayed,
-          last_game_date: new Date().toISOString().split('T')[0],
-        }
-
-        if (isWall) {
-          playerUpdate.wall_games = (p.wall_games || 0) + 1
-        } else if (isWinner) {
-          playerUpdate.wins = (p.wins || 0) + 1
-          playerUpdate.current_streak = (p.current_streak || 0) + 1
-          const newStreak = (p.current_streak || 0) + 1
-          playerUpdate.best_streak = Math.max(p.best_streak || 0, newStreak)
-        } else {
-          playerUpdate.losses = (p.losses || 0) + 1
-          playerUpdate.current_streak = 0
-        }
-
-        await supabase.from('players').update(playerUpdate).eq('id', update.id)
-
-        await supabase.from('elo_history').insert({
-          player_id: update.id,
-          game_id: match.id,
-          rating_before: update.ratingBefore,
-          rating_after: update.newRating,
-          rating_change: update.delta,
-          k_factor: update.kFactor,
-        })
-      }
-
-      // === Check badges for all players in the match ===
-      const sortedByJoin = [...allPlayersList].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-      const first50Ids = sortedByJoin.slice(0, 50).map(p => p.id)
-      const launchDate = new Date('2025-05-01')
-      const oneMonthAfter = new Date('2025-06-01')
-      const threeMonthsAfter = new Date('2025-08-01')
-
-      // Rank non-provisional players for ranking badges
-      const rankedPlayers = allPlayersList
-        .filter(p => (p.games_played || 0) >= 5)
-        .sort((a, b) => (b.elo || 800) - (a.elo || 800))
-
-      for (const update of eloUpdates) {
-        const freshPlayer = allPlayersList.find(pl => pl.id === update.id)
-        if (!freshPlayer) continue
-        const isWinner = update.id === match.winner_id
-        const isWall = match.is_wall_game
-        const updatedP = {
-          ...freshPlayer,
-          elo: update.newRating,
-          elo_peak: Math.max(freshPlayer.elo_peak || freshPlayer.elo || 800, update.newRating),
-          games_played: (freshPlayer.games_played || 0) + 1,
-          wins: isWall ? (freshPlayer.wins || 0) : isWinner ? (freshPlayer.wins || 0) + 1 : (freshPlayer.wins || 0),
-          wall_games: isWall ? (freshPlayer.wall_games || 0) + 1 : (freshPlayer.wall_games || 0),
-          current_streak: isWall ? (freshPlayer.current_streak || 0) : isWinner ? (freshPlayer.current_streak || 0) + 1 : 0,
-          best_streak: isWinner ? Math.max(freshPlayer.best_streak || 0, (freshPlayer.current_streak || 0) + 1) : (freshPlayer.best_streak || 0),
-        }
-
-        // Legacy checks
-        const joinDate = new Date(freshPlayer.created_at)
-
-        // Rankings check
-        let rank = 999
-        if ((updatedP.games_played || 0) >= 5) {
-          const tempRanked = rankedPlayers.filter(rp => rp.id !== update.id)
-          tempRanked.push({ ...updatedP, id: update.id })
-          tempRanked.sort((a, b) => (b.elo || 800) - (a.elo || 800))
-          rank = tempRanked.findIndex(rp => rp.id === update.id) + 1
-        }
-
-        // Mahjong specials — check this match + history
-        let hasJokerlessWin = false
-        let hasConcealedWin = false
-        let hasNewCardWin = false
-        if (isWinner && !isWall) {
-          if (match.jokerless) hasJokerlessWin = true
-          if (match.exposures === 0) hasConcealedWin = true
-          const md = new Date(match.created_at || Date.now())
-          if (md.getMonth() >= 3 && md.getMonth() <= 4) hasNewCardWin = true
-        }
-        const { data: playerMatches } = await supabase.from('matches').select('jokerless, exposures, created_at, winner_id').contains('player_ids', [update.id]).eq('status', 'confirmed')
-        if (playerMatches) {
-          for (const m of playerMatches) {
-            if (m.winner_id === update.id) {
-              if (m.jokerless) hasJokerlessWin = true
-              if (m.exposures === 0) hasConcealedWin = true
-              const md2 = new Date(m.created_at)
-              if (md2.getMonth() >= 3 && md2.getMonth() <= 4) hasNewCardWin = true
-            }
-          }
-        }
-
-        // Games this week for Regular badge
-        const oneWeekAgo = new Date()
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-        const gamesThisWeek = playerMatches ? playerMatches.filter(m => new Date(m.created_at) >= oneWeekAgo).length + 1 : 1
-
-        const extra = {
-          isFirst50: first50Ids.includes(update.id),
-          joinedFirstMonth: joinDate <= oneMonthAfter,
-          joinedFirst3Months: joinDate <= threeMonthsAfter,
-          rank,
-          gamesThisWeek,
-          dedicatedWeeks: 0, // Enhanced later with deeper query
-          consecutiveWeeks: 0, // Enhanced later
-          uniqueClubs: 0, // Enhanced later
-          hasRival: false, // Enhanced later
-          welcomedNewbie: false, // Enhanced later
-          uniqueLocations: 0, // Enhanced later
-          homeGamesHosted: 0, // Enhanced later
-          hasJokerlessWin,
-          hasConcealedWin,
-          hasNewCardWin,
-        }
-
-        const { data: existingBadges } = await supabase.from('player_badges').select('badge_id').eq('player_id', update.id)
-        const oldBadgeIds = (existingBadges || []).map(b => b.badge_id)
-        const newBadgeIds = checkBadges(updatedP, extra)
-        const earned = getNewBadges(oldBadgeIds, newBadgeIds)
-        for (const badgeId of earned) {
-          await supabase.from('player_badges').insert({ player_id: update.id, badge_id: badgeId })
-          const badge = getBadge(badgeId)
-          if (badge) {
-            await supabase.from('notifications').insert({
-              player_id: update.id,
-              type: 'badge',
-              read: false,
-              message: `You earned the "${badge.name}" badge! ${badge.emoji}`
-            })
-          }
-        }
-      }
-
-      await supabase.from('matches').update({
-        status: 'confirmed',
-        confirmations: newConfirmations,
-        confirmed_at: new Date().toISOString()
-      }).eq('id', match.id)
-
-      // Notify all players that game was verified
-      const matchPlayers = match.player_ids || []
-      for (const pid of matchPlayers) {
-        if (pid === player.id) continue
-        await supabase.from('notifications').insert({
-          player_id: pid,
-          match_id: match.id,
-          type: 'verified',
-          read: false,
-          message: `${player.name} confirmed the game. Elo ratings have been updated.`
-        })
-      }
-    } else {
-      await supabase.from('matches').update({ confirmations: newConfirmations }).eq('id', match.id)
-    }
-
-    await markRead(notif.id)
     setConfirming(null)
     fetchNotifications()
   }
 
   async function handleDispute(notif) {
     if (!notif.match_id) return
-    await supabase.from('matches').update({ status: 'disputed' }).eq('id', notif.match_id)
-    await markRead(notif.id)
+
+    try {
+      await supabase.rpc('dispute_game', {
+        p_match_id: notif.match_id,
+        p_player_id: player.id
+      })
+    } catch (err) {
+      console.error('Dispute failed:', err)
+    }
+
     fetchNotifications()
   }
 

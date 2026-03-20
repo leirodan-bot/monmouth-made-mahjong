@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-import { calculateGameEloUpdates, getTier } from '../eloUtils'
+import { calculateGameEloUpdates } from '../eloUtils'
 
 // NMJL Card sections with lines and point values
 const NMJL_SECTIONS = [
@@ -149,7 +149,7 @@ export default function RecordMatch({ session, player }) {
     if (selectedPlayers.length < 3 || (!winner && !isWallGame)) return null
     const tablePlayers = players
       .filter(p => selectedPlayers.includes(p.id))
-      .map(p => ({ id: p.id, elo: p.elo, games_played: p.games_played }))
+      .map(p => ({ id: p.id, elo: p.elo, games_played: p.games_played, elo_rated_games: p.elo_rated_games || 0, elo_seasonal_games: p.elo_seasonal_games || 0 }))
     return calculateGameEloUpdates(tablePlayers, isWallGame ? null : winner)
   }
 
@@ -161,7 +161,7 @@ export default function RecordMatch({ session, player }) {
 
     const tablePlayers = players
       .filter(p => selectedPlayers.includes(p.id))
-      .map(p => ({ id: p.id, elo: p.elo, games_played: p.games_played }))
+      .map(p => ({ id: p.id, elo: p.elo, games_played: p.games_played, elo_rated_games: p.elo_rated_games || 0, elo_seasonal_games: p.elo_seasonal_games || 0 }))
 
     const eloUpdates = calculateGameEloUpdates(tablePlayers, isWallGame ? null : winner)
 
@@ -218,61 +218,28 @@ export default function RecordMatch({ session, player }) {
     setTimeout(() => { setSuccess(false); resetForm(); fetchData() }, 3000)
   }
 
-  // Confirm/Dispute from the Confirm Results tab
   async function confirmMatch(matchId) {
-    const match = pendingMatches.find(m => m.id === matchId)
-    if (!match) return
-    const currentConfirmations = match.confirmations || []
-    if (currentConfirmations.includes(player.id)) return
-    const newConfirmations = [...currentConfirmations, player.id]
-
-    if (newConfirmations.length >= 1) {
-      const eloUpdates = match.elo_updates || []
-      for (const update of eloUpdates) {
-        const p = players.find(pl => pl.id === update.id)
-        if (!p) continue
-        const isWinner = update.id === match.winner_id
-        const isWall = match.is_wall_game
-        const newTier = getTier(update.newRating).name
-        const newPeak = Math.max(p.elo_peak || p.elo, update.newRating)
-        const newGamesPlayed = (p.games_played || 0) + 1
-        const playerUpdate = {
-          elo: update.newRating,
-          elo_all_time: Math.max(p.elo_all_time || update.newRating, update.newRating),
-          elo_peak: newPeak,
-          elo_rank_tier: newTier,
-          elo_provisional: newGamesPlayed < 5,
-          games_played: newGamesPlayed,
-          last_game_date: new Date().toISOString().split('T')[0],
-        }
-        if (isWall) {
-          playerUpdate.wall_games = (p.wall_games || 0) + 1
-        } else if (isWinner) {
-          playerUpdate.wins = (p.wins || 0) + 1
-          playerUpdate.current_streak = (p.current_streak || 0) + 1
-          playerUpdate.best_streak = Math.max(p.best_streak || 0, (p.current_streak || 0) + 1)
-        } else {
-          playerUpdate.losses = (p.losses || 0) + 1
-          playerUpdate.current_streak = 0
-        }
-        await supabase.from('players').update(playerUpdate).eq('id', update.id)
-        await supabase.from('elo_history').insert({
-          player_id: update.id, game_id: matchId,
-          rating_before: update.ratingBefore, rating_after: update.newRating,
-          rating_change: update.delta, k_factor: update.kFactor,
-        })
-      }
-      await supabase.from('matches').update({
-        status: 'confirmed', confirmations: newConfirmations, confirmed_at: new Date().toISOString()
-      }).eq('id', matchId)
-    } else {
-      await supabase.from('matches').update({ confirmations: newConfirmations }).eq('id', matchId)
+    try {
+      const { data, error } = await supabase.rpc('confirm_game', {
+        p_match_id: matchId,
+        p_player_id: player.id
+      })
+      if (error) console.error('Confirm error:', error)
+    } catch (err) {
+      console.error('Confirm failed:', err)
     }
     fetchData()
   }
 
   async function disputeMatch(matchId) {
-    await supabase.from('matches').update({ status: 'disputed' }).eq('id', matchId)
+    try {
+      await supabase.rpc('dispute_game', {
+        p_match_id: matchId,
+        p_player_id: player.id
+      })
+    } catch (err) {
+      console.error('Dispute failed:', err)
+    }
     fetchData()
   }
 
