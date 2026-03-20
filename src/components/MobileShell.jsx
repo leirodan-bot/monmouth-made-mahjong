@@ -24,17 +24,24 @@ const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: ProfileIcon },
 ]
 
-export default function MobileShell({ session, player, onSignOut }) {
+export default function MobileShell({ session, player, onSignOut, refreshPlayer }) {
   const [tab, setTab] = useState(session ? 'home' : 'landing')
   const [pendingCount, setPendingCount] = useState(0)
 
-  // Fetch pending notification count
   useEffect(() => {
     if (!player) return
     fetchPendingCount()
     const interval = setInterval(fetchPendingCount, 30000)
     return () => clearInterval(interval)
   }, [player])
+
+  // Re-fetch pending count when returning to home tab
+  useEffect(() => {
+    if (tab === 'home' && player?.id) {
+      fetchPendingCount()
+      if (refreshPlayer) refreshPlayer()
+    }
+  }, [tab])
 
   async function fetchPendingCount() {
     if (!player) return
@@ -46,23 +53,19 @@ export default function MobileShell({ session, player, onSignOut }) {
         .eq('read', false)
       setPendingCount(count || 0)
     } catch {
-      // notifications table may not exist yet
       setPendingCount(0)
     }
   }
 
-  // When user logs in, go to home
   useEffect(() => {
     if (session && tab === 'landing') setTab('home')
     if (!session) setTab('landing')
   }, [session])
 
-  // Scroll to top on tab change
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [tab])
 
-  // If not logged in and on landing, show the full homepage
   if (!session && tab === 'landing') {
     return <Homepage setTab={(t) => {
       if (t === 'players') setTab('login')
@@ -100,7 +103,7 @@ export default function MobileShell({ session, player, onSignOut }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {session && player && (
-            <NotificationBell player={player} onNavigate={setTab} />
+            <NotificationBell player={player} onNavigate={setTab} refreshPlayer={refreshPlayer} />
           )}
           {session ? (
             <button
@@ -169,9 +172,9 @@ export default function MobileShell({ session, player, onSignOut }) {
                 {/* Quick stats */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                   {[
-                    { label: 'Games', value: (player?.wins || 0) + (player?.losses || 0) },
+                    { label: 'Games', value: player?.games_played || 0 },
                     { label: 'Wins', value: player?.wins || 0 },
-                    { label: 'Elo', value: player?.elo_rating ? Math.round(player.elo_rating) : '800' },
+                    { label: 'Elo', value: Math.round(player?.elo || 800) },
                   ].map((s, i) => (
                     <div key={i} style={{
                       background: 'rgba(255,255,255,0.08)',
@@ -314,7 +317,7 @@ export default function MobileShell({ session, player, onSignOut }) {
                   paddingTop: 16, borderTop: '0.5px solid #e8e8e4',
                 }}>
                   {[
-                    { label: 'Elo', value: player?.elo_rating ? Math.round(player.elo_rating) : '800' },
+                    { label: 'Elo', value: Math.round(player?.elo || 800) },
                     { label: 'Wins', value: player?.wins || 0 },
                     { label: 'Losses', value: player?.losses || 0 },
                   ].map((s, i) => (
@@ -383,7 +386,7 @@ export default function MobileShell({ session, player, onSignOut }) {
           {tab === 'towns' && <Towns />}
           {tab === 'players' && session && <Players session={session} player={player} />}
           {tab === 'clubs' && session && <Clubs session={session} player={player} />}
-          {tab === 'record' && session && <RecordMatch session={session} player={player} />}
+          {tab === 'record' && session && <RecordMatch session={session} player={player} refreshPlayer={refreshPlayer} />}
           {tab === 'howitworks' && <HowItWorks />}
           {tab === 'activity' && <ActivityFeed player={player} />}
           {tab === 'terms' && <TermsOfService setTab={setTab} />}

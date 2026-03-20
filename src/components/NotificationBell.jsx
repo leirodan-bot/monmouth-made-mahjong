@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
 
-export default function NotificationBell({ player, onNavigate }) {
+export default function NotificationBell({ player, onNavigate, refreshPlayer }) {
   const [notifications, setNotifications] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [confirming, setConfirming] = useState(null)
@@ -14,12 +14,10 @@ export default function NotificationBell({ player, onNavigate }) {
     if (player?.id) {
       fetchNotifications()
     }
-    // Poll every 30 seconds
     const interval = setInterval(() => { if (player?.id) fetchNotifications() }, 30000)
     return () => clearInterval(interval)
   }, [player?.id])
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -52,13 +50,16 @@ export default function NotificationBell({ player, onNavigate }) {
 
       if (error) {
         console.error('Confirm error:', error)
+      } else {
+        if (refreshPlayer) refreshPlayer()
       }
     } catch (err) {
       console.error('Confirm failed:', err)
     }
 
     setConfirming(null)
-    fetchNotifications()
+    await new Promise(resolve => setTimeout(resolve, 300))
+    await fetchNotifications()
   }
 
   async function handleDispute(notif) {
@@ -77,12 +78,26 @@ export default function NotificationBell({ player, onNavigate }) {
   }
 
   async function markRead(notifId) {
-    await supabase.from('notifications').update({ read: true }).eq('id', notifId)
+    try {
+      await supabase.rpc('mark_notification_read', {
+        p_notification_id: notifId,
+        p_player_id: player.id
+      })
+    } catch (err) {
+      console.error('Mark read failed:', err)
+    }
+    await fetchNotifications()
   }
 
   async function markAllRead() {
-    await supabase.from('notifications').update({ read: true }).eq('player_id', player.id).eq('read', false)
-    fetchNotifications()
+    try {
+      await supabase.rpc('mark_notifications_read', {
+        p_player_id: player.id
+      })
+    } catch (err) {
+      console.error('Mark all read failed:', err)
+    }
+    await fetchNotifications()
   }
 
   return (
@@ -111,9 +126,9 @@ export default function NotificationBell({ player, onNavigate }) {
       {/* Dropdown */}
       {showDropdown && (
         <div style={{
-          position: 'absolute', right: 0, top: '100%', marginTop: 8,
+          position: 'fixed', top: 56, left: 8, right: 8,
           background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 12,
-          width: 340, maxHeight: 440, overflowY: 'auto',
+          maxWidth: 400, maxHeight: '80vh', overflowY: 'auto',
           boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
           zIndex: 200
         }}>
