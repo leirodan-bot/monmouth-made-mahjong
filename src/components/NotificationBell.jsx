@@ -60,11 +60,12 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer }) 
     }
 
     setConfirming(null)
-    // Optimistically remove the confirmed notification
-    setNotifications(prev => prev.filter(n => n.id !== notif.id))
-    // Small delay to let DB commit settle before re-fetching
-    await new Promise(resolve => setTimeout(resolve, 300))
-    await fetchNotifications()
+    // Optimistically mark the notification as read so it disappears from pending
+    setNotifications(prev => prev.map(n =>
+      n.id === notif.id ? { ...n, read: true } : n
+    ))
+    // Re-fetch after delay to sync with DB
+    setTimeout(() => fetchNotifications(), 800)
   }
 
   async function handleDispute(notif) {
