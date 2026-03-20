@@ -27,18 +27,20 @@ const NAV_ITEMS = [
 export default function MobileShell({ session, player, onSignOut, refreshPlayer }) {
   const [tab, setTab] = useState(session ? 'home' : 'landing')
   const [pendingCount, setPendingCount] = useState(0)
+  const [awaitingCount, setAwaitingCount] = useState(0)
 
   useEffect(() => {
     if (!player) return
     fetchPendingCount()
-    const interval = setInterval(fetchPendingCount, 30000)
+    fetchAwaitingCount()
+    const interval = setInterval(() => { fetchPendingCount(); fetchAwaitingCount() }, 30000)
     return () => clearInterval(interval)
   }, [player])
 
-  // Re-fetch pending count when returning to home tab
   useEffect(() => {
     if (tab === 'home' && player?.id) {
       fetchPendingCount()
+      fetchAwaitingCount()
       if (refreshPlayer) refreshPlayer()
     }
   }, [tab])
@@ -54,6 +56,20 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
       setPendingCount(count || 0)
     } catch {
       setPendingCount(0)
+    }
+  }
+
+  async function fetchAwaitingCount() {
+    if (!player) return
+    try {
+      const { count } = await supabase
+        .from('matches')
+        .select('id', { count: 'exact', head: true })
+        .eq('submitted_by', player.id)
+        .eq('status', 'pending')
+      setAwaitingCount(count || 0)
+    } catch {
+      setAwaitingCount(0)
     }
   }
 
@@ -227,6 +243,33 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   </div>
                   <span style={{ color: '#1e2b65', fontSize: 18 }}>→</span>
                 </button>
+              )}
+
+              {/* Awaiting verification banner */}
+              {awaitingCount > 0 && (
+                <div
+                  style={{
+                    width: '100%',
+                    background: '#1e2b65',
+                    borderRadius: 12,
+                    padding: '14px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    marginBottom: 16,
+                    fontFamily: 'sans-serif',
+                  }}
+                >
+                  <div style={{
+                    width: 28, height: 28, borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.15)', color: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 13, fontWeight: 700,
+                  }}>{awaitingCount}</div>
+                  <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 500 }}>
+                    {awaitingCount === 1 ? 'game' : 'games'} awaiting verification
+                  </span>
+                </div>
               )}
 
               {/* Quick action — log a game */}
