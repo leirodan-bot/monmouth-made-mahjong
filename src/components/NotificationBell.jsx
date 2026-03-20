@@ -35,7 +35,51 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer }) 
       .eq('player_id', player.id)
       .order('created_at', { ascending: false })
       .limit(20)
-    setNotifications(data || [])
+    
+    const notifs = data || []
+    
+    // Auto-clear stale confirm_match notifications for already-confirmed games
+    const unreadConfirms = notifs.filter(n => n.type === 'confirm_match' && !n.read && n.match_id)
+    if (unreadConfirms.length > 0) {
+      const matchIds = [...new Set(unreadConfirms.map(n => n.match_id))]
+      const { data: matches } = await supabase
+        .from('matches')
+        .select('id, status')
+        .in('id', matchIds)
+      
+      if (matches) {
+        const confirmedIds = matches.filter(m => m.status !== 'pending').map(m => m.id)
+        if (confirmedIds.length > 0) {
+          // Mark stale notifications as read
+          const staleNotifIds = unreadConfirms
+            .filter(n => confirmedIds.includes(n.match_id))
+            .map(n => n.id)
+          
+          for (const nid of staleNotifIds) {
+            try {
+              await supabase.rpc('mark_notification_read', {
+                p_notification_id: nid,
+                p_player_id: player.id
+              })
+            } catch (err) {
+              console.error('Auto-clear failed:', err)
+            }
+          }
+          
+          // Re-fetch to get clean state
+          const { data: freshData } = await supabase
+            .from('notifications')
+            .select('*')
+            .eq('player_id', player.id)
+            .order('created_at', { ascending: false })
+            .limit(20)
+          setNotifications(freshData || [])
+          return
+        }
+      }
+    }
+    
+    setNotifications(notifs)
   }
 
   async function handleConfirm(notif) {
