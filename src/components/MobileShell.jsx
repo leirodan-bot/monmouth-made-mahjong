@@ -250,7 +250,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 <div
                   style={{
                     width: '100%',
-                    background: '#1e2b65',
+                    background: '#ea580c',
                     borderRadius: 12,
                     padding: '14px 16px',
                     display: 'flex',
@@ -262,11 +262,11 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 >
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
-                    background: 'rgba(255,255,255,0.15)', color: '#fff',
+                    background: 'rgba(255,255,255,0.25)', color: '#fff',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 13, fontWeight: 700,
                   }}>{awaitingCount}</div>
-                  <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 500 }}>
+                  <span style={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>
                     {awaitingCount === 1 ? 'game' : 'games'} awaiting verification
                   </span>
                 </div>
