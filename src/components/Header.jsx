@@ -3,7 +3,7 @@ import { supabase } from '../supabase'
 import logoHeader from '../assets/logo-header.png'
 import NotificationBell from './NotificationBell'
 
-export default function Header({ session, player, tab, setTab }) {
+export default function Header({ session, player, tab, setTab, refreshPlayer }) {
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef(null)
 
@@ -56,7 +56,7 @@ export default function Header({ session, player, tab, setTab }) {
           <div ref={menuRef} style={{ position: 'relative' }}>
             {session ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <NotificationBell player={player} onNavigate={setTab} />
+                <NotificationBell player={player} onNavigate={setTab} refreshPlayer={refreshPlayer} />
                 <button
                   onClick={() => setShowMenu(!showMenu)}
                   style={{

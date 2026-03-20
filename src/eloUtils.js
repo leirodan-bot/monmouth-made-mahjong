@@ -17,12 +17,12 @@ const INACTIVITY_DAYS = 60
 
 // ── Tier Definitions (from spec Table 6) ──
 export const TIERS = [
-  { name: 'Novice',       min: 0,    max: 699,  color: '#6b7280', bg: '#6b7280', textColor: 'white' },
-  { name: 'Beginner',     min: 700,  max: 799,  color: '#b8860b', bg: '#cd7f32', textColor: 'white' },
-  { name: 'Skilled',      min: 800,  max: 899,  color: '#71717a', bg: '#a8a8a8', textColor: 'white' },
-  { name: 'Expert',       min: 900,  max: 999,  color: '#b8860b', bg: '#d4a745', textColor: 'white' },
-  { name: 'Master',       min: 1000, max: 1099, color: '#6b7280', bg: '#8b95a5', textColor: 'white' },
-  { name: 'Grandmaster',  min: 1100, max: 99999, color: '#1e2b65', bg: '#1e2b65', textColor: '#f0c040' },
+  { name: 'Novice',       min: 0,    max: 749,  color: '#6b7280', bg: '#6b7280', textColor: 'white' },
+  { name: 'Beginner',     min: 750,  max: 849,  color: '#b8860b', bg: '#cd7f32', textColor: 'white' },
+  { name: 'Skilled',      min: 850,  max: 949,  color: '#71717a', bg: '#a8a8a8', textColor: 'white' },
+  { name: 'Expert',       min: 950,  max: 1049, color: '#b8860b', bg: '#d4a745', textColor: 'white' },
+  { name: 'Master',       min: 1050, max: 1149, color: '#6b7280', bg: '#8b95a5', textColor: 'white' },
+  { name: 'Grandmaster',  min: 1150, max: 99999, color: '#1e2b65', bg: '#1e2b65', textColor: '#f0c040' },
 ]
 
 /**

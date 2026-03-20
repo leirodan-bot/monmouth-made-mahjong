@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: ProfileIcon },
 ]
 
-export default function MobileShell({ session, player, onSignOut }) {
+export default function MobileShell({ session, player, onSignOut, refreshPlayer }) {
   const [tab, setTab] = useState(session ? 'home' : 'landing')
   const [pendingCount, setPendingCount] = useState(0)
 
@@ -57,9 +57,12 @@ export default function MobileShell({ session, player, onSignOut }) {
     if (!session) setTab('landing')
   }, [session])
 
-  // Scroll to top on tab change
+  // Re-fetch pending count and scroll to top on tab change
   useEffect(() => {
     window.scrollTo(0, 0)
+    if (tab === 'home' && player?.id) {
+      fetchPendingCount()
+    }
   }, [tab])
 
   // If not logged in and on landing, show the full homepage
@@ -100,7 +103,7 @@ export default function MobileShell({ session, player, onSignOut }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {session && player && (
-            <NotificationBell player={player} onNavigate={setTab} />
+            <NotificationBell player={player} onNavigate={setTab} refreshPlayer={refreshPlayer} />
           )}
           {session ? (
             <button
@@ -171,7 +174,7 @@ export default function MobileShell({ session, player, onSignOut }) {
                   {[
                     { label: 'Games', value: (player?.wins || 0) + (player?.losses || 0) },
                     { label: 'Wins', value: player?.wins || 0 },
-                    { label: 'Elo', value: player?.elo_rating ? Math.round(player.elo_rating) : '800' },
+                    { label: 'Elo', value: player?.elo ? Math.round(player.elo) : '800' },
                   ].map((s, i) => (
                     <div key={i} style={{
                       background: 'rgba(255,255,255,0.08)',
@@ -314,7 +317,7 @@ export default function MobileShell({ session, player, onSignOut }) {
                   paddingTop: 16, borderTop: '0.5px solid #e8e8e4',
                 }}>
                   {[
-                    { label: 'Elo', value: player?.elo_rating ? Math.round(player.elo_rating) : '800' },
+                    { label: 'Elo', value: player?.elo ? Math.round(player.elo) : '800' },
                     { label: 'Wins', value: player?.wins || 0 },
                     { label: 'Losses', value: player?.losses || 0 },
                   ].map((s, i) => (
@@ -383,7 +386,7 @@ export default function MobileShell({ session, player, onSignOut }) {
           {tab === 'towns' && <Towns />}
           {tab === 'players' && session && <Players session={session} player={player} />}
           {tab === 'clubs' && session && <Clubs session={session} player={player} />}
-          {tab === 'record' && session && <RecordMatch session={session} player={player} />}
+          {tab === 'record' && session && <RecordMatch session={session} player={player} refreshPlayer={refreshPlayer} />}
           {tab === 'howitworks' && <HowItWorks />}
           {tab === 'activity' && <ActivityFeed player={player} />}
           {tab === 'terms' && <TermsOfService setTab={setTab} />}

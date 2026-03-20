@@ -30,7 +30,7 @@ const NMJL_SECTIONS = [
   ]},
 ]
 
-export default function RecordMatch({ session, player }) {
+export default function RecordMatch({ session, player, refreshPlayer }) {
   const [players, setPlayers] = useState([])
   const [locations, setLocations] = useState([])
   const [selectedPlayers, setSelectedPlayers] = useState([])
@@ -225,6 +225,7 @@ export default function RecordMatch({ session, player }) {
         p_player_id: player.id
       })
       if (error) console.error('Confirm error:', error)
+      else if (refreshPlayer) refreshPlayer()
     } catch (err) {
       console.error('Confirm failed:', err)
     }

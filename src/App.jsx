@@ -85,6 +85,12 @@ function App() {
     setLoading(false)
   }
 
+  async function refreshPlayer() {
+    if (session?.user?.id) {
+      await fetchPlayer(session.user.id)
+    }
+  }
+
   async function handleSignOut() {
     await supabase.auth.signOut()
   }
@@ -109,7 +115,7 @@ function App() {
 
   // ===== MOBILE / PWA LAYOUT =====
   if (isMobile) {
-    return <MobileShell session={session} player={player} onSignOut={handleSignOut} />
+    return <MobileShell session={session} player={player} onSignOut={handleSignOut} refreshPlayer={refreshPlayer} />
   }
 
   // ===== DESKTOP LAYOUT =====
@@ -134,13 +140,13 @@ function App() {
 
   return (
     <div className="floral-bg" style={{ minHeight: '100vh' }}>
-      <Header session={session} player={player} tab={tab} setTab={setTab} />
+      <Header session={session} player={player} tab={tab} setTab={setTab} refreshPlayer={refreshPlayer} />
       <main style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px' }}>
         {tab === 'rankings' && <Rankings session={session} player={player} />}
         {tab === 'towns' && <Towns />}
         {tab === 'players' && session && <Players session={session} player={player} />}
         {tab === 'clubs' && session && <Clubs session={session} player={player} />}
-        {tab === 'record' && session && <RecordMatch session={session} player={player} />}
+        {tab === 'record' && session && <RecordMatch session={session} player={player} refreshPlayer={refreshPlayer} />}
         {tab === 'howitworks' && <HowItWorks />}
         {tab === 'activity' && <ActivityFeed player={player} />}
         {tab === 'terms' && <TermsOfService setTab={setTab} />}
