@@ -47,7 +47,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
               style={{ height: 44, overflow: 'hidden', borderRadius: 6, cursor: 'pointer' }}
               onClick={() => setTab('home')}
             >
-              <img src={logoHeader} alt="MahjRank" style={{ height: 64, display: 'block' }} />
+              <img src={logoHeader} alt="MahjRank" style={{ height: 80, display: 'block' }} />
             </div>
             <div style={{ fontSize: 11, color: '#64748B', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1.5px' }}>SEASON 1 · 2025–2026</div>
           </div>
