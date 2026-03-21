@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
-import logoWhite from '../assets/logo-white-nobg.png'
+import logoWhite from '../assets/mahjrank/mahjranklogomonowhite1800.png'
 
 export default function Homepage({ setTab }) {
   const [topPlayers, setTopPlayers] = useState([])
@@ -12,7 +12,6 @@ export default function Homepage({ setTab }) {
     fetchStats()
   }, [])
 
-  // Scroll reveal observer
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -22,7 +21,6 @@ export default function Homepage({ setTab }) {
         }
       })
     }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' })
-
     revealRefs.current.forEach(el => { if (el) observer.observe(el) })
     return () => observer.disconnect()
   }, [topPlayers])
@@ -30,8 +28,8 @@ export default function Homepage({ setTab }) {
   async function fetchLeaderboard() {
     const { data } = await supabase
       .from('players')
-      .select('id, name, elo_rating, wins, losses, organization:organizations(name)')
-      .order('elo_rating', { ascending: false })
+      .select('*')
+      .order('elo', { ascending: false })
       .limit(5)
     if (data) setTopPlayers(data)
   }
@@ -39,8 +37,8 @@ export default function Homepage({ setTab }) {
   async function fetchStats() {
     const [playersRes, gamesRes, clubsRes] = await Promise.all([
       supabase.from('players').select('id', { count: 'exact', head: true }),
-      supabase.from('games').select('id', { count: 'exact', head: true }),
-      supabase.from('organizations').select('id', { count: 'exact', head: true }),
+      supabase.from('matches').select('id', { count: 'exact', head: true }),
+      supabase.from('clubs').select('id', { count: 'exact', head: true }),
     ])
     setStats({
       players: playersRes.count || 0,
@@ -53,7 +51,7 @@ export default function Homepage({ setTab }) {
     if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el)
   }
 
-  const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']
+  const rankColors = ['#F59E0B', '#C0C0C0', '#CD7F32', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']
 
   return (
     <div style={{ minHeight: '100vh', overflow: 'hidden' }}>
@@ -66,37 +64,36 @@ export default function Homepage({ setTab }) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#1e2b65',
+        background: '#0F172A',
         overflow: 'hidden',
         textAlign: 'center',
         padding: '2rem',
       }}>
-        {/* Subtle radial glow */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(196,163,90,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(6,95,70,0.08) 0%, transparent 70%)',
         }} />
 
         <img
           src={logoWhite}
-          alt="Monmouth Made Mah Jongg"
+          alt="MahjRank"
           style={{
-            width: 'min(680px, 85vw)',
+            width: 'min(480px, 75vw)',
             marginBottom: '2.5rem',
-            animation: 'mmj-fadeUp 1s ease-out 0.2s both',
+            animation: 'mr-fadeUp 1s ease-out 0.2s both',
           }}
         />
 
         <p style={{
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "'Outfit', sans-serif",
           fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)',
           color: 'rgba(255,255,255,0.7)',
           fontWeight: 400,
           letterSpacing: '0.04em',
           marginBottom: '1rem',
-          animation: 'mmj-fadeUp 1s ease-out 0.5s both',
+          animation: 'mr-fadeUp 1s ease-out 0.5s both',
         }}>
-          Track your game. Climb the ranks. Join the <em style={{ color: '#C4A35A', fontStyle: 'italic' }}>community.</em>
+          Track your game. Climb the ranks. Know your <em style={{ color: '#F59E0B', fontStyle: 'italic' }}>number.</em>
         </p>
 
         <p style={{
@@ -105,29 +102,29 @@ export default function Homepage({ setTab }) {
           maxWidth: 480,
           lineHeight: 1.7,
           marginBottom: '2.8rem',
-          fontFamily: 'sans-serif',
-          animation: 'mmj-fadeUp 1s ease-out 0.7s both',
+          fontFamily: "'DM Sans', sans-serif",
+          animation: 'mr-fadeUp 1s ease-out 0.7s both',
         }}>
-          The first Elo-rated ranking platform for American Mah Jongg players. Built in Monmouth County, open to the world.
+          The first Elo rating platform for in-person American Mahjong. Log games, earn badges, and see where you rank.
         </p>
 
         <div style={{
           display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center',
-          animation: 'mmj-fadeUp 1s ease-out 0.9s both',
+          animation: 'mr-fadeUp 1s ease-out 0.9s both',
         }}>
           <button
             onClick={() => setTab('players')}
             style={{
               padding: '14px 36px', borderRadius: 50, border: 'none',
-              background: '#C4A35A', color: '#111D33',
-              fontFamily: 'sans-serif', fontSize: '0.95rem', fontWeight: 700,
+              background: '#DC2626', color: '#fff',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 700,
               cursor: 'pointer', letterSpacing: '0.02em',
               transition: 'all 0.3s ease',
             }}
-            onMouseEnter={e => { e.target.style.background = '#D4B97A'; e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(196,163,90,0.3)' }}
-            onMouseLeave={e => { e.target.style.background = '#C4A35A'; e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none' }}
+            onMouseEnter={e => { e.target.style.background = '#EF4444'; e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(220,38,38,0.3)' }}
+            onMouseLeave={e => { e.target.style.background = '#DC2626'; e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none' }}
           >
-            Create Account
+            Get Started — Free
           </button>
           <button
             onClick={() => setTab('players')}
@@ -135,7 +132,7 @@ export default function Homepage({ setTab }) {
               padding: '14px 36px', borderRadius: 50,
               background: 'transparent', color: '#ffffff',
               border: '1.5px solid rgba(255,255,255,0.25)',
-              fontFamily: 'sans-serif', fontSize: '0.95rem', fontWeight: 600,
+              fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 600,
               cursor: 'pointer', letterSpacing: '0.02em',
               transition: 'all 0.3s ease',
             }}
@@ -146,10 +143,9 @@ export default function Homepage({ setTab }) {
           </button>
         </div>
 
-        {/* Scroll hint */}
         <div style={{
           position: 'absolute', bottom: '2.5rem', left: '50%', transform: 'translateX(-50%)',
-          animation: 'mmj-fadeUp 1s ease-out 1.2s both',
+          animation: 'mr-fadeUp 1s ease-out 1.2s both',
         }}>
           <div style={{
             width: 24, height: 38, border: '2px solid rgba(255,255,255,0.2)',
@@ -159,7 +155,7 @@ export default function Homepage({ setTab }) {
               width: 4, height: 8, background: 'rgba(255,255,255,0.4)',
               borderRadius: 2, position: 'absolute', top: 6, left: '50%',
               transform: 'translateX(-50%)',
-              animation: 'mmj-scrollBounce 2s ease-in-out infinite',
+              animation: 'mr-scrollBounce 2s ease-in-out infinite',
             }} />
           </div>
         </div>
@@ -167,9 +163,9 @@ export default function Homepage({ setTab }) {
 
       {/* ===== STATS BAR ===== */}
       <div style={{
-        background: '#111D33', padding: '1.4rem 2rem',
+        background: '#1E293B', padding: '1.4rem 2rem',
         display: 'flex', justifyContent: 'center', gap: '3rem', flexWrap: 'wrap',
-        borderTop: '1px solid rgba(196,163,90,0.15)',
+        borderTop: '1px solid rgba(6,95,70,0.2)',
       }}>
         {[
           { num: stats.players || '—', label: 'Players' },
@@ -178,25 +174,21 @@ export default function Homepage({ setTab }) {
           { num: 'Season 1', label: 'May 2025 – Apr 2026' },
         ].map((s, i) => (
           <div key={i} style={{ textAlign: 'center', color: '#fff' }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700, color: '#C4A35A', display: 'block' }}>{s.num}</span>
-            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: 2, display: 'block', fontFamily: 'sans-serif' }}>{s.label}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '1.6rem', fontWeight: 700, color: '#F59E0B', display: 'block' }}>{s.num}</span>
+            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: 2, display: 'block', fontFamily: "'DM Sans', sans-serif" }}>{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* ===== WHAT IS THIS ===== */}
-      <section style={{ padding: '5rem 2rem', position: 'relative', overflow: 'hidden' }}>
-        {/* Floral background with overlay */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'url(/bg-floral.jpg)', backgroundSize: '500px 500px', backgroundRepeat: 'repeat' }} />
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'rgba(250,248,243,0.92)' }} />
-
-        <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#C4A35A', fontWeight: 600, marginBottom: '0.8rem', fontFamily: 'sans-serif' }}>What is this?</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#1e2b65', lineHeight: 1.2, marginBottom: '1.2rem' }}>
-            Your Mah Jongg game,<br />finally measured.
+      <section style={{ padding: '5rem 2rem', background: '#F8FAFC' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#065F46', fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'DM Sans', sans-serif" }}>What is MahjRank?</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#0F172A', lineHeight: 1.2, marginBottom: '1.2rem' }}>
+            Your Mahjong game,<br />finally measured.
           </h2>
-          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, fontFamily: 'sans-serif' }}>
-            Monmouth Made Mah Jongg is a community platform where American Mah Jongg players track their wins, earn Elo ratings, and see how they stack up — whether you play at the community center, your friend's kitchen table, or a tournament.
+          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, fontFamily: "'DM Sans', sans-serif" }}>
+            MahjRank is the first platform to bring Elo-based skill ratings to in-person American Mahjong. Track your wins, earn badges, and see how you stack up — whether you play at the community center, your friend's kitchen table, or a tournament.
           </p>
 
           <div ref={addRevealRef} style={{
@@ -205,27 +197,27 @@ export default function Homepage({ setTab }) {
             opacity: 0, transform: 'translateY(30px)', transition: 'all 0.8s ease',
           }}>
             <div style={{
-              background: '#1e2b65', borderRadius: 20, padding: '3rem',
+              background: '#0F172A', borderRadius: 20, padding: '3rem',
               display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 280,
             }}>
-              <img src={logoWhite} alt="Monmouth Made Mah Jongg" style={{ width: '80%' }} />
+              <img src={logoWhite} alt="MahjRank" style={{ width: '80%' }} />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.8rem' }}>
               {[
-                { icon: '📊', title: 'Elo-Rated Rankings', desc: 'The same rating system used in chess, adapted for 4-player Mah Jongg. Every game counts toward your rating.' },
+                { icon: '📊', title: 'Elo-Rated Rankings', desc: 'The same rating system used in chess, adapted for 4-player Mahjong. Every game counts toward your rating.' },
                 { icon: '🏅', title: 'Badges & Achievements', desc: 'Earn recognition for milestones — first win, win streaks, climbing the leaderboard, and more.' },
-                { icon: '🏠', title: 'Club Management', desc: 'Organize your local group, track club stats, and run seasonal leagues all in one place.' },
+                { icon: '🏠', title: 'Club Management', desc: 'Organize your group, track club stats, and run seasonal leagues all in one place.' },
                 { icon: '📱', title: 'Works Like an App', desc: 'Install it right from your browser — no app store needed. Log games on your phone at the table.' },
               ].map((f, i) => (
                 <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                   <div style={{
-                    width: 44, height: 44, background: '#1e2b65', borderRadius: 12,
+                    width: 44, height: 44, background: '#0F172A', borderRadius: 12,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem',
                   }}>{f.icon}</div>
                   <div>
-                    <h4 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.05rem', color: '#1e2b65', marginBottom: '0.3rem' }}>{f.title}</h4>
-                    <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.6, fontFamily: 'sans-serif' }}>{f.desc}</p>
+                    <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.05rem', color: '#0F172A', marginBottom: '0.3rem' }}>{f.title}</h4>
+                    <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif" }}>{f.desc}</p>
                   </div>
                 </div>
               ))}
@@ -235,49 +227,46 @@ export default function Homepage({ setTab }) {
       </section>
 
       {/* ===== HOW IT WORKS ===== */}
-      <section style={{ padding: '5rem 2rem', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'url(/bg-floral.jpg)', backgroundSize: '500px 500px', backgroundRepeat: 'repeat' }} />
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'rgba(255,255,255,0.92)' }} />
-
-        <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#C4A35A', fontWeight: 600, marginBottom: '0.8rem', fontFamily: 'sans-serif' }}>How it works</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#1e2b65', lineHeight: 1.2, marginBottom: '1.2rem' }}>
+      <section style={{ padding: '5rem 2rem', background: '#ffffff' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#065F46', fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'DM Sans', sans-serif" }}>How it works</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#0F172A', lineHeight: 1.2, marginBottom: '1.2rem' }}>
             Three steps to the table.
           </h2>
-          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, fontFamily: 'sans-serif' }}>
+          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, fontFamily: "'DM Sans', sans-serif" }}>
             Getting started takes less than a minute.
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2.5rem', marginTop: '3.5rem' }}>
             {[
-              { num: '1', icon: '✍️', title: 'Sign Up & Join a Club', desc: 'Create your free account and join your local Mah Jongg group — or start a new one. Every player gets a starting Elo rating of 1200.' },
-              { num: '2', icon: '🀄', title: 'Play & Log Your Games', desc: 'After each session, log who played and who won. It takes 30 seconds. Other players can verify the result for accuracy.' },
-              { num: '3', icon: '🏆', title: 'Watch Your Rating Rise', desc: 'Your Elo rating updates instantly. Track your progress, compare with friends, and climb the seasonal leaderboard.' },
-            ].map((step, i) => (
+              { num: '1', icon: '✍️', title: 'Sign Up & Join a Club', desc: 'Create your free account and join your Mahjong group — or start a new one. Every player starts with an 800 Elo rating.' },
+              { num: '2', icon: '🀄', title: 'Play & Log Your Games', desc: 'After each session, log who played and who won. It takes 30 seconds. Other players verify the result for accuracy.' },
+              { num: '3', icon: '🏆', title: 'Watch Your Rating Rise', desc: 'Your Elo rating updates after every verified game. Track your progress, earn badges, and climb the leaderboard.' },
+            ].map((s, i) => (
               <div
                 key={i}
                 ref={addRevealRef}
                 style={{
-                  position: 'relative', background: 'rgba(255,255,255,0.85)',
-                  backdropFilter: 'blur(4px)', borderRadius: 20,
-                  padding: '2.5rem 2rem 2rem', border: '1px solid rgba(27,42,74,0.06)',
+                  position: 'relative', background: '#F8FAFC',
+                  borderRadius: 20,
+                  padding: '2.5rem 2rem 2rem', border: '1px solid #e8e8e4',
                   transition: 'all 0.3s ease',
                   opacity: 0, transform: 'translateY(30px)',
                   transitionDelay: `${i * 0.15}s`,
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(27,42,74,0.08)' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(15,23,42,0.08)' }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
               >
                 <span style={{
-                  fontFamily: "'Playfair Display', serif", fontSize: '3.5rem', fontWeight: 700,
-                  color: '#C4A35A', opacity: 0.3, position: 'absolute', top: '1rem', right: '1.5rem', lineHeight: 1,
-                }}>{step.num}</span>
+                  fontFamily: "'Outfit', sans-serif", fontSize: '3.5rem', fontWeight: 700,
+                  color: '#F59E0B', opacity: 0.3, position: 'absolute', top: '1rem', right: '1.5rem', lineHeight: 1,
+                }}>{s.num}</span>
                 <div style={{
-                  width: 56, height: 56, background: '#1e2b65', borderRadius: 16,
+                  width: 56, height: 56, background: '#0F172A', borderRadius: 16,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '1.5rem',
-                }}>{step.icon}</div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1e2b65', marginBottom: '0.6rem' }}>{step.title}</h3>
-                <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.7, fontFamily: 'sans-serif' }}>{step.desc}</p>
+                }}>{s.icon}</div>
+                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.2rem', color: '#0F172A', marginBottom: '0.6rem' }}>{s.title}</h3>
+                <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.7, fontFamily: "'DM Sans', sans-serif" }}>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -286,17 +275,17 @@ export default function Homepage({ setTab }) {
 
       {/* ===== LEADERBOARD PREVIEW ===== */}
       <section style={{
-        background: '#1e2b65', color: '#fff', padding: '5rem 2rem',
+        background: '#0F172A', color: '#fff', padding: '5rem 2rem',
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(196,163,90,0.05), transparent)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(6,95,70,0.06), transparent)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#C4A35A', fontWeight: 600, marginBottom: '0.8rem', fontFamily: 'sans-serif' }}>Rankings</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '1.2rem' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#F59E0B', fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'DM Sans', sans-serif" }}>Rankings</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '1.2rem' }}>
             Who's on top?
           </h2>
-          <p style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, maxWidth: 640, fontFamily: 'sans-serif' }}>
+          <p style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, maxWidth: 640, fontFamily: "'DM Sans', sans-serif" }}>
             The current Season 1 leaderboard, ranked by Elo rating.
           </p>
 
@@ -306,20 +295,18 @@ export default function Homepage({ setTab }) {
             backdropFilter: 'blur(10px)',
             opacity: 0, transform: 'translateY(30px)', transition: 'all 0.8s ease',
           }}>
-            {/* Header */}
             <div style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               padding: '1.5rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.06)',
             }}>
-              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem', color: '#fff', margin: 0 }}>Season 1 Leaderboard</h3>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.1rem', color: '#fff', margin: 0 }}>Season 1 Leaderboard</h3>
               <span style={{
-                fontSize: '0.75rem', color: '#C4A35A', textTransform: 'uppercase',
-                letterSpacing: '0.1em', background: 'rgba(196,163,90,0.1)',
-                padding: '0.35rem 0.9rem', borderRadius: 20, fontFamily: 'sans-serif',
+                fontSize: '0.75rem', color: '#F59E0B', textTransform: 'uppercase',
+                letterSpacing: '0.1em', background: 'rgba(245,158,11,0.1)',
+                padding: '0.35rem 0.9rem', borderRadius: 20, fontFamily: "'DM Sans', sans-serif",
               }}>Live Rankings</span>
             </div>
 
-            {/* Rows */}
             {topPlayers.length > 0 ? topPlayers.map((p, i) => (
               <div key={p.id} style={{
                 display: 'flex', alignItems: 'center', padding: '1rem 2rem',
@@ -330,34 +317,30 @@ export default function Homepage({ setTab }) {
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <span style={{
-                  width: 50, fontFamily: "'Playfair Display', serif", fontWeight: 700,
+                  width: 50, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
                   fontSize: '1.1rem', color: rankColors[i] || 'rgba(255,255,255,0.3)',
                 }}>{i + 1}</span>
-                <span style={{ flex: 1, fontWeight: 500, color: '#fff', fontFamily: 'sans-serif', fontSize: '0.95rem' }}>{p.name}</span>
-                <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.85rem', fontFamily: 'sans-serif', marginRight: 24 }}>
-                  {p.organization?.name || ''}
-                </span>
-                <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.85rem', fontFamily: 'sans-serif', width: 100, textAlign: 'right', marginRight: 24 }}>
+                <span style={{ flex: 1, fontWeight: 500, color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}>{p.name}</span>
+                <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.85rem', fontFamily: "'DM Sans', sans-serif", width: 100, textAlign: 'right', marginRight: 24 }}>
                   {p.wins || 0}W – {p.losses || 0}L
                 </span>
                 <span style={{
-                  fontFamily: 'sans-serif', fontWeight: 600, color: '#C4A35A',
+                  fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, color: '#F59E0B',
                   fontSize: '1rem', width: 60, textAlign: 'right',
-                }}>{p.elo_rating ? Math.round(p.elo_rating).toLocaleString() : '—'}</span>
+                }}>{p.elo ? Math.round(p.elo).toLocaleString() : '—'}</span>
               </div>
             )) : (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontFamily: 'sans-serif', fontSize: '0.9rem' }}>
-                Loading rankings...
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontFamily: "'DM Sans', sans-serif", fontSize: '0.9rem' }}>
+                Be the first to join and claim the #1 spot.
               </div>
             )}
 
-            {/* Footer */}
             <div style={{ padding: '1.2rem 2rem', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <button
                 onClick={() => setTab('rankings')}
                 style={{
-                  background: 'none', border: 'none', color: '#C4A35A', cursor: 'pointer',
-                  fontSize: '0.85rem', fontWeight: 500, letterSpacing: '0.03em', fontFamily: 'sans-serif',
+                  background: 'none', border: 'none', color: '#F59E0B', cursor: 'pointer',
+                  fontSize: '0.85rem', fontWeight: 500, letterSpacing: '0.03em', fontFamily: "'DM Sans', sans-serif",
                 }}
               >
                 View Full Rankings →
@@ -368,28 +351,25 @@ export default function Homepage({ setTab }) {
       </section>
 
       {/* ===== CTA ===== */}
-      <section style={{ padding: '5rem 2rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'url(/bg-floral.jpg)', backgroundSize: '500px 500px', backgroundRepeat: 'repeat' }} />
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'rgba(250,248,243,0.92)' }} />
-
-        <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#C4A35A', fontWeight: 600, marginBottom: '0.8rem', fontFamily: 'sans-serif' }}>Ready to play?</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#1e2b65', lineHeight: 1.2, marginBottom: '1rem' }}>
+      <section style={{ padding: '5rem 2rem', textAlign: 'center', background: '#F8FAFC' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#065F46', fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'DM Sans', sans-serif" }}>Ready to play?</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#0F172A', lineHeight: 1.2, marginBottom: '1rem' }}>
             Your seat at the table is waiting.
           </h2>
-          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, margin: '0 auto 2.5rem', fontFamily: 'sans-serif' }}>
-            Join Monmouth Made Mah Jongg today — it's free. Start tracking your games, earning your rating, and connecting with players near you.
+          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, margin: '0 auto 2.5rem', fontFamily: "'DM Sans', sans-serif" }}>
+            Join MahjRank today — it's free. Start tracking your games, earning your rating, and connecting with players everywhere.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               onClick={() => setTab('players')}
               style={{
                 padding: '14px 36px', borderRadius: 50, border: 'none',
-                background: '#1e2b65', color: '#fff',
-                fontFamily: 'sans-serif', fontSize: '0.95rem', fontWeight: 700,
+                background: '#DC2626', color: '#fff',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 700,
                 cursor: 'pointer', transition: 'all 0.3s ease',
               }}
-              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(27,42,74,0.2)' }}
+              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(220,38,38,0.2)' }}
               onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none' }}
             >
               Create Your Free Account
@@ -398,9 +378,9 @@ export default function Homepage({ setTab }) {
               onClick={() => setTab('howitworks')}
               style={{
                 padding: '14px 36px', borderRadius: 50,
-                background: 'transparent', color: '#1e2b65',
-                border: '1.5px solid #1e2b65',
-                fontFamily: 'sans-serif', fontSize: '0.95rem', fontWeight: 600,
+                background: 'transparent', color: '#0F172A',
+                border: '1.5px solid #0F172A',
+                fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 600,
                 cursor: 'pointer', transition: 'all 0.3s ease',
               }}
             >
@@ -412,15 +392,14 @@ export default function Homepage({ setTab }) {
 
       {/* ===== FOOTER ===== */}
       <footer style={{
-        background: '#111D33', color: 'rgba(255,255,255,0.4)', padding: '2.5rem 2rem',
-        textAlign: 'center', fontSize: '0.8rem', fontFamily: 'sans-serif',
+        background: '#0F172A', color: 'rgba(255,255,255,0.4)', padding: '2.5rem 2rem',
+        textAlign: 'center', fontSize: '0.8rem', fontFamily: "'DM Sans', sans-serif",
         borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
         <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
           {[
             { label: 'Rankings', tab: 'rankings' },
             { label: 'How It Works', tab: 'howitworks' },
-            { label: 'Towns', tab: 'towns' },
             { label: 'Terms of Service', tab: 'terms' },
             { label: 'Privacy Policy', tab: 'privacy' },
           ].map(link => (
@@ -429,27 +408,26 @@ export default function Homepage({ setTab }) {
               onClick={() => setTab(link.tab)}
               style={{
                 background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
-                fontSize: '0.8rem', fontFamily: 'sans-serif', cursor: 'pointer', padding: 0,
+                fontSize: '0.8rem', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer', padding: 0,
                 transition: 'color 0.2s',
               }}
-              onMouseEnter={e => e.target.style.color = '#C4A35A'}
+              onMouseEnter={e => e.target.style.color = '#F59E0B'}
               onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.4)'}
             >
               {link.label}
             </button>
           ))}
         </div>
-        <p style={{ margin: 0 }}>Monmouth Made Mah Jongg™ · Monmouth County, New Jersey</p>
-        <p style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', color: 'rgba(255,255,255,0.25)' }}>© 2025 Monmouth Made Mah Jongg. All rights reserved.</p>
+        <p style={{ margin: 0 }}>MahjRank™ · Season 1 · 2025–2026</p>
+        <p style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', color: 'rgba(255,255,255,0.25)' }}>© 2025 MahjRank. All rights reserved.</p>
       </footer>
 
-      {/* ===== KEYFRAME ANIMATIONS ===== */}
       <style>{`
-        @keyframes mmj-fadeUp {
+        @keyframes mr-fadeUp {
           from { opacity: 0; transform: translateY(24px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes mmj-scrollBounce {
+        @keyframes mr-scrollBounce {
           0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.4; }
           50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
         }
