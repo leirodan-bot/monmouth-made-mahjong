@@ -44,8 +44,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <div
-              style={{ height: 44, overflow: 'hidden', borderRadius: 6, cursor: 'pointer' }}
-              onClick={() => setTab('home')}
+style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}              onClick={() => setTab('home')}
             >
               <img src={logoHeader} alt="MahjRank" style={{ height: 80, display: 'block' }} />
             </div>
