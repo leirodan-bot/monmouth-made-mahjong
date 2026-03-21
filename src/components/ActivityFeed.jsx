@@ -16,7 +16,6 @@ export default function ActivityFeed({ player }) {
 
     const allItems = []
 
-    // Fetch recent matches
     const { data: matches } = await supabase
       .from('matches')
       .select('*')
@@ -28,7 +27,7 @@ export default function ActivityFeed({ player }) {
         const submitter = playerData?.find(p => p.id === m.submitted_by)
         const winnerP = playerData?.find(p => p.id === m.winner_id)
         const statusLabel = m.status === 'confirmed' ? 'Verified' : m.status === 'auto-verified' ? 'Auto-verified' : m.status === 'disputed' ? 'Disputed' : 'Pending'
-        const statusColor = m.status === 'confirmed' ? '#16a34a' : m.status === 'auto-verified' ? '#2563eb' : m.status === 'disputed' ? '#dc2626' : '#ea580c'
+        const statusColor = m.status === 'confirmed' ? '#065F46' : m.status === 'auto-verified' ? '#2563eb' : m.status === 'disputed' ? '#DC2626' : '#ea580c'
 
         allItems.push({
           id: `match-${m.id}`,
@@ -52,7 +51,6 @@ export default function ActivityFeed({ player }) {
       }
     }
 
-    // Fetch recent badges
     const { data: badges } = await supabase
       .from('player_badges')
       .select('*')
@@ -75,7 +73,6 @@ export default function ActivityFeed({ player }) {
       }
     }
 
-    // Sort by time descending
     allItems.sort((a, b) => b.time - a.time)
     setItems(allItems)
     setLoading(false)
@@ -97,16 +94,15 @@ export default function ActivityFeed({ player }) {
 
   const filtered = filter === 'all' ? items : items.filter(i => i.type === filter)
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: 'sans-serif', color: '#888' }}>Loading activity...</div>
+  if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: "'DM Sans', sans-serif", color: '#888' }}>Loading activity...</div>
 
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>Activity Feed</h2>
-        <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Recent games, badges, and community updates</p>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Activity Feed</h2>
+        <p style={{ fontSize: 12, color: '#888', fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>Recent games, badges, and community updates</p>
       </div>
 
-      {/* Filters */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
         {[
           { key: 'all', label: 'All' },
@@ -114,8 +110,8 @@ export default function ActivityFeed({ player }) {
           { key: 'badge', label: 'Badges' },
         ].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)} style={{
-            padding: '5px 14px', borderRadius: 20, fontSize: 12, fontFamily: 'sans-serif', fontWeight: 600, cursor: 'pointer',
-            background: filter === f.key ? '#1e2b65' : 'white', color: filter === f.key ? '#f4f4f2' : '#555',
+            padding: '5px 14px', borderRadius: 20, fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
+            background: filter === f.key ? '#0F172A' : 'white', color: filter === f.key ? '#F8FAFC' : '#555',
             border: filter === f.key ? 'none' : '0.5px solid #c8cdd6'
           }}>
             {f.label}
@@ -123,10 +119,9 @@ export default function ActivityFeed({ player }) {
         ))}
       </div>
 
-      {/* Feed */}
       {filtered.length === 0 ? (
         <div style={{ background: 'white', border: '0.5px dashed #c8cdd6', borderRadius: 12, padding: 40, textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: '#888', fontFamily: 'sans-serif' }}>No activity yet. Games and badges will appear here.</div>
+          <div style={{ fontSize: 14, color: '#888', fontFamily: "'DM Sans', sans-serif" }}>No activity yet. Games and badges will appear here.</div>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: 0 }}>
@@ -140,31 +135,28 @@ export default function ActivityFeed({ player }) {
               borderRight: '0.5px solid #c8cdd6',
               borderRadius: i === 0 && i === filtered.length - 1 ? 10 : i === 0 ? '10px 10px 0 0' : i === filtered.length - 1 ? '0 0 10px 10px' : 0,
             }}>
-              {/* Icon */}
               <div style={{
                 width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                background: item.type === 'badge' ? '#fffdf0' : item.isPending ? '#fff7ed' : '#eef1f8',
+                background: item.type === 'badge' ? '#FFFBEB' : item.isPending ? '#fff7ed' : '#F0FDF4',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
               }}>
                 {item.icon}
               </div>
 
-              {/* Content */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1e2b65', lineHeight: 1.4 }}>{item.title}</div>
-                  <div style={{ fontSize: 10, color: '#aaa', fontFamily: 'sans-serif', flexShrink: 0 }}>{timeAgo(item.time)}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', lineHeight: 1.4 }}>{item.title}</div>
+                  <div style={{ fontSize: 10, color: '#aaa', fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}>{timeAgo(item.time)}</div>
                 </div>
 
                 {item.detail && (
-                  <div style={{ fontSize: 11, color: '#666', fontFamily: 'sans-serif', marginTop: 3, lineHeight: 1.4 }}>{item.detail}</div>
+                  <div style={{ fontSize: 11, color: '#666', fontFamily: "'DM Sans', sans-serif", marginTop: 3, lineHeight: 1.4 }}>{item.detail}</div>
                 )}
 
-                {/* Status badge for games */}
                 {item.status && (
                   <div style={{ marginTop: 6 }}>
                     <span style={{
-                      display: 'inline-block', fontSize: 10, fontWeight: 700, fontFamily: 'sans-serif',
+                      display: 'inline-block', fontSize: 10, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
                       padding: '2px 8px', borderRadius: 10,
                       background: item.statusColor + '15', color: item.statusColor
                     }}>
@@ -173,11 +165,10 @@ export default function ActivityFeed({ player }) {
                   </div>
                 )}
 
-                {/* Elo changes for confirmed games */}
                 {item.eloUpdates && (item.status === 'Verified' || item.status === 'Auto-verified') && (
                   <div style={{ marginTop: 6, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {item.eloUpdates.map(u => (
-                      <span key={u.id} style={{ fontSize: 10, fontFamily: 'sans-serif', color: u.delta > 0 ? '#16a34a' : u.delta < 0 ? '#dc2626' : '#888' }}>
+                      <span key={u.id} style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: u.delta > 0 ? '#065F46' : u.delta < 0 ? '#DC2626' : '#888' }}>
                         {getName(u.id)} {u.delta > 0 ? '+' : ''}{u.delta.toFixed(1)}
                       </span>
                     ))}
