@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../supabase'
-import logoHeader from '../assets/logo-header.png'
+import logoHeader from '../assets/mahjrank/mahjranklogodark2400.png'
 import NotificationBell from './NotificationBell'
 
 export default function Header({ session, player, tab, setTab, refreshPlayer }) {
@@ -26,21 +26,20 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
   }
 
   const tabs = session
-    ? ['rankings', 'howitworks', 'activity', 'towns', 'players', 'clubs', 'record']
-    : ['rankings', 'howitworks', 'towns']
+    ? ['rankings', 'howitworks', 'activity', 'players', 'clubs', 'record']
+    : ['rankings', 'howitworks']
 
   const tabLabels = {
     rankings: 'Rankings',
     howitworks: 'How It Works',
     activity: 'Activity',
-    towns: 'Towns',
     players: 'Players',
     clubs: 'Clubs',
     record: 'Record'
   }
 
   return (
-    <header style={{ background: '#1e2b65', color: '#f4f4f2', position: 'relative', zIndex: 1000 }}>
+    <header style={{ background: '#0F172A', color: '#F8FAFC', position: 'relative', zIndex: 1000 }}>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '16px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -48,9 +47,9 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
               style={{ height: 44, overflow: 'hidden', borderRadius: 6, cursor: 'pointer' }}
               onClick={() => setTab('home')}
             >
-              <img src={logoHeader} alt="Monmouth Made Mah Jongg" style={{ height: 44, display: 'block' }} />
+              <img src={logoHeader} alt="MahjRank" style={{ height: 44, display: 'block' }} />
             </div>
-            <div style={{ fontSize: 11, color: '#a0b0c8', fontFamily: 'sans-serif', letterSpacing: '1.5px' }}>COUNTY LEAGUE · SEASON 1 · 2025–2026</div>
+            <div style={{ fontSize: 11, color: '#64748B', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1.5px' }}>SEASON 1 · 2025–2026</div>
           </div>
           <div ref={menuRef} style={{ position: 'relative' }}>
             {session ? (
@@ -65,7 +64,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
                     padding: '8px 14px',
                     color: '#ffffff',
                     fontSize: 12,
-                    fontFamily: 'sans-serif',
+                    fontFamily: "'DM Sans', sans-serif",
                     cursor: 'pointer',
                   }}
                 >
@@ -86,7 +85,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
                     boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
                   }}>
                     <div style={{
-                      fontSize: 12, color: '#888', fontFamily: 'sans-serif',
+                      fontSize: 12, color: '#888', fontFamily: "'DM Sans', sans-serif",
                       padding: '4px 8px',
                     }}>
                       {session.user.email}
@@ -98,7 +97,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
                         style={{
                           display: 'block', width: '100%', textAlign: 'left',
                           padding: '8px 8px', background: 'none', border: 'none',
-                          fontSize: 12, fontFamily: 'sans-serif', color: '#1e2b65',
+                          fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: '#0F172A',
                           cursor: 'pointer', borderRadius: 4,
                         }}
                         onMouseEnter={e => e.target.style.background = '#f0f0f0'}
@@ -112,7 +111,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
                       style={{
                         display: 'block', width: '100%', textAlign: 'left',
                         padding: '8px 8px', background: 'none', border: 'none',
-                        fontSize: 12, fontFamily: 'sans-serif', color: '#9f1239',
+                        fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: '#DC2626',
                         cursor: 'pointer', borderRadius: 4,
                       }}
                       onMouseEnter={e => e.target.style.background = '#fff0f0'}
@@ -127,9 +126,9 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
               <button
                 onClick={() => setTab('players')}
                 style={{
-                  background: '#9f1239', border: 'none', borderRadius: 8,
+                  background: '#DC2626', border: 'none', borderRadius: 8,
                   padding: '8px 16px', color: '#ffffff', fontSize: 12,
-                  fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer',
+                  fontFamily: "'DM Sans', sans-serif", fontWeight: 700, cursor: 'pointer',
                 }}
               >
                 Sign In
@@ -149,24 +148,24 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
                   padding: '7px 18px',
                   margin: '6px 8px 6px 8px',
                   fontSize: 13,
-                  fontFamily: 'Playfair Display, serif',
+                  fontFamily: "'Outfit', sans-serif",
                   fontWeight: 700,
                   color: '#ffffff',
                   WebkitTextFillColor: '#ffffff',
-                  background: isActive ? '#9f1239' : '#b91c4a',
+                  background: isActive ? '#DC2626' : '#DC2626',
                   border: 'none',
                   borderRadius: 8,
                   cursor: 'pointer'
                 } : {
                   padding: '10px 20px',
                   fontSize: 13,
-                  fontFamily: 'Playfair Display, serif',
+                  fontFamily: "'Outfit', sans-serif",
                   fontWeight: 700,
                   color: '#ffffff',
                   WebkitTextFillColor: '#ffffff',
                   background: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
                   border: 'none',
-                  borderBottom: isActive ? '3px solid #9f1239' : '3px solid transparent',
+                  borderBottom: isActive ? '3px solid #DC2626' : '3px solid transparent',
                   cursor: 'pointer'
                 }}
               >

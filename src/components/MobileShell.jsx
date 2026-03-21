@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-import logoHeader from '../assets/logo-header.png'
+import logoHeader from '../assets/mahjrank/mahjranklogodark2400.png'
 import NotificationBell from './NotificationBell'
 import Homepage from './Homepage'
 import Rankings from './Rankings'
@@ -81,11 +81,11 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   const showBottomNav = !isLegalPage && tab !== 'login' && tab !== 'howitworks'
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f4f4f2' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFC' }}>
 
       {/* ===== TOP BAR ===== */}
       <div style={{
-        background: '#1e2b65',
+        background: '#0F172A',
         padding: '12px 16px',
         display: 'flex',
         alignItems: 'center',
@@ -98,7 +98,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           onClick={() => setTab(session ? 'home' : 'landing')}
         >
-          <img src={logoHeader} alt="Monmouth Made Mah Jongg" style={{ height: 36 }} />
+          <img src={logoHeader} alt="MahjRank" style={{ height: 36 }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {session && player && (
@@ -119,7 +119,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 padding: '6px 12px',
                 color: 'rgba(255,255,255,0.7)',
                 fontSize: 11,
-                fontFamily: 'sans-serif',
+                fontFamily: "'DM Sans', sans-serif",
               }}
             >
               Sign Out
@@ -128,13 +128,13 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             <button
               onClick={() => setTab('login')}
               style={{
-                background: '#9f1239',
+                background: '#DC2626',
                 border: 'none',
                 borderRadius: 8,
                 padding: '6px 14px',
                 color: '#fff',
                 fontSize: 12,
-                fontFamily: 'sans-serif',
+                fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 700,
               }}
             >
@@ -145,7 +145,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div className="floral-bg" style={{
+      <div style={{
         flex: 1,
         paddingBottom: showBottomNav ? 80 : 0,
       }}>
@@ -156,17 +156,17 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             <div>
               {/* Welcome card */}
               <div style={{
-                background: '#1e2b65',
+                background: '#0F172A',
                 borderRadius: 16,
                 padding: '20px',
                 marginBottom: 16,
                 color: '#fff',
               }}>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontFamily: 'sans-serif', marginBottom: 4 }}>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>
                   Welcome back,
                 </div>
                 <div style={{
-                  fontFamily: "'Playfair Display', serif",
+                  fontFamily: "'Outfit', sans-serif",
                   fontSize: 22, fontWeight: 700,
                   marginBottom: 16,
                 }}>
@@ -187,14 +187,14 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                       textAlign: 'center',
                     }}>
                       <div style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'JetBrains Mono', monospace",
                         fontSize: 20, fontWeight: 700,
-                        color: '#C4A35A',
+                        color: '#F59E0B',
                       }}>{s.value}</div>
                       <div style={{
                         fontSize: 10, color: 'rgba(255,255,255,0.5)',
                         textTransform: 'uppercase', letterSpacing: '0.1em',
-                        fontFamily: 'sans-serif', marginTop: 2,
+                        fontFamily: "'DM Sans', sans-serif", marginTop: 2,
                       }}>{s.label}</div>
                     </div>
                   ))}
@@ -207,7 +207,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   onClick={() => setTab('activity')}
                   style={{
                     width: '100%',
-                    background: '#C4A35A',
+                    background: '#F59E0B',
                     border: 'none',
                     borderRadius: 12,
                     padding: '14px 16px',
@@ -215,21 +215,21 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     marginBottom: 16,
-                    fontFamily: 'sans-serif',
+                    fontFamily: "'DM Sans', sans-serif",
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{
                       width: 28, height: 28, borderRadius: '50%',
-                      background: '#1e2b65', color: '#fff',
+                      background: '#0F172A', color: '#fff',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 13, fontWeight: 700,
                     }}>{pendingCount}</div>
-                    <span style={{ color: '#1e2b65', fontSize: 14, fontWeight: 600 }}>
+                    <span style={{ color: '#0F172A', fontSize: 14, fontWeight: 600 }}>
                       {pendingCount === 1 ? 'game needs' : 'games need'} your review
                     </span>
                   </div>
-                  <span style={{ color: '#1e2b65', fontSize: 18 }}>→</span>
+                  <span style={{ color: '#0F172A', fontSize: 18 }}>→</span>
                 </button>
               )}
 
@@ -245,7 +245,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     alignItems: 'center',
                     gap: 10,
                     marginBottom: 16,
-                    fontFamily: 'sans-serif',
+                    fontFamily: "'DM Sans', sans-serif",
                   }}
                 >
                   <div style={{
@@ -265,12 +265,12 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 onClick={() => setTab('record')}
                 style={{
                   width: '100%',
-                  background: '#9f1239',
+                  background: '#DC2626',
                   border: 'none',
                   borderRadius: 12,
                   padding: '16px',
                   color: '#fff',
-                  fontFamily: "'Playfair Display', serif",
+                  fontFamily: "'Outfit', sans-serif",
                   fontSize: 16,
                   fontWeight: 700,
                   marginBottom: 16,
@@ -302,10 +302,10 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                       display: 'flex',
                       alignItems: 'center',
                       gap: 10,
-                      fontFamily: 'sans-serif',
+                      fontFamily: "'DM Sans', sans-serif",
                       fontSize: 13,
                       fontWeight: 600,
-                      color: '#1e2b65',
+                      color: '#0F172A',
                     }}
                   >
                     <span style={{ fontSize: 18 }}>{link.icon}</span>
@@ -329,18 +329,18 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               }}>
                 <div style={{
                   width: 64, height: 64, borderRadius: '50%',
-                  background: '#1e2b65', color: '#fff',
+                  background: '#0F172A', color: '#fff',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 22, fontWeight: 700,
-                  fontFamily: "'Playfair Display', serif",
+                  fontFamily: "'Outfit', sans-serif",
                   margin: '0 auto 12px',
                 }}>
                   {player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'}
                 </div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: '#1e2b65' }}>
+                <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: '#0F172A' }}>
                   {player?.name || 'Player'}
                 </div>
-                <div style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#888', fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>
                   {session?.user?.email}
                 </div>
                 <div style={{
@@ -353,8 +353,8 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     { label: 'Losses', value: player?.losses || 0 },
                   ].map((s, i) => (
                     <div key={i} style={{ textAlign: 'center' }}>
-                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: '#1e2b65' }}>{s.value}</div>
-                      <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'sans-serif' }}>{s.label}</div>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700, color: '#0F172A' }}>{s.value}</div>
+                      <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: "'DM Sans', sans-serif" }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
@@ -363,7 +363,6 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               {[
                 { label: 'My Clubs', tab: 'clubs' },
                 { label: 'How It Works', tab: 'howitworks' },
-                { label: 'Towns', tab: 'towns' },
                 { label: 'Terms of Service', tab: 'terms' },
                 { label: 'Privacy Policy', tab: 'privacy' },
               ].map((link, i) => (
@@ -380,9 +379,9 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    fontFamily: 'sans-serif',
+                    fontFamily: "'DM Sans', sans-serif",
                     fontSize: 14,
-                    color: '#1e2b65',
+                    color: '#0F172A',
                   }}
                 >
                   {link.label}
@@ -399,9 +398,9 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   borderRadius: 10,
                   padding: '14px 16px',
                   marginTop: 8,
-                  fontFamily: 'sans-serif',
+                  fontFamily: "'DM Sans', sans-serif",
                   fontSize: 14,
-                  color: '#9f1239',
+                  color: '#DC2626',
                   textAlign: 'center',
                   fontWeight: 600,
                 }}
@@ -455,7 +454,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   key={item.id}
                   onClick={() => setTab(item.id)}
                   style={{
-                    background: '#9f1239',
+                    background: '#DC2626',
                     border: 'none',
                     width: 56, height: 56,
                     borderRadius: '50%',
@@ -463,7 +462,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginTop: -20,
-                    boxShadow: '0 4px 16px rgba(159,18,57,0.3)',
+                    boxShadow: '0 4px 16px rgba(220,38,38,0.3)',
                     position: 'relative',
                   }}
                 >
@@ -489,23 +488,23 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 }}
               >
                 <div style={{ position: 'relative' }}>
-                  <Icon color={isActive ? '#1e2b65' : '#999'} size={22} />
+                  <Icon color={isActive ? '#0F172A' : '#999'} size={22} />
                   {showBadge && (
                     <div style={{
                       position: 'absolute', top: -4, right: -8,
-                      background: '#9f1239', color: '#fff',
+                      background: '#DC2626', color: '#fff',
                       fontSize: 9, fontWeight: 700,
                       minWidth: 16, height: 16, borderRadius: 8,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontFamily: 'sans-serif',
+                      fontFamily: "'DM Sans', sans-serif",
                     }}>{pendingCount}</div>
                   )}
                 </div>
                 <span style={{
                   fontSize: 10,
-                  fontFamily: 'sans-serif',
+                  fontFamily: "'DM Sans', sans-serif",
                   fontWeight: isActive ? 700 : 500,
-                  color: isActive ? '#1e2b65' : '#999',
+                  color: isActive ? '#0F172A' : '#999',
                 }}>{item.label}</span>
               </button>
             )

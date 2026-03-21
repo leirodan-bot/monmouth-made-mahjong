@@ -106,7 +106,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
     await new Promise(resolve => setTimeout(resolve, 300))
     await fetchNotifications()
     
-    // Close dropdown and go home
     setShowDropdown(false)
     onNavigate('home')
   }
@@ -162,11 +161,11 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
           <div style={{
             position: 'absolute', top: -2, right: -4,
             minWidth: 18, height: 18, borderRadius: 9,
-            background: '#9f1239', color: '#ffffff',
+            background: '#DC2626', color: '#ffffff',
             fontSize: 10, fontWeight: 800,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '0 4px',
-            border: '2px solid #1e2b65',
+            border: '2px solid #0F172A',
           }}>
             {unreadCount}
           </div>
@@ -182,9 +181,9 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
           zIndex: 200
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '0.5px solid #e8e8e4' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e2b65' }}>Notifications</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', fontFamily: "'Outfit', sans-serif" }}>Notifications</div>
             {unreadCount > 0 && (
-              <button onClick={markAllRead} style={{ background: 'none', border: 'none', fontSize: 11, color: '#888', cursor: 'pointer', fontFamily: 'sans-serif' }}>
+              <button onClick={markAllRead} style={{ background: 'none', border: 'none', fontSize: 11, color: '#888', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
                 Mark all read
               </button>
             )}
@@ -192,7 +191,7 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
 
           {pendingConfirms.length > 0 && (
             <div style={{ padding: '12px 16px', background: '#fff7ed', borderBottom: '0.5px solid #e8e8e4' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#c2410c', fontFamily: 'sans-serif', marginBottom: 8, letterSpacing: '0.5px' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#c2410c', fontFamily: "'DM Sans', sans-serif", marginBottom: 8, letterSpacing: '0.5px' }}>
                 {pendingConfirms.length} GAME{pendingConfirms.length > 1 ? 'S' : ''} NEED YOUR CONFIRMATION
               </div>
               {pendingConfirms.map(n => (
@@ -200,7 +199,7 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
                   background: 'white', border: '1.5px solid #ea580c', borderRadius: 10,
                   padding: '10px 12px', marginBottom: 8
                 }}>
-                  <div style={{ fontSize: 12, color: '#555', fontFamily: 'sans-serif', lineHeight: 1.5, marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: '#555', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.5, marginBottom: 8 }}>
                     {n.message}
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
@@ -208,9 +207,9 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
                       onClick={() => handleDispute(n)}
                       style={{
                         flex: 1, padding: '6px 0', borderRadius: 6,
-                        background: 'white', border: '0.5px solid #9f1239',
-                        color: '#9f1239', fontSize: 11, fontWeight: 700,
-                        cursor: 'pointer', fontFamily: 'sans-serif'
+                        background: 'white', border: '0.5px solid #DC2626',
+                        color: '#DC2626', fontSize: 11, fontWeight: 700,
+                        cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
                       }}
                     >
                       Dispute
@@ -220,9 +219,9 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
                       disabled={confirming === n.id}
                       style={{
                         flex: 2, padding: '6px 0', borderRadius: 6,
-                        background: confirming === n.id ? '#888' : '#16a34a', border: 'none',
+                        background: confirming === n.id ? '#888' : '#065F46', border: 'none',
                         color: '#ffffff', fontSize: 11, fontWeight: 700,
-                        cursor: 'pointer', fontFamily: 'sans-serif'
+                        cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
                       }}
                     >
                       {confirming === n.id ? 'Confirming...' : '✓ Confirm'}
@@ -238,7 +237,7 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
               <div key={n.id} onClick={() => { if (!n.read) markRead(n.id) }} style={{
                 display: 'flex', alignItems: 'flex-start', gap: 10,
                 padding: '11px 16px',
-                background: n.read ? 'transparent' : 'rgba(30,43,101,0.03)',
+                background: n.read ? 'transparent' : 'rgba(15,23,42,0.03)',
                 borderBottom: '0.5px solid #e8e8e4',
                 cursor: n.read ? 'default' : 'pointer'
               }}>
@@ -250,17 +249,17 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
                   {n.type === 'verified' ? '✓' : n.type === 'confirm_match' ? '✓' : '●'}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, color: '#333', fontFamily: 'sans-serif', lineHeight: 1.4 }}>{n.message}</div>
-                  <div style={{ fontSize: 10, color: '#aaa', fontFamily: 'sans-serif', marginTop: 3 }}>
+                  <div style={{ fontSize: 12, color: '#333', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.4 }}>{n.message}</div>
+                  <div style={{ fontSize: 10, color: '#aaa', fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
                     {n.created_at ? new Date(n.created_at).toLocaleDateString() : ''}
                   </div>
                 </div>
-                {!n.read && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ea580c', flexShrink: 0, marginTop: 4 }} />}
+                {!n.read && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#DC2626', flexShrink: 0, marginTop: 4 }} />}
               </div>
             ))
           ) : (
             pendingConfirms.length === 0 && (
-              <div style={{ padding: '30px 16px', textAlign: 'center', fontSize: 13, color: '#888', fontFamily: 'sans-serif' }}>
+              <div style={{ padding: '30px 16px', textAlign: 'center', fontSize: 13, color: '#888', fontFamily: "'DM Sans', sans-serif" }}>
                 No notifications yet
               </div>
             )
@@ -269,7 +268,7 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
           {notifications.length > 0 && (
             <div
               onClick={() => { setShowDropdown(false); onNavigate('record') }}
-              style={{ padding: '10px 16px', textAlign: 'center', borderTop: '0.5px solid #e8e8e4', fontSize: 12, color: '#1e2b65', fontWeight: 600, fontFamily: 'sans-serif', cursor: 'pointer' }}
+              style={{ padding: '10px 16px', textAlign: 'center', borderTop: '0.5px solid #e8e8e4', fontSize: 12, color: '#0F172A', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}
             >
               View All in Record Tab →
             </div>

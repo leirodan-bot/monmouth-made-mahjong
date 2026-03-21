@@ -5,35 +5,13 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background: #f4f4f2;
-  color: #1e2b65;
-}
-
-.floral-bg {
-  position: relative;
-  background-color: #f4f4f2;
-  background-image: url('/bg-floral.jpg');
-  background-repeat: repeat;
-  background-size: 400px auto;
-}
-
-.floral-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(244, 244, 242, 0.92);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.floral-bg > * {
-  position: relative;
-  z-index: 1;
+  font-family: 'DM Sans', sans-serif;
+  background: #F8FAFC;
+  color: #0F172A;
 }
 
 h1, h2, h3, h4 {
-  font-family: Playfair Display, serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 button {
@@ -46,9 +24,9 @@ a {
 }
 
 input, select, textarea {
-  font-family: 'Inter', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
-  color: #1e2b65;
+  color: #0F172A;
   border: 0.5px solid #c8cdd6;
   border-radius: 6px;
   padding: 8px 10px;
@@ -58,5 +36,5 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #1e2b65;
+  border-color: #0F172A;
 }
