@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
 
-export default function NotificationBell({ player, onNavigate, refreshPlayer }) {
+export default function NotificationBell({ player, onNavigate, refreshPlayer, onCountChange }) {
   const [notifications, setNotifications] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [confirming, setConfirming] = useState(null)
@@ -9,6 +9,11 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer }) 
 
   const unreadCount = notifications.filter(n => !n.read).length
   const pendingConfirms = notifications.filter(n => n.type === 'confirm_match' && !n.read)
+
+  // Sync count to parent whenever notifications change
+  useEffect(() => {
+    if (onCountChange) onCountChange(unreadCount)
+  }, [unreadCount])
 
   useEffect(() => {
     if (player?.id) {
@@ -50,7 +55,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer }) 
       if (matches) {
         const confirmedIds = matches.filter(m => m.status !== 'pending').map(m => m.id)
         if (confirmedIds.length > 0) {
-          // Mark stale notifications as read
           const staleNotifIds = unreadConfirms
             .filter(n => confirmedIds.includes(n.match_id))
             .map(n => n.id)
@@ -66,7 +70,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer }) 
             }
           }
           
-          // Re-fetch to get clean state
           const { data: freshData } = await supabase
             .from('notifications')
             .select('*')

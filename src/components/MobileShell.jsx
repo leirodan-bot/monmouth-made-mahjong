@@ -31,33 +31,17 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
 
   useEffect(() => {
     if (!player) return
-    fetchPendingCount()
     fetchAwaitingCount()
-    const interval = setInterval(() => { fetchPendingCount(); fetchAwaitingCount() }, 30000)
+    const interval = setInterval(fetchAwaitingCount, 30000)
     return () => clearInterval(interval)
   }, [player])
 
   useEffect(() => {
     if (tab === 'home' && player?.id) {
-      fetchPendingCount()
       fetchAwaitingCount()
       if (refreshPlayer) refreshPlayer()
     }
   }, [tab])
-
-  async function fetchPendingCount() {
-    if (!player) return
-    try {
-      const { count } = await supabase
-        .from('notifications')
-        .select('id', { count: 'exact', head: true })
-        .eq('player_id', player.id)
-        .eq('read', false)
-      setPendingCount(count || 0)
-    } catch {
-      setPendingCount(0)
-    }
-  }
 
   async function fetchAwaitingCount() {
     if (!player) return
@@ -95,7 +79,6 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
 
   const isLegalPage = tab === 'terms' || tab === 'privacy' || tab === 'cookies'
   const showBottomNav = !isLegalPage && tab !== 'login' && tab !== 'howitworks'
-  const isMainTab = ['home', 'rankings', 'record', 'activity', 'profile'].includes(tab)
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f4f4f2' }}>
@@ -119,7 +102,12 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {session && player && (
-            <NotificationBell player={player} onNavigate={setTab} refreshPlayer={refreshPlayer} />
+            <NotificationBell
+              player={player}
+              onNavigate={setTab}
+              refreshPlayer={refreshPlayer}
+              onCountChange={(count) => setPendingCount(count)}
+            />
           )}
           {session ? (
             <button
@@ -372,7 +360,6 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </div>
               </div>
 
-              {/* Profile links */}
               {[
                 { label: 'My Clubs', tab: 'clubs' },
                 { label: 'How It Works', tab: 'howitworks' },
@@ -424,7 +411,6 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             </div>
           )}
 
-          {/* Existing components */}
           {tab === 'rankings' && <Rankings session={session} player={player} />}
           {tab === 'towns' && <Towns />}
           {tab === 'players' && session && <Players session={session} player={player} />}
@@ -532,7 +518,6 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   )
 }
 
-/* ===== NAV ICONS ===== */
 function HomeIcon({ color, size }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
