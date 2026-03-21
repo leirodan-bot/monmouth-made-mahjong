@@ -10,7 +10,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
   const unreadCount = notifications.filter(n => !n.read).length
   const pendingConfirms = notifications.filter(n => n.type === 'confirm_match' && !n.read)
 
-  // Sync count to parent whenever notifications change
   useEffect(() => {
     if (onCountChange) onCountChange(unreadCount)
   }, [unreadCount])
@@ -43,7 +42,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
     
     const notifs = data || []
     
-    // Auto-clear stale confirm_match notifications for already-confirmed games
     const unreadConfirms = notifs.filter(n => n.type === 'confirm_match' && !n.read && n.match_id)
     if (unreadConfirms.length > 0) {
       const matchIds = [...new Set(unreadConfirms.map(n => n.match_id))]
@@ -107,6 +105,10 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
     setConfirming(null)
     await new Promise(resolve => setTimeout(resolve, 300))
     await fetchNotifications()
+    
+    // Close dropdown and go home
+    setShowDropdown(false)
+    onNavigate('home')
   }
 
   async function handleDispute(notif) {
@@ -122,6 +124,8 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
     }
 
     fetchNotifications()
+    setShowDropdown(false)
+    onNavigate('home')
   }
 
   async function markRead(notifId) {
@@ -149,7 +153,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
 
   return (
     <div ref={dropdownRef} style={{ position: 'relative' }}>
-      {/* Bell Icon */}
       <div onClick={() => setShowDropdown(!showDropdown)} style={{ cursor: 'pointer', padding: 4, position: 'relative' }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -170,7 +173,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
         )}
       </div>
 
-      {/* Dropdown */}
       {showDropdown && (
         <div style={{
           position: 'fixed', top: 56, left: 8, right: 8,
@@ -179,7 +181,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
           boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
           zIndex: 200
         }}>
-          {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '0.5px solid #e8e8e4' }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#1e2b65' }}>Notifications</div>
             {unreadCount > 0 && (
@@ -189,7 +190,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
             )}
           </div>
 
-          {/* Pending confirmations */}
           {pendingConfirms.length > 0 && (
             <div style={{ padding: '12px 16px', background: '#fff7ed', borderBottom: '0.5px solid #e8e8e4' }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#c2410c', fontFamily: 'sans-serif', marginBottom: 8, letterSpacing: '0.5px' }}>
@@ -233,7 +233,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
             </div>
           )}
 
-          {/* Other notifications */}
           {notifications.filter(n => n.type !== 'confirm_match' || n.read).length > 0 ? (
             notifications.filter(n => n.type !== 'confirm_match' || n.read).map(n => (
               <div key={n.id} onClick={() => { if (!n.read) markRead(n.id) }} style={{
@@ -267,7 +266,6 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
             )
           )}
 
-          {/* Footer */}
           {notifications.length > 0 && (
             <div
               onClick={() => { setShowDropdown(false); onNavigate('record') }}

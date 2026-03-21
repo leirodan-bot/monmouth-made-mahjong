@@ -15,6 +15,50 @@ function RankBadge({ elo }) {
   )
 }
 
+function PlayerCard({ player, rank, inactive }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '12px 14px',
+      background: rank <= 3 && !inactive ? '#fffdf0' : 'white',
+      borderBottom: '0.5px solid #e8e8e4',
+      opacity: inactive ? 0.45 : 1,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: '50%',
+          background: rank <= 3 ? '#1e2b65' : '#e8e8e4',
+          color: rank <= 3 ? '#f0c040' : '#888',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 12, fontWeight: 700, fontFamily: 'sans-serif',
+          flexShrink: 0,
+        }}>
+          {rank}
+        </div>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e2b65' }}>
+            {player.name}
+            {inactive && <span style={{ fontSize: 9, color: '#aaa', marginLeft: 4 }}>INACTIVE</span>}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+            <span style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif' }}>{player.town || '—'}</span>
+            <RankBadge elo={player.elo} />
+          </div>
+        </div>
+      </div>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <div style={{ fontSize: 20, fontWeight: 700, color: '#9f1239', fontFamily: "'Playfair Display', serif" }}>
+          {Math.round(player.elo)}
+        </div>
+        <div style={{ fontSize: 10, color: '#888', fontFamily: 'sans-serif', marginTop: 1 }}>
+          {player.wins}W–{player.losses}L
+          {player.current_streak > 1 && <span> · 🔥{player.current_streak}</span>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Rankings({ session }) {
   const [players, setPlayers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -29,7 +73,6 @@ export default function Rankings({ session }) {
       .order('elo', { ascending: false })
     setPlayers(data || [])
 
-    // Spotlight = top non-provisional, non-inactive player
     if (data && data.length > 0) {
       const eligible = data.find(p =>
         !isProvisional(p.games_played) && !isInactive(p.last_game_date)
@@ -53,10 +96,8 @@ export default function Rankings({ session }) {
     </div>
   )
 
-  // Separate ranked vs provisional
   const rankedPlayers = players.filter(p => !isProvisional(p.games_played))
   const provisionalPlayers = players.filter(p => isProvisional(p.games_played))
-
   const top3 = rankedPlayers.filter(p => !isInactive(p.last_game_date)).slice(0, 3)
 
   return (
@@ -72,7 +113,7 @@ export default function Rankings({ session }) {
           <div>
             <div style={{ fontSize: 10, color: '#a0b0c8', fontFamily: 'sans-serif', letterSpacing: '1px', marginBottom: 4 }}>CURRENT LEADER</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#ffffff' }}>{spotlight.name}</div>
-            <div style={{ fontSize: 11, color: '#a0b0c8', fontFamily: 'sans-serif', marginTop: 2 }}>{spotlight.town} · {spotlight.org || 'Unaffiliated'}</div>
+            <div style={{ fontSize: 11, color: '#a0b0c8', fontFamily: 'sans-serif', marginTop: 2 }}>{spotlight.town}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: '#f0c040' }}>{Math.round(spotlight.elo)}</div>
@@ -83,7 +124,7 @@ export default function Rankings({ session }) {
 
       {/* Top 3 Podium */}
       {top3.length >= 2 && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
           {[1, 0, 2].map((idx) => {
             const p = top3[idx]
             if (!p) return <div key={idx} />
@@ -93,59 +134,32 @@ export default function Rankings({ session }) {
               <div key={p.id} style={{
                 background: isGold ? '#fffdf0' : 'white',
                 border: isGold ? '1.5px solid #b8860b' : '0.5px solid #c8cdd6',
-                borderRadius: 10, padding: 14, textAlign: 'center',
+                borderRadius: 10, padding: '10px 8px', textAlign: 'center',
                 order: idx === 0 ? 2 : idx === 1 ? 1 : 3
               }}>
-                <div style={{ fontSize: 24 }}>{medals[idx]}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2b65', marginTop: 4 }}>{p.name}</div>
-                <div style={{ fontSize: 10, color: '#888', fontFamily: 'sans-serif', marginTop: 2 }}>{p.town}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: '#9f1239', margin: '6px 0' }}>{Math.round(p.elo).toLocaleString()}</div>
+                <div style={{ fontSize: 22 }}>{medals[idx]}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e2b65', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                <div style={{ fontSize: 9, color: '#888', fontFamily: 'sans-serif', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.town}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#9f1239', margin: '4px 0' }}>{Math.round(p.elo)}</div>
                 <RankBadge elo={p.elo} />
-                <div style={{ fontSize: 10, color: '#888', fontFamily: 'sans-serif', marginTop: 6 }}>{p.wins}W – {p.losses}L</div>
+                <div style={{ fontSize: 9, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>{p.wins}W – {p.losses}L</div>
               </div>
             )
           })}
         </div>
       )}
 
-      {/* Full Ranked Table */}
+      {/* Ranked Players — Card Layout */}
       {rankedPlayers.length > 0 && (
         <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: '#1e2b65' }}>
-                {['#', 'Player', 'Town', 'Club', 'Rank', 'Elo', 'W/L', 'Streak'].map(h => (
-                  <th key={h} style={{ padding: '9px 12px', color: '#ffffff', fontSize: 11, fontWeight: 700, textAlign: 'left', fontFamily: 'Playfair Display, serif', letterSpacing: '0.5px' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rankedPlayers.map((p, i) => {
-                const inactive = isInactive(p.last_game_date)
-                return (
-                  <tr key={p.id} style={{
-                    borderBottom: '0.5px solid #e8e8e4',
-                    background: i < 3 && !inactive ? '#fffdf0' : 'white',
-                    opacity: inactive ? 0.45 : 1
-                  }}>
-                    <td style={{ padding: '9px 12px', color: '#888', fontWeight: 700 }}>{i + 1}</td>
-                    <td style={{ padding: '9px 12px', fontWeight: 700, color: '#1e2b65' }}>
-                      {p.name}
-                      {inactive && <span style={{ fontSize: 9, color: '#aaa', marginLeft: 4 }}>INACTIVE</span>}
-                    </td>
-                    <td style={{ padding: '9px 12px', color: '#555', fontFamily: 'sans-serif' }}>{p.town || '—'}</td>
-                    <td style={{ padding: '9px 12px', color: '#555', fontFamily: 'sans-serif' }}>{p.org || '—'}</td>
-                    <td style={{ padding: '9px 12px' }}><RankBadge elo={p.elo} /></td>
-                    <td style={{ padding: '9px 12px', fontWeight: 700, color: '#9f1239', fontFamily: 'Playfair Display, serif' }}>{Math.round(p.elo).toLocaleString()}</td>
-                    <td style={{ padding: '9px 12px', color: '#555', fontFamily: 'sans-serif' }}>{p.wins}–{p.losses}</td>
-                    <td style={{ padding: '9px 12px', color: '#555', fontFamily: 'sans-serif' }}>
-                      {p.current_streak > 1 ? `🔥 ${p.current_streak}W` : '—'}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          {rankedPlayers.map((p, i) => (
+            <PlayerCard
+              key={p.id}
+              player={p}
+              rank={i + 1}
+              inactive={isInactive(p.last_game_date)}
+            />
+          ))}
         </div>
       )}
 
@@ -156,21 +170,21 @@ export default function Rankings({ session }) {
             PROVISIONAL ({provisionalPlayers.length}) — need 5 games to appear in rankings
           </div>
           <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <tbody>
-                {provisionalPlayers.map(p => (
-                  <tr key={p.id} style={{ borderBottom: '0.5px solid #e8e8e4' }}>
-                    <td style={{ padding: '8px 12px', fontWeight: 600, color: '#1e2b65' }}>
-                      {p.name}
-                    </td>
-                    <td style={{ padding: '8px 12px', color: '#555', fontFamily: 'sans-serif' }}>{p.town || '—'}</td>
-                    <td style={{ padding: '8px 12px', color: '#888', fontFamily: 'sans-serif', textAlign: 'right' }}>
-                      {Math.round(p.elo)}? <span style={{ fontSize: 10 }}>({p.games_played}/5 games)</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {provisionalPlayers.map(p => (
+              <div key={p.id} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '10px 14px', borderBottom: '0.5px solid #e8e8e4',
+              }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1e2b65' }}>{p.name}</div>
+                  <div style={{ fontSize: 11, color: '#888', fontFamily: 'sans-serif', marginTop: 1 }}>{p.town || '—'}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#888' }}>{Math.round(p.elo)}?</div>
+                  <div style={{ fontSize: 10, color: '#aaa', fontFamily: 'sans-serif' }}>{p.games_played}/5 games</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
