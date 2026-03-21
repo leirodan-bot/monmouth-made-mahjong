@@ -1,65 +1,45 @@
 /**
- * Monmouth Made Mah Jongg™ — Elo Rating System
+ * MahjRank™ — Elo Rating System v2.1
  * Based on Tenhou.net's 4-player Elo adaptation
- * See: MMM_Elo_Spec.docx v1.0 (March 2026)
+ * See: MahjRank_Elo_Spec_v2.1.docx (March 2026)
  */
 
 // ── Constants ──
 const PLACEMENT_WIN = 30
 const PLACEMENT_LOSE = -10
-const D = 40          // Divisor for rating gap adjustment
-const K_MIN = 0.2     // Minimum K-factor (veteran players)
-const G = 120         // Games threshold for K-factor floor
+const D = 40
+const K_MIN = 0.2
+const G = 120
 const RATING_FLOOR = 500
 const STARTING_ELO = 800
-const PROVISIONAL_THRESHOLD = 5  // Games before appearing on leaderboard
+const PROVISIONAL_THRESHOLD = 5
 const INACTIVITY_DAYS = 60
 
-// ── Tier Definitions (from spec Table 6) ──
+// ── Tier Definitions (v2.1 thresholds) ──
 export const TIERS = [
-  { name: 'Novice',       min: 0,    max: 699,  color: '#6b7280', bg: '#6b7280', textColor: 'white' },
-  { name: 'Beginner',     min: 700,  max: 799,  color: '#b8860b', bg: '#cd7f32', textColor: 'white' },
-  { name: 'Skilled',      min: 800,  max: 899,  color: '#71717a', bg: '#a8a8a8', textColor: 'white' },
-  { name: 'Expert',       min: 900,  max: 999,  color: '#b8860b', bg: '#d4a745', textColor: 'white' },
-  { name: 'Master',       min: 1000, max: 1099, color: '#6b7280', bg: '#8b95a5', textColor: 'white' },
-  { name: 'Grandmaster',  min: 1100, max: 99999, color: '#1e2b65', bg: '#1e2b65', textColor: '#f0c040' },
+  { name: 'Novice',       min: 0,    max: 749,   color: '#6b7280', bg: '#6b7280', textColor: 'white' },
+  { name: 'Beginner',     min: 750,  max: 849,   color: '#CD7F32', bg: '#CD7F32', textColor: 'white' },
+  { name: 'Skilled',      min: 850,  max: 949,   color: '#94a3b8', bg: '#94a3b8', textColor: 'white' },
+  { name: 'Expert',       min: 950,  max: 1049,  color: '#F59E0B', bg: '#F59E0B', textColor: 'white' },
+  { name: 'Master',       min: 1050, max: 1149,  color: '#64748B', bg: '#64748B', textColor: 'white' },
+  { name: 'Grandmaster',  min: 1150, max: 99999, color: '#0F172A', bg: '#0F172A', textColor: '#F59E0B' },
 ]
 
-/**
- * Get tier info for a given Elo rating
- */
 export function getTier(elo) {
   return TIERS.find(t => elo >= t.min && elo <= t.max) || TIERS[0]
 }
 
-/**
- * Calculate K-factor using Tenhou's decay function
- * K = max(K_MIN, 1 - (1 - K_MIN) * (games_played / G))
- */
 export function getKFactor(ratedGames, seasonalGames = 999) {
   const baseK = ratedGames >= G
     ? K_MIN
     : Math.max(K_MIN, 1 - (1 - K_MIN) * (ratedGames / G))
 
-  // Post-season boost: floor at 0.4 for first 10 rated games of season
   if (seasonalGames < 10) {
     return Math.max(baseK, 0.4)
   }
   return baseK
 }
 
-/**
- * Calculate Elo update for a single player after a game
- * 
- * Formula: Rating_change = K × (Placement_base + (Avg_opponent_rating - Own_rating) / D)
- * 
- * @param {number} playerRating - Player's current Elo
- * @param {number} gamesPlayed - Player's total verified games (before this game)
- * @param {number[]} opponentRatings - Array of opponent ratings (2 or 3 opponents)
- * @param {boolean} isWinner - Whether this player won
- * @param {boolean} isWallGame - Whether the game ended as a wall game
- * @returns {{ delta: number, newRating: number, kFactor: number }}
- */
 export function calculateEloUpdate(playerRating, ratedGames, opponentRatings, isWinner, isWallGame = false, seasonalGames = 999) {
   if (isWallGame) {
     return { delta: 0, newRating: playerRating, kFactor: getKFactor(ratedGames, seasonalGames) }
@@ -68,7 +48,6 @@ export function calculateEloUpdate(playerRating, ratedGames, opponentRatings, is
   const avgOpponentRating = opponentRatings.reduce((sum, r) => sum + r, 0) / opponentRatings.length
   const placementBase = isWinner ? PLACEMENT_WIN : PLACEMENT_LOSE
 
-  // v2.0: Cap rating gap at ±400
   const rawGap = avgOpponentRating - playerRating
   const clampedGap = Math.max(-400, Math.min(400, rawGap))
   const gapAdjustment = clampedGap / D
@@ -84,13 +63,6 @@ export function calculateEloUpdate(playerRating, ratedGames, opponentRatings, is
   }
 }
 
-/**
- * Calculate all Elo updates for a complete game
- * 
- * @param {Array<{id: string, elo: number, games_played: number}>} players - All players at the table (3 or 4)
- * @param {string|null} winnerId - ID of the winner (null for wall game)
- * @returns {Array<{id: string, delta: number, newRating: number, kFactor: number, ratingBefore: number}>}
- */
 export function calculateGameEloUpdates(players, winnerId) {
   const isWallGame = winnerId === null
 
@@ -116,33 +88,20 @@ export function calculateGameEloUpdates(players, winnerId) {
   })
 }
 
-/**
- * Determine rank tier name from Elo
- */
 export function getRankTierName(elo) {
   return getTier(elo).name
 }
 
-/**
- * Check if a player is provisional (< 5 verified games)
- */
 export function isProvisional(gamesPlayed) {
   return gamesPlayed < PROVISIONAL_THRESHOLD
 }
 
-/**
- * Check if a player is inactive (no game in 60+ days)
- */
 export function isInactive(lastGameDate) {
   if (!lastGameDate) return false
   const daysSince = (Date.now() - new Date(lastGameDate).getTime()) / (1000 * 60 * 60 * 24)
   return daysSince >= INACTIVITY_DAYS
 }
 
-/**
- * Calculate new season rating (soft reset)
- * New_season_rating = 800 + 0.6 × (Old_rating - 800)
- */
 export function seasonReset(currentRating) {
   return Math.round((STARTING_ELO + 0.6 * (currentRating - STARTING_ELO)) * 10) / 10
 }

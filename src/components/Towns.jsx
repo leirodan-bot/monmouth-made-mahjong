@@ -1,34 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 
-const ALL_TOWNS = [
-  'Aberdeen', 'Allenhurst', 'Allentown', 'Atlantic Highlands', 'Avon-by-the-Sea',
-  'Belford', 'Belmar', 'Bradley Beach', 'Brielle', 'Colts Neck',
-  'Deal', 'Eatontown', 'Englishtown', 'Fair Haven', 'Farmingdale',
-  'Freehold', 'Freehold Township', 'Highlands', 'Holmdel', 'Howell',
-  'Interlaken', 'Keansburg', 'Keyport', 'Lake Como', 'Little Silver',
-  'Loch Arbour', 'Long Branch', 'Manalapan', 'Manasquan', 'Marlboro',
-  'Matawan', 'Middletown', 'Millstone', 'Monmouth Beach', 'Monmouth Junction',
-  'Neptune', 'Neptune City', 'Ocean Grove', 'Oceanport', 'Red Bank',
-  'Roosevelt', 'Rumson', 'Sea Bright', 'Sea Girt', 'Shrewsbury',
-  'Spring Lake', 'Spring Lake Heights', 'Tinton Falls', 'Upper Freehold',
-  'Wall Township', 'West Long Branch'
-]
-
-function townScore(avgElo, playerCount, gamesPlayed) {
-  if (playerCount === 0) return 0
-  const activity = Math.min((gamesPlayed / playerCount) * 10, 100)
-  return Math.round(avgElo * 0.7 + activity * 3 * 0.3)
-}
-
 export default function Towns() {
   const [players, setPlayers] = useState([])
-  const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchPlayers()
-  }, [])
+  useEffect(() => { fetchPlayers() }, [])
 
   async function fetchPlayers() {
     const { data } = await supabase.from('players').select('town, elo, games_played')
@@ -36,104 +13,105 @@ export default function Towns() {
     setLoading(false)
   }
 
-  const townData = ALL_TOWNS.map(town => {
-    const tp = players.filter(p => p.town === town)
-    const avgElo = tp.length > 0 ? Math.round(tp.reduce((s, p) => s + p.elo, 0) / tp.length) : 0
-    const totalGames = tp.reduce((s, p) => s + (p.games_played || 0), 0)
-    const score = townScore(avgElo, tp.length, totalGames)
+  // Group by town dynamically instead of hardcoded list
+  const townMap = {}
+  players.forEach(p => {
+    if (!p.town) return
+    if (!townMap[p.town]) townMap[p.town] = { players: [], totalGames: 0 }
+    townMap[p.town].players.push(p)
+    townMap[p.town].totalGames += (p.games_played || 0)
+  })
+
+  const townData = Object.keys(townMap).map(town => {
+    const tp = townMap[town].players
+    const avgElo = Math.round(tp.reduce((s, p) => s + p.elo, 0) / tp.length)
+    const activity = Math.min((townMap[town].totalGames / tp.length) * 10, 100)
+    const score = Math.round(avgElo * 0.7 + activity * 3 * 0.3)
     return { town, playerCount: tp.length, avgElo, score }
   }).sort((a, b) => b.score - a.score)
 
-  const activeTowns = townData.filter(t => t.playerCount > 0)
-  const emptyTowns = townData.filter(t => t.playerCount === 0)
-  const displayed = filter === 'active' ? activeTowns : filter === 'empty' ? emptyTowns : townData
-  const maxScore = townData[0]?.score || 1
+  if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: "'DM Sans', sans-serif", color: '#888' }}>Loading towns...</div>
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: 'sans-serif', color: '#888' }}>Loading towns...</div>
+  if (townData.length === 0) return (
+    <div>
+      <div style={{ marginBottom: 16 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Towns</h2>
+        <p style={{ fontSize: 12, color: '#888', fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>See where MahjRank players are located</p>
+      </div>
+      <div style={{ background: 'white', border: '0.5px dashed #c8cdd6', borderRadius: 12, padding: 40, textAlign: 'center' }}>
+        <div style={{ fontSize: 14, color: '#888', fontFamily: "'DM Sans', sans-serif" }}>No towns represented yet. Players can add their town in their profile.</div>
+      </div>
+    </div>
+  )
+
+  const maxScore = townData[0]?.score || 1
 
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e2b65' }}>Top Towns</h2>
-        <p style={{ fontSize: 12, color: '#888', fontFamily: 'sans-serif', marginTop: 4 }}>Representing Monmouth County · Score = 70% avg Elo + 30% activity</p>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Towns</h2>
+        <p style={{ fontSize: 12, color: '#888', fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>Where MahjRank players are located · Score = 70% avg Elo + 30% activity</p>
       </div>
 
       {/* Top 3 podium */}
-      {activeTowns.length >= 1 && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
+      {townData.length >= 2 && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
           {[1, 0, 2].map(idx => {
-            const t = activeTowns[idx]
+            const t = townData[idx]
             if (!t) return <div key={idx} />
             const medals = ['🥇', '🥈', '🥉']
             const isGold = idx === 0
             return (
               <div key={t.town} style={{
-                background: isGold ? '#fffdf0' : 'white',
-                border: isGold ? '1.5px solid #b8860b' : '0.5px solid #c8cdd6',
-                borderRadius: 10, padding: 14, textAlign: 'center',
+                background: isGold ? '#FFFBEB' : 'white',
+                border: isGold ? '1.5px solid #F59E0B' : '0.5px solid #c8cdd6',
+                borderRadius: 10, padding: '10px 8px', textAlign: 'center',
                 order: idx === 0 ? 2 : idx === 1 ? 1 : 3
               }}>
                 <div style={{ fontSize: 22 }}>{medals[idx]}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#1e2b65', marginTop: 4 }}>{t.town}</div>
-                <div style={{ fontSize: 10, color: '#888', fontFamily: 'sans-serif', marginTop: 2 }}>{t.playerCount} player{t.playerCount !== 1 ? 's' : ''} · avg {t.avgElo}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: '#9f1239', margin: '6px 0' }}>{t.score.toLocaleString()}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', fontFamily: "'Outfit', sans-serif", marginTop: 2 }}>{t.town}</div>
+                <div style={{ fontSize: 9, color: '#888', fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>{t.playerCount} player{t.playerCount !== 1 ? 's' : ''} · avg {t.avgElo}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#DC2626', fontFamily: "'JetBrains Mono', monospace", margin: '4px 0' }}>{t.score}</div>
               </div>
             )
           })}
         </div>
       )}
 
-      {/* Filter */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-        {['all', 'active', 'empty'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{
-            padding: '5px 14px', borderRadius: 20, fontSize: 11, fontFamily: 'sans-serif', fontWeight: 600,
-            border: '0.5px solid #c8cdd6',
-            background: filter === f ? '#1e2b65' : 'white',
-            color: filter === f ? '#f4f4f2' : '#555',
-            cursor: 'pointer'
-          }}>
-            {f === 'all' ? 'All towns' : f === 'active' ? `Active (${activeTowns.length})` : `Unrepresented (${emptyTowns.length})`}
-          </button>
-        ))}
-      </div>
-
-      {/* Table */}
+      {/* Card layout */}
       <div style={{ background: 'white', border: '0.5px solid #c8cdd6', borderRadius: 10, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-          <thead>
-            <tr style={{ background: '#1e2b65' }}>
-              {['#', 'Town', 'Players', 'Avg Elo', 'Town Score', ''].map(h => (
-                <th key={h} style={{ padding: '9px 12px', color: '#ffffff', fontSize: 11, fontWeight: 700, textAlign: 'left', fontFamily: 'Playfair Display, serif' }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {displayed.map((t, i) => {
-              const rank = activeTowns.findIndex(a => a.town === t.town) + 1
-              const barWidth = t.score > 0 ? Math.round((t.score / maxScore) * 100) : 0
-              return (
-                <tr key={t.town} style={{ borderBottom: '0.5px solid #e8e8e4' }}>
-                  <td style={{ padding: '9px 12px', color: '#888', fontWeight: 700 }}>{t.playerCount > 0 ? rank : '—'}</td>
-                  <td style={{ padding: '9px 12px', fontWeight: 700, color: t.playerCount > 0 ? '#1e2b65' : '#aaa' }}>{t.town}</td>
-                  <td style={{ padding: '9px 12px', fontFamily: 'sans-serif' }}>
-                    {t.playerCount > 0
-                      ? <span style={{ background: '#d1fae5', color: '#065f46', fontSize: 10, padding: '2px 8px', borderRadius: 20, fontFamily: 'sans-serif', fontWeight: 600 }}>{t.playerCount} player{t.playerCount !== 1 ? 's' : ''}</span>
-                      : <span style={{ background: '#f4f4f2', color: '#aaa', fontSize: 10, padding: '2px 8px', borderRadius: 20, fontFamily: 'sans-serif' }}>none yet</span>
-                    }
-                  </td>
-                  <td style={{ padding: '9px 12px', color: '#555', fontFamily: 'sans-serif' }}>{t.avgElo > 0 ? t.avgElo.toLocaleString() : '—'}</td>
-                  <td style={{ padding: '9px 12px', fontWeight: 700, color: '#9f1239', fontFamily: 'Playfair Display, serif' }}>{t.score > 0 ? t.score.toLocaleString() : '—'}</td>
-                  <td style={{ padding: '9px 12px' }}>
-                    <div style={{ width: 80, height: 6, background: '#f4f4f2', borderRadius: 3 }}>
-                      <div style={{ width: `${barWidth}%`, height: 6, background: '#1e2b65', borderRadius: 3 }} />
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        {townData.map((t, i) => (
+          <div key={t.town} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 14px',
+            background: i < 3 ? '#FFFBEB' : 'white',
+            borderBottom: i < townData.length - 1 ? '0.5px solid #e8e8e4' : 'none',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: i < 3 ? '#0F172A' : '#e8e8e4',
+                color: i < 3 ? '#F59E0B' : '#888',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif", flexShrink: 0,
+              }}>
+                {i + 1}
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{t.town}</div>
+                <div style={{ fontSize: 11, color: '#888', fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>
+                  {t.playerCount} player{t.playerCount !== 1 ? 's' : ''} · avg Elo {t.avgElo}
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 60, height: 6, background: '#e8e8e4', borderRadius: 3 }}>
+                <div style={{ width: `${Math.round((t.score / maxScore) * 100)}%`, height: 6, background: '#065F46', borderRadius: 3 }} />
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#DC2626', fontFamily: "'JetBrains Mono', monospace", minWidth: 40, textAlign: 'right' }}>{t.score}</div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

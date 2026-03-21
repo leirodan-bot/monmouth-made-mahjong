@@ -4,21 +4,20 @@ export default function CookieConsent({ setTab }) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const consent = localStorage.getItem('mmj_cookie_consent')
+    const consent = localStorage.getItem('mr_cookie_consent')
     if (!consent) {
-      // Small delay so it doesn't flash on load
       const timer = setTimeout(() => setVisible(true), 1000)
       return () => clearTimeout(timer)
     }
   }, [])
 
   function accept() {
-    localStorage.setItem('mmj_cookie_consent', 'accepted')
+    localStorage.setItem('mr_cookie_consent', 'accepted')
     setVisible(false)
   }
 
   function decline() {
-    localStorage.setItem('mmj_cookie_consent', 'essential_only')
+    localStorage.setItem('mr_cookie_consent', 'essential_only')
     setVisible(false)
   }
 
@@ -27,7 +26,7 @@ export default function CookieConsent({ setTab }) {
   return (
     <div style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
-      background: '#1e2b65', borderTop: '2px solid #9f1239',
+      background: '#0F172A', borderTop: '2px solid #DC2626',
       padding: '16px 20px',
       animation: 'slideUp 0.4s ease-out'
     }}>
@@ -38,8 +37,8 @@ export default function CookieConsent({ setTab }) {
         }
       `}</style>
       <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
-        <p style={{ fontSize: 12.5, fontFamily: 'sans-serif', color: '#d0d8e8', lineHeight: 1.6, flex: 1, minWidth: 280 }}>
-          We use cookies to keep you logged in and improve your experience. Analytics cookies help us understand how the Platform is used.{' '}
+        <p style={{ fontSize: 12.5, fontFamily: "'DM Sans', sans-serif", color: '#94a3b8', lineHeight: 1.6, flex: 1, minWidth: 280 }}>
+          We use cookies to keep you logged in and improve your experience. Analytics cookies help us understand how the platform is used.{' '}
           <span
             onClick={() => { setTab('cookies'); setVisible(false) }}
             style={{ color: '#fff', textDecoration: 'underline', cursor: 'pointer', fontWeight: 600 }}
@@ -52,8 +51,8 @@ export default function CookieConsent({ setTab }) {
             onClick={decline}
             style={{
               background: 'transparent', border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: 6, padding: '8px 16px', color: '#d0d8e8',
-              fontSize: 12, fontFamily: 'sans-serif', fontWeight: 600, cursor: 'pointer'
+              borderRadius: 6, padding: '8px 16px', color: '#94a3b8',
+              fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer'
             }}
           >
             Essential Only
@@ -61,9 +60,9 @@ export default function CookieConsent({ setTab }) {
           <button
             onClick={accept}
             style={{
-              background: '#9f1239', border: 'none', borderRadius: 6,
+              background: '#DC2626', border: 'none', borderRadius: 6,
               padding: '8px 20px', color: '#fff', fontSize: 12,
-              fontFamily: 'sans-serif', fontWeight: 700, cursor: 'pointer'
+              fontFamily: "'DM Sans', sans-serif", fontWeight: 700, cursor: 'pointer'
             }}
           >
             Accept All
