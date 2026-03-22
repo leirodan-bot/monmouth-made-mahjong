@@ -47,7 +47,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
               style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
               onClick={() => setTab('home')}
             >
-              <img src={logoHeader} alt="MahjRank" style={{ height: 64, display: 'block' }} />
+              <img src={logoHeader} alt="MahjRank" style={{ height: 76, display: 'block' }} />
             </div>
             <div style={{ fontSize: 10, color: '#94A3B8', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '1.5px', fontWeight: 500 }}>SEASON 1</div>
           </div>
