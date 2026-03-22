@@ -234,13 +234,13 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               {/* Awaiting verification */}
               {awaitingCount > 0 && (
                 <div style={{
-                  width: '100%', background: 'rgba(245,158,11,0.03)',
-                  borderTop: '1px solid rgba(245,158,11,0.12)', borderRight: '1px solid rgba(245,158,11,0.12)',
-                  borderBottom: '1px solid rgba(245,158,11,0.12)', borderLeft: `4px solid ${C.goldDk}`,
+                  width: '100%', background: 'rgba(245,158,11,0.10)',
+                  borderTop: '1px solid rgba(245,158,11,0.35)', borderRight: '1px solid rgba(245,158,11,0.35)',
+                  borderBottom: '1px solid rgba(245,158,11,0.35)', borderLeft: `4px solid ${C.goldDk}`,
                   borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
                   marginBottom: 14, fontFamily: "'DM Sans', sans-serif",
                 }}>
-                  <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: C.goldDk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{awaitingCount}</div>
+                  <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(245,158,11,0.25)', color: C.goldDk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{awaitingCount}</div>
                   <div>
                     <div style={{ color: C.goldDk, fontSize: 13, fontWeight: 600 }}>{awaitingCount === 1 ? 'game' : 'games'} awaiting verification</div>
                     <div style={{ fontSize: 11, color: C.slate, marginTop: 1 }}>Waiting for another player to confirm</div>
