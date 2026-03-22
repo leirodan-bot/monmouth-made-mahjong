@@ -16,6 +16,7 @@ import CookiePolicy from './CookiePolicy'
 import Auth from './Auth'
 import InstallPrompt from './InstallPrompt'
 
+import ProfileSection from "./ProfileSection"
 const C = {
   jade: '#065F46',
   jadeLt: '#059669',
@@ -284,60 +285,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
 
           {/* ═══════ PROFILE TAB ═══════ */}
           {tab === 'profile' && session && (
-            <div>
-              <div style={accentCard(C.jade, { padding: '24px 20px', textAlign: 'center', marginBottom: 16 })}>
-                <div style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, fontFamily: "'Outfit', sans-serif", margin: '0 auto 12px' }}>
-                  {player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'}
-                </div>
-                <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
-                <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>{session?.user?.email}</div>
-                <div style={{ marginTop: 8 }}><TierBadge elo={player?.elo || 800} /></div>
-
-                {/* Stats */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
-                  {[
-                    { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
-                    { label: 'Wins', value: player?.wins || 0, color: C.jade },
-                    { label: 'Losses', value: player?.losses || 0, color: C.ink },
-                  ].map((s, i) => (
-                    <div key={i} style={{
-                      background: C.cloud,
-                      borderTop: `3px solid ${s.color}`,
-                      borderRight: `1px solid ${C.border}`,
-                      borderBottom: `1px solid ${C.border}`,
-                      borderLeft: `1px solid ${C.border}`,
-                      borderRadius: 10, padding: '12px 8px', textAlign: 'center',
-                    }}>
-                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700, color: s.color }}>{s.value}</div>
-                      <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginTop: 4 }}>{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Links */}
-              {[
-                { label: 'My Clubs', tab: 'clubs', accent: C.jade },
-                { label: 'How It Works', tab: 'howitworks', accent: C.jadeLt },
-                { label: 'Terms of Service', tab: 'terms', accent: C.slateLt },
-                { label: 'Privacy Policy', tab: 'privacy', accent: C.slateLt },
-              ].map((link, i) => (
-                <button key={i} onClick={() => setTab(link.tab)} style={accentLink(link.accent)}>
-                  {link.label}
-                  <Chevron />
-                </button>
-              ))}
-
-              {/* Sign out */}
-              <button onClick={onSignOut} style={{
-                width: '100%', background: 'white',
-                borderTop: '1px solid rgba(220,38,38,0.2)', borderRight: '1px solid rgba(220,38,38,0.2)',
-                borderBottom: '1px solid rgba(220,38,38,0.2)', borderLeft: `4px solid ${C.crimson}`,
-                borderRadius: 10, padding: '14px 16px', marginTop: 8,
-                fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.crimson,
-                textAlign: 'center', fontWeight: 600, cursor: 'pointer',
-              }}>Sign Out</button>
-            </div>
+            <ProfileSection session={session} player={player} onSignOut={onSignOut} setTab={setTab} />
           )}
 
           {tab === 'rankings' && <Rankings session={session} player={player} />}
