@@ -190,7 +190,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               {/* Welcome card — jade left border */}
               <div style={{
                 background: 'white',
-                border: `1px solid ${C.border}`,
+                borderTop: `1px solid $\{C.border\}`, borderRight: `1px solid $\{C.border\}`, borderBottom: `1px solid $\{C.border\}`,
                 borderLeft: `4px solid ${C.jade}`,
                 borderRadius: 16,
                 padding: '20px',
@@ -295,7 +295,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 ].map((link, i) => (
                   <button key={i} onClick={() => setTab(link.tab)} style={{
                     background: 'white',
-                    border: `1px solid ${C.border}`,
+                    borderTop: `1px solid $\{C.border\}`, borderRight: `1px solid $\{C.border\}`, borderBottom: `1px solid $\{C.border\}`,
                     borderLeft: `4px solid ${link.accent}`,
                     borderRadius: 14,
                     padding: '18px 16px',
@@ -319,7 +319,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               {/* Profile card — jade left border */}
               <div style={{
                 background: 'white',
-                border: `1px solid ${C.border}`,
+                borderTop: `1px solid $\{C.border\}`, borderRight: `1px solid $\{C.border\}`, borderBottom: `1px solid $\{C.border\}`,
                 borderLeft: `4px solid ${C.jade}`,
                 borderRadius: 16,
                 padding: '24px 20px',
@@ -376,7 +376,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   style={{
                     width: '100%',
                     background: 'white',
-                    border: `1px solid ${C.border}`,
+                    borderTop: `1px solid $\{C.border\}`, borderRight: `1px solid $\{C.border\}`, borderBottom: `1px solid $\{C.border\}`,
                     borderLeft: `4px solid ${link.accent}`,
                     borderRadius: 10,
                     padding: '14px 16px',
