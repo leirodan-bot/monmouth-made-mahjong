@@ -1065,14 +1065,14 @@ mahjrankicon-clean-1024.png mahjrankicon180.png mahjranklogomonodark1800.png
 mahjrankicon-clean-180.png mahjrankicon192.png mahjranklogomonowhite1800.png
 mahjrankicon-clean-192.png mahjrankicon32.png mahjrankogimage1200x630.png
 mahjrankicon-clean-512.png mahjranklogodark2400.png
-mahjrankicon1024.png mahjranklogolight2400.png
+mahjrankicon1024.png mahjranklogotransparent2400.png
 danleiro@Shannons-MacBook-Air monmouth-made-mahjong %
 
 8:59 PM
 
 Identified correct logo file for white background header
 Identified correct logo file for white background header
-You have mahjranklogolight2400.png — that's the one made for light backgrounds. Two changes:
+You have mahjranklogotransparent2400.png — that's the one made for light backgrounds. Two changes:
 
 1. index.css — change body background back:
 
@@ -1087,7 +1087,7 @@ import logoHeader from '../assets/mahjrank/mahjranklogodark2400.png'
 Change it to:
 
 js
-import logoHeader from '../assets/mahjrank/mahjranklogolight2400.png'
+import logoHeader from '../assets/mahjrank/mahjranklogotransparent2400.png'
 That's it — one line in each of the three files. Then push:
 
 bash
@@ -1152,7 +1152,7 @@ input:focus, select:focus, textarea:focus {
 For Header.jsx and MobileShell.jsx — you just replaced both of those. The only change is the logo import on line 3. Run this to fix both at once:
 
 bash
-sed -i '' 's/mahjranklogodark2400/mahjranklogolight2400/g' src/components/Header.jsx src/components/MobileShell.jsx
+sed -i '' 's/mahjranklogodark2400/mahjranklogotransparent2400/g' src/components/Header.jsx src/components/MobileShell.jsx
 Then push:
 
 bash
@@ -1185,7 +1185,7 @@ Copy
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-import logoHeader from '../assets/mahjrank/mahjranklogolight2400.png'
+import logoHeader from '../assets/mahjrank/mahjranklogotransparent2400.png'
 import NotificationBell from './NotificationBell'
 import Homepage from './Homepage'
 import Rankings from './Rankings'
