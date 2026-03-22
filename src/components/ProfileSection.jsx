@@ -133,7 +133,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
 
         {/* Elo Sparkline */}
         <EloSparkline history={eloHistory} />
-        <button onClick={() => generateShareCard(player, earnedBadges, eloHistory)} style={{ marginTop: 16, width: "100%", padding: "12px", borderRadius: 10, background: C.midnight, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <button onClick={() => generateShareCard(player, earnedBadges)} style={{ marginTop: 16, width: "100%", padding: "12px", borderRadius: 10, background: C.midnight, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           Share My Card
         </button>
@@ -243,13 +243,27 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
 }
 
 // ── Share Card Generator ──
-async function generateShareCard(player, earnedBadges, eloHistory) {
+async function generateShareCard(player, earnedBadges) {
   const W = 1080, H = 1350
   const canvas = document.createElement('canvas')
   canvas.width = W; canvas.height = H
   const ctx = canvas.getContext('2d')
 
-  // ── White background with subtle texture ──
+  // ── Load tier badge image ──
+  const tier = getTier(player.elo || 800)
+  const tierKey = tier.name.toLowerCase()
+  let tierImg = null
+  try {
+    const tierMod = await import(`../assets/badges/${tierKey}.png`)
+    tierImg = await new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => resolve(img)
+      img.onerror = reject
+      img.src = tierMod.default
+    })
+  } catch (e) { /* no tier image available */ }
+
+  // ── White background ──
   ctx.fillStyle = '#FFFFFF'
   ctx.fillRect(0, 0, W, H)
 
@@ -258,22 +272,17 @@ async function generateShareCard(player, earnedBadges, eloHistory) {
   ctx.fillRect(0, 0, W, 6)
 
   // ── LOGO ──
-  ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
   ctx.font = '800 48px Outfit, sans-serif'
   const mahjW = ctx.measureText('Mahj').width
   const rankW = ctx.measureText('Rank').width
-  const totalW = mahjW + rankW
-  const logoX = W / 2 - totalW / 2
+  const totalLogoW = mahjW + rankW
+  const logoX = W / 2 - totalLogoW / 2
   ctx.fillStyle = '#065F46'
   ctx.textAlign = 'left'
   ctx.fillText('Mahj', logoX, 40)
   ctx.fillStyle = '#DC2626'
   ctx.fillText('Rank', logoX + mahjW, 40)
-
-  // ── MR tile icon ──
-  const iconSize = 36, iconX = W/2 - iconSize/2, iconY = 44
-  // skip icon for now, logo text is enough
 
   // ── Player initials circle ──
   const initials = player.name ? player.name.split(' ').map(n => n[0]).join('') : '?'
@@ -291,41 +300,59 @@ async function generateShareCard(player, earnedBadges, eloHistory) {
   ctx.textBaseline = 'top'
   ctx.fillStyle = '#0F172A'
   ctx.font = '700 48px Outfit, sans-serif'
-  ctx.fillText(player.name || 'Player', W/2, 225)
+  ctx.textAlign = 'center'
+  ctx.fillText(player.name || 'Player', W/2, 228)
 
-  // ── Tier badge (styled pill) ──
-  const tier = getTier(player.elo || 800)
-  ctx.font = '700 20px "DM Sans", sans-serif'
-  const tierTextW = ctx.measureText(tier.name.toUpperCase()).width + 48
-  ctx.fillStyle = tier.bg
-  ctx.beginPath()
-  ctx.roundRect(W/2 - tierTextW/2, 290, tierTextW, 40, 20)
-  ctx.fill()
-  ctx.fillStyle = tier.textColor
-  ctx.textBaseline = 'middle'
-  ctx.fillText(tier.name.toUpperCase(), W/2, 310)
+  // ── Tier badge image + pill ──
+  const tierY = 295
+  if (tierImg) {
+    const imgSize = 100
+    ctx.drawImage(tierImg, W/2 - imgSize/2, tierY, imgSize, imgSize)
+    // Tier name below image
+    ctx.font = '700 20px "DM Sans", sans-serif'
+    ctx.fillStyle = tier.bg
+    const pillW = ctx.measureText(tier.name.toUpperCase()).width + 48
+    ctx.beginPath()
+    ctx.roundRect(W/2 - pillW/2, tierY + imgSize + 10, pillW, 36, 18)
+    ctx.fill()
+    ctx.fillStyle = tier.textColor
+    ctx.textBaseline = 'middle'
+    ctx.fillText(tier.name.toUpperCase(), W/2, tierY + imgSize + 28)
+  } else {
+    // Fallback: just the pill
+    ctx.font = '700 20px "DM Sans", sans-serif'
+    const pillW = ctx.measureText(tier.name.toUpperCase()).width + 48
+    ctx.fillStyle = tier.bg
+    ctx.beginPath()
+    ctx.roundRect(W/2 - pillW/2, tierY, pillW, 40, 20)
+    ctx.fill()
+    ctx.fillStyle = tier.textColor
+    ctx.textBaseline = 'middle'
+    ctx.fillText(tier.name.toUpperCase(), W/2, tierY + 20)
+  }
 
   // ── Elo rating ──
+  const eloY = tierImg ? 460 : 360
   ctx.textBaseline = 'top'
   ctx.fillStyle = '#DC2626'
   ctx.font = '800 112px "JetBrains Mono", monospace'
-  ctx.fillText(Math.round(player.elo || 800), W/2, 350)
+  ctx.textAlign = 'center'
+  ctx.fillText(Math.round(player.elo || 800), W/2, eloY)
   ctx.fillStyle = '#94A3B8'
   ctx.font = '700 14px "JetBrains Mono", monospace'
-  ctx.letterSpacing = '4px'
-  ctx.fillText('ELO RATING', W/2, 472)
-  ctx.letterSpacing = '0px'
+  ctx.fillText('E L O   R A T I N G', W/2, eloY + 120)
 
-  // ── Divider line ──
+  // ── Divider ──
+  const divY = eloY + 155
   ctx.strokeStyle = '#E2E8F0'
   ctx.lineWidth = 1
   ctx.beginPath()
-  ctx.moveTo(100, 510)
-  ctx.lineTo(W - 100, 510)
+  ctx.moveTo(100, divY)
+  ctx.lineTo(W - 100, divY)
   ctx.stroke()
 
   // ── Stats row ──
-  const statsY = 535
+  const statsY = divY + 25
   const stats = [
     { label: 'WINS', value: String(player.wins || 0), color: '#065F46' },
     { label: 'LOSSES', value: String(player.losses || 0), color: '#64748B' },
@@ -337,96 +364,36 @@ async function generateShareCard(player, earnedBadges, eloHistory) {
 
   stats.forEach((s, i) => {
     const x = statsStartX + i * (statW + statGap)
-    // Card background
     ctx.fillStyle = '#F8FAFC'
     ctx.beginPath()
     ctx.roundRect(x, statsY, statW, 100, 14)
     ctx.fill()
-    // Top color bar
     ctx.fillStyle = s.color
     ctx.beginPath()
     ctx.roundRect(x, statsY, statW, 4, [14, 14, 0, 0])
     ctx.fill()
-    // Value
     ctx.fillStyle = s.color
     ctx.font = '700 40px "JetBrains Mono", monospace'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
     ctx.fillText(s.value, x + statW/2, statsY + 18)
-    // Label
     ctx.fillStyle = '#94A3B8'
     ctx.font = '700 11px "DM Sans", sans-serif'
     ctx.fillText(s.label, x + statW/2, statsY + 72)
   })
 
-  // ── Sparkline ──
-  if (eloHistory && eloHistory.length >= 2) {
-    const sparkY = 680, sparkH = 70, sparkW = 820
-    const sparkX = (W - sparkW) / 2
-    const ratings = eloHistory.map(h => h.rating_after)
-    const min = Math.min(...ratings) - 10
-    const max = Math.max(...ratings) + 10
-    const range = max - min || 1
-    const trending = ratings[ratings.length-1] >= ratings[0]
-    const lineColor = trending ? '#065F46' : '#DC2626'
-
-    // Gradient fill under line
-    const gradient = ctx.createLinearGradient(0, sparkY, 0, sparkY + sparkH)
-    gradient.addColorStop(0, trending ? 'rgba(6,95,70,0.12)' : 'rgba(220,38,38,0.12)')
-    gradient.addColorStop(1, 'rgba(255,255,255,0)')
-
-    // Build path
-    const points = ratings.map((r, i) => ({
-      x: sparkX + (i / (ratings.length - 1)) * sparkW,
-      y: sparkY + (1 - (r - min) / range) * sparkH,
-    }))
-
-    // Fill area
-    ctx.beginPath()
-    ctx.moveTo(points[0].x, sparkY + sparkH)
-    points.forEach(p => ctx.lineTo(p.x, p.y))
-    ctx.lineTo(points[points.length-1].x, sparkY + sparkH)
-    ctx.closePath()
-    ctx.fillStyle = gradient
-    ctx.fill()
-
-    // Draw line
-    ctx.strokeStyle = lineColor
-    ctx.lineWidth = 3
-    ctx.lineJoin = 'round'
-    ctx.lineCap = 'round'
-    ctx.beginPath()
-    points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y))
-    ctx.stroke()
-
-    // End dot
-    const last = points[points.length - 1]
-    ctx.fillStyle = lineColor
-    ctx.beginPath()
-    ctx.arc(last.x, last.y, 5, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = '#FFFFFF'
-    ctx.beginPath()
-    ctx.arc(last.x, last.y, 2.5, 0, Math.PI * 2)
-    ctx.fill()
-
-    ctx.fillStyle = '#94A3B8'
-    ctx.font = '500 13px "DM Sans", sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'top'
-    ctx.fillText('Last ' + eloHistory.length + ' games', W/2, sparkY + sparkH + 12)
-  }
-
   // ── Badges section ──
-  const badgeStartY = 800
+  const badgeStartY = statsY + 140
   ctx.fillStyle = '#0F172A'
   ctx.font = '700 26px Outfit, sans-serif'
   ctx.textAlign = 'left'
   ctx.textBaseline = 'top'
-  ctx.fillText('Badges', 80, badgeStartY)
+  const badgesLabel = 'Badges'
+  ctx.fillText(badgesLabel, 80, badgeStartY)
   ctx.fillStyle = '#94A3B8'
   ctx.font = '500 26px Outfit, sans-serif'
-  ctx.fillText('  ' + earnedBadges.length + '/' + BADGES.length, 80 + ctx.measureText('Badges').width, badgeStartY)
+  const badgesLabelW = ctx.measureText(badgesLabel).width
+  ctx.fillText('  ' + earnedBadges.length + '/' + BADGES.length, 80 + badgesLabelW - 10, badgeStartY)
 
   // Badge grid
   const badgeCols = 5, badgeW = 170, badgeH = 80, badgeGap = 14
@@ -437,31 +404,23 @@ async function generateShareCard(player, earnedBadges, eloHistory) {
   earnedBadges.forEach((eb, i) => {
     const badge = BADGES.find(b => b.id === eb.badge_id)
     if (!badge) return
-
-    // Badge card
     ctx.fillStyle = '#F8FAFC'
     ctx.beginPath()
     ctx.roundRect(bx, by, badgeW, badgeH, 10)
     ctx.fill()
-    // Left accent
     ctx.fillStyle = '#F59E0B'
     ctx.beginPath()
     ctx.roundRect(bx, by + 8, 3, badgeH - 16, 2)
     ctx.fill()
-
-    // Emoji
     ctx.font = '28px serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(badge.emoji, bx + 30, by + badgeH/2)
-
-    // Name
     ctx.fillStyle = '#0F172A'
     ctx.font = '600 13px "DM Sans", sans-serif'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'middle'
     ctx.fillText(badge.name, bx + 52, by + badgeH/2)
-
     bx += badgeW + badgeGap
     if ((i + 1) % badgeCols === 0) {
       bx = badgeGridX
@@ -471,34 +430,34 @@ async function generateShareCard(player, earnedBadges, eloHistory) {
 
   // ── Footer ──
   ctx.fillStyle = '#F8FAFC'
-  ctx.fillRect(0, H - 90, W, 90)
+  ctx.fillRect(0, H - 100, W, 100)
   ctx.strokeStyle = '#E2E8F0'
   ctx.lineWidth = 1
   ctx.beginPath()
-  ctx.moveTo(0, H - 90)
-  ctx.lineTo(W, H - 90)
+  ctx.moveTo(0, H - 100)
+  ctx.lineTo(W, H - 100)
   ctx.stroke()
-
-  // Footer jade bar
   ctx.fillStyle = '#065F46'
   ctx.fillRect(0, H - 4, W, 4)
 
-  ctx.font = '700 30px Outfit, sans-serif'
-  ctx.textAlign = 'center'
+  // Logo in footer
+  ctx.font = '700 28px Outfit, sans-serif'
   ctx.textBaseline = 'middle'
   const fMahjW = ctx.measureText('Mahj').width
-  const fRankW = ctx.measureText('Rank').width
-  const fTotalW = fMahjW + fRankW
+  const fTotalW = fMahjW + ctx.measureText('Rank').width
   const fX = W / 2 - fTotalW / 2
   ctx.fillStyle = '#065F46'
   ctx.textAlign = 'left'
-  ctx.fillText('Mahj', fX, H - 52)
+  ctx.fillText('Mahj', fX, H - 58)
   ctx.fillStyle = '#DC2626'
-  ctx.fillText('Rank', fX + fMahjW, H - 52)
+  ctx.fillText('Rank', fX + fMahjW, H - 58)
+
+  // Date + URL
   ctx.fillStyle = '#94A3B8'
   ctx.font = '400 14px "DM Sans", sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText('mahjrank.com', W/2, H - 22)
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  ctx.fillText('mahjrank.com  ·  ' + today, W/2, H - 28)
 
   // ── Export ──
   const blob = await new Promise(r => canvas.toBlob(r, 'image/png'))
