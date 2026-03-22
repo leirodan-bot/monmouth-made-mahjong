@@ -74,20 +74,33 @@ const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: ProfileIcon },
 ]
 
+import noviceBadge from '../assets/badges/novice.png'
+import beginnerBadge from '../assets/badges/beginner.png'
+import skilledBadge from '../assets/badges/skilled.png'
+import expertBadge from '../assets/badges/expert.png'
+import masterBadge from '../assets/badges/master.png'
+import grandmasterBadge from '../assets/badges/grandmaster.png'
+
+const TIER_IMAGES = { Novice: noviceBadge, Beginner: beginnerBadge, Skilled: skilledBadge, Expert: expertBadge, Master: masterBadge, Grandmaster: grandmasterBadge }
+
 function TierBadge({ elo }) {
   let tier, color, bg
-  if (elo >= 1100) { tier = 'Grandmaster'; color = '#7C3AED'; bg = 'rgba(124,58,237,0.08)' }
-  else if (elo >= 1000) { tier = 'Master'; color = '#6366F1'; bg = 'rgba(99,102,241,0.08)' }
-  else if (elo >= 900) { tier = 'Expert'; color = C.goldDk; bg = 'rgba(245,158,11,0.08)' }
-  else if (elo >= 800) { tier = 'Skilled'; color = C.slateLt; bg = 'rgba(148,163,184,0.08)' }
-  else if (elo >= 700) { tier = 'Beginner'; color = '#B45309'; bg = 'rgba(180,83,9,0.06)' }
-  else { tier = 'Novice'; color = C.slate; bg = 'rgba(100,116,139,0.06)' }
+  if (elo >= 1100) { tier = 'Grandmaster'; color = '#7C3AED'; bg = 'rgba(124,58,237,0.12)' }
+  else if (elo >= 1000) { tier = 'Master'; color = '#6366F1'; bg = 'rgba(99,102,241,0.12)' }
+  else if (elo >= 900) { tier = 'Expert'; color = C.goldDk; bg = 'rgba(245,158,11,0.12)' }
+  else if (elo >= 800) { tier = 'Skilled'; color = C.slateLt; bg = 'rgba(148,163,184,0.12)' }
+  else if (elo >= 700) { tier = 'Beginner'; color = '#B45309'; bg = 'rgba(180,83,9,0.10)' }
+  else { tier = 'Novice'; color = C.slate; bg = 'rgba(100,116,139,0.10)' }
+  const img = TIER_IMAGES[tier]
   return (
-    <span style={{
-      fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase',
-      color, background: bg, borderTop: `1px solid ${color}22`, borderRight: `1px solid ${color}22`, borderBottom: `1px solid ${color}22`, borderLeft: `1px solid ${color}22`,
-      padding: '3px 10px', borderRadius: 6,
-    }}>{tier}</span>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      {img && <img src={img} alt={tier} style={{ width: 44, height: 44, objectFit: 'contain' }} />}
+      <span style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase',
+        color, background: bg, border: `1px solid ${color}33`,
+        padding: '3px 10px', borderRadius: 6,
+      }}>{tier}</span>
+    </div>
   )
 }
 
