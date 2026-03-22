@@ -130,7 +130,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           onClick={() => setTab(session ? 'home' : 'landing')}
         >
-          <img src={logoHeader} alt="MahjRank" style={{ height: 56 }} />
+          <img src={logoHeader} alt="MahjRank" style={{ height: 64 }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {session && player && (
