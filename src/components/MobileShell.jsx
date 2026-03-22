@@ -30,6 +30,41 @@ const C = {
   border: '#E2E8F0',
 }
 
+// Helper: makes a style with a colored left accent border
+function accentCard(accent, extra = {}) {
+  return {
+    background: 'white',
+    borderTop: `1px solid ${C.border}`,
+    borderRight: `1px solid ${C.border}`,
+    borderBottom: `1px solid ${C.border}`,
+    borderLeft: `4px solid ${accent}`,
+    borderRadius: 16,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+    ...extra,
+  }
+}
+
+function accentLink(accent) {
+  return {
+    width: '100%',
+    background: 'white',
+    borderTop: `1px solid ${C.border}`,
+    borderRight: `1px solid ${C.border}`,
+    borderBottom: `1px solid ${C.border}`,
+    borderLeft: `4px solid ${accent}`,
+    borderRadius: 10,
+    padding: '14px 16px',
+    marginBottom: 8,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: 14,
+    color: C.midnight,
+    cursor: 'pointer',
+  }
+}
+
 const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: HomeIcon },
   { id: 'rankings', label: 'Rankings', icon: RankingsIcon },
@@ -49,10 +84,14 @@ function TierBadge({ elo }) {
   return (
     <span style={{
       fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase',
-      color, background: bg, border: `1px solid ${color}22`,
+      color, background: bg, borderTop: `1px solid ${color}22`, borderRight: `1px solid ${color}22`, borderBottom: `1px solid ${color}22`, borderLeft: `1px solid ${color}22`,
       padding: '3px 10px', borderRadius: 6,
     }}>{tier}</span>
   )
+}
+
+function Chevron() {
+  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
 }
 
 export default function MobileShell({ session, player, onSignOut, refreshPlayer }) {
@@ -93,9 +132,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
     if (!session) setTab('landing')
   }, [session])
 
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [tab])
+  useEffect(() => { window.scrollTo(0, 0) }, [tab])
 
   if (!session && tab === 'landing') {
     return <Homepage setTab={(t) => {
@@ -116,87 +153,35 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
 
       {/* ===== TOP BAR ===== */}
       <div style={{
-        background: 'white',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
+        background: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100,
         borderBottom: `1px solid ${C.border}`,
       }}>
-        <div
-          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-          onClick={() => setTab(session ? 'home' : 'landing')}
-        >
+        <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setTab(session ? 'home' : 'landing')}>
           <img src={logoHeader} alt="MahjRank" style={{ height: 56 }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {session && player && (
-            <NotificationBell
-              player={player}
-              onNavigate={setTab}
-              refreshPlayer={refreshPlayer}
-              onCountChange={(count) => setPendingCount(count)}
-            />
-          )}
+          {session && player && <NotificationBell player={player} onNavigate={setTab} refreshPlayer={refreshPlayer} onCountChange={(count) => setPendingCount(count)} />}
           {session ? (
-            <button
-              onClick={onSignOut}
-              style={{
-                background: C.cloud,
-                border: `1px solid ${C.border}`,
-                borderRadius: 8,
-                padding: '6px 12px',
-                color: C.slate,
-                fontSize: 11,
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 500,
-              }}
-            >
-              Sign Out
-            </button>
+            <button onClick={onSignOut} style={{ background: C.cloud, borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, borderLeft: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 12px', color: C.slate, fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>Sign Out</button>
           ) : (
-            <button
-              onClick={() => setTab('login')}
-              style={{
-                background: C.crimson,
-                border: 'none',
-                borderRadius: 8,
-                padding: '6px 14px',
-                color: '#fff',
-                fontSize: 12,
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 700,
-              }}
-            >
-              Sign In
-            </button>
+            <button onClick={() => setTab('login')} style={{ background: C.crimson, border: 'none', borderRadius: 8, padding: '6px 14px', color: '#fff', fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>Sign In</button>
           )}
         </div>
       </div>
 
-      {/* Thin gradient accent */}
+      {/* Gradient accent */}
       <div style={{ height: 2, background: `linear-gradient(to right, ${C.jade}, ${C.jadeLt}, ${C.crimson})`, opacity: 0.4 }} />
 
       {/* ===== CONTENT ===== */}
       <div style={{ flex: 1, paddingBottom: showBottomNav ? 80 : 0 }}>
         <main style={{ maxWidth: 600, margin: '0 auto', padding: '16px 12px' }}>
 
-          {/* ═══ HOME TAB ═══ */}
+          {/* ═══════ HOME TAB ═══════ */}
           {tab === 'home' && session && (
             <div>
-              {/* Welcome card — jade left border */}
-              <div style={{
-                background: 'white',
-                borderTop: `1px solid $\{C.border\}`, borderRight: `1px solid $\{C.border\}`, borderBottom: `1px solid $\{C.border\}`,
-                borderLeft: `4px solid ${C.jade}`,
-                borderRadius: 16,
-                padding: '20px',
-                marginBottom: 14,
-                boxShadow: '0 2px 8px rgba(6,95,70,0.06)',
-              }}>
+              {/* Welcome card */}
+              <div style={accentCard(C.jade, { padding: '20px', marginBottom: 14 })}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                   <div>
                     <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Welcome back,</div>
@@ -205,7 +190,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   <TierBadge elo={player?.elo || 800} />
                 </div>
 
-                {/* Stat boxes — colored top borders */}
+                {/* Stat boxes */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                   {[
                     { label: 'Games', value: player?.games_played || 0, color: C.jadeLt },
@@ -214,11 +199,11 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   ].map((s, i) => (
                     <div key={i} style={{
                       background: C.cloud,
-                      border: `1px solid ${C.border}`,
                       borderTop: `3px solid ${s.color}`,
-                      borderRadius: 12,
-                      padding: '14px 10px',
-                      textAlign: 'center',
+                      borderRight: `1px solid ${C.border}`,
+                      borderBottom: `1px solid ${C.border}`,
+                      borderLeft: `1px solid ${C.border}`,
+                      borderRadius: 12, padding: '14px 10px', textAlign: 'center',
                     }}>
                       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
                       <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", marginTop: 6, fontWeight: 600 }}>{s.label}</div>
@@ -227,21 +212,14 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </div>
               </div>
 
-              {/* Pending confirmations — gold left border */}
+              {/* Pending confirmations */}
               {pendingCount > 0 && (
                 <button onClick={() => setTab('activity')} style={{
-                  width: '100%',
-                  background: 'rgba(245,158,11,0.05)',
-                  border: `1px solid rgba(245,158,11,0.15)`,
-                  borderLeft: `4px solid ${C.gold}`,
-                  borderRadius: 12,
-                  padding: '12px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  marginBottom: 14,
-                  fontFamily: "'DM Sans', sans-serif",
-                  cursor: 'pointer',
+                  width: '100%', background: 'rgba(245,158,11,0.05)',
+                  borderTop: '1px solid rgba(245,158,11,0.15)', borderRight: '1px solid rgba(245,158,11,0.15)',
+                  borderBottom: '1px solid rgba(245,158,11,0.15)', borderLeft: `4px solid ${C.gold}`,
+                  borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
+                  marginBottom: 14, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
                 }}>
                   <div style={{ width: 24, height: 24, borderRadius: 8, background: C.gold, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{pendingCount}</div>
                   <div style={{ flex: 1, textAlign: 'left' }}>
@@ -252,20 +230,14 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </button>
               )}
 
-              {/* Awaiting verification — gold left border */}
+              {/* Awaiting verification */}
               {awaitingCount > 0 && (
                 <div style={{
-                  width: '100%',
-                  background: 'rgba(245,158,11,0.03)',
-                  border: `1px solid rgba(245,158,11,0.12)`,
-                  borderLeft: `4px solid ${C.goldDk}`,
-                  borderRadius: 12,
-                  padding: '12px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  marginBottom: 14,
-                  fontFamily: "'DM Sans', sans-serif",
+                  width: '100%', background: 'rgba(245,158,11,0.03)',
+                  borderTop: '1px solid rgba(245,158,11,0.12)', borderRight: '1px solid rgba(245,158,11,0.12)',
+                  borderBottom: '1px solid rgba(245,158,11,0.12)', borderLeft: `4px solid ${C.goldDk}`,
+                  borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
+                  marginBottom: 14, fontFamily: "'DM Sans', sans-serif",
                 }}>
                   <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: C.goldDk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{awaitingCount}</div>
                   <div>
@@ -275,7 +247,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </div>
               )}
 
-              {/* Record a Game CTA */}
+              {/* Record a Game */}
               <button onClick={() => setTab('record')} style={{
                 width: '100%', background: C.crimson, border: 'none', borderRadius: 14, padding: '16px', color: '#fff',
                 fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 20,
@@ -285,7 +257,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 <span style={{ fontSize: 20, fontWeight: 300 }}>+</span> Record a Game
               </button>
 
-              {/* Quick links — colored left borders */}
+              {/* Quick links */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[
                   { label: 'Rankings', icon: '🏆', sub: 'See where you stand', tab: 'rankings', accent: C.gold },
@@ -295,13 +267,10 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 ].map((link, i) => (
                   <button key={i} onClick={() => setTab(link.tab)} style={{
                     background: 'white',
-                    borderTop: `1px solid $\{C.border\}`, borderRight: `1px solid $\{C.border\}`, borderBottom: `1px solid $\{C.border\}`,
-                    borderLeft: `4px solid ${link.accent}`,
-                    borderRadius: 14,
-                    padding: '18px 16px',
-                    textAlign: 'left',
-                    fontFamily: "'DM Sans', sans-serif",
-                    cursor: 'pointer',
+                    borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
+                    borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${link.accent}`,
+                    borderRadius: 14, padding: '18px 16px', textAlign: 'left',
+                    fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
                     boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
                   }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>{link.icon}</div>
@@ -313,35 +282,18 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             </div>
           )}
 
-          {/* ═══ PROFILE TAB ═══ */}
+          {/* ═══════ PROFILE TAB ═══════ */}
           {tab === 'profile' && session && (
             <div>
-              {/* Profile card — jade left border */}
-              <div style={{
-                background: 'white',
-                borderTop: `1px solid $\{C.border\}`, borderRight: `1px solid $\{C.border\}`, borderBottom: `1px solid $\{C.border\}`,
-                borderLeft: `4px solid ${C.jade}`,
-                borderRadius: 16,
-                padding: '24px 20px',
-                textAlign: 'center',
-                marginBottom: 16,
-                boxShadow: '0 2px 8px rgba(6,95,70,0.06)',
-              }}>
-                <div style={{
-                  width: 64, height: 64, borderRadius: 16,
-                  background: C.jade, color: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 22, fontWeight: 700,
-                  fontFamily: "'Outfit', sans-serif",
-                  margin: '0 auto 12px',
-                }}>
+              <div style={accentCard(C.jade, { padding: '24px 20px', textAlign: 'center', marginBottom: 16 })}>
+                <div style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, fontFamily: "'Outfit', sans-serif", margin: '0 auto 12px' }}>
                   {player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'}
                 </div>
                 <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
                 <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>{session?.user?.email}</div>
                 <div style={{ marginTop: 8 }}><TierBadge elo={player?.elo || 800} /></div>
 
-                {/* Profile stats — colored top borders */}
+                {/* Stats */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
                   {[
                     { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
@@ -350,11 +302,11 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   ].map((s, i) => (
                     <div key={i} style={{
                       background: C.cloud,
-                      border: `1px solid ${C.border}`,
                       borderTop: `3px solid ${s.color}`,
-                      borderRadius: 10,
-                      padding: '12px 8px',
-                      textAlign: 'center',
+                      borderRight: `1px solid ${C.border}`,
+                      borderBottom: `1px solid ${C.border}`,
+                      borderLeft: `1px solid ${C.border}`,
+                      borderRadius: 10, padding: '12px 8px', textAlign: 'center',
                     }}>
                       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700, color: s.color }}>{s.value}</div>
                       <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginTop: 4 }}>{s.label}</div>
@@ -363,59 +315,28 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </div>
               </div>
 
-              {/* Profile nav links — colored left borders */}
+              {/* Links */}
               {[
                 { label: 'My Clubs', tab: 'clubs', accent: C.jade },
                 { label: 'How It Works', tab: 'howitworks', accent: C.jadeLt },
                 { label: 'Terms of Service', tab: 'terms', accent: C.slateLt },
                 { label: 'Privacy Policy', tab: 'privacy', accent: C.slateLt },
               ].map((link, i) => (
-                <button
-                  key={i}
-                  onClick={() => setTab(link.tab)}
-                  style={{
-                    width: '100%',
-                    background: 'white',
-                    borderTop: `1px solid $\{C.border\}`, borderRight: `1px solid $\{C.border\}`, borderBottom: `1px solid $\{C.border\}`,
-                    borderLeft: `4px solid ${link.accent}`,
-                    borderRadius: 10,
-                    padding: '14px 16px',
-                    marginBottom: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 14,
-                    color: C.midnight,
-                    cursor: 'pointer',
-                  }}
-                >
+                <button key={i} onClick={() => setTab(link.tab)} style={accentLink(link.accent)}>
                   {link.label}
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                  <Chevron />
                 </button>
               ))}
 
-              {/* Sign out — crimson left border */}
-              <button
-                onClick={onSignOut}
-                style={{
-                  width: '100%',
-                  background: 'white',
-                  border: `1px solid rgba(220,38,38,0.2)`,
-                  borderLeft: `4px solid ${C.crimson}`,
-                  borderRadius: 10,
-                  padding: '14px 16px',
-                  marginTop: 8,
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 14,
-                  color: C.crimson,
-                  textAlign: 'center',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                Sign Out
-              </button>
+              {/* Sign out */}
+              <button onClick={onSignOut} style={{
+                width: '100%', background: 'white',
+                borderTop: '1px solid rgba(220,38,38,0.2)', borderRight: '1px solid rgba(220,38,38,0.2)',
+                borderBottom: '1px solid rgba(220,38,38,0.2)', borderLeft: `4px solid ${C.crimson}`,
+                borderRadius: 10, padding: '14px 16px', marginTop: 8,
+                fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.crimson,
+                textAlign: 'center', fontWeight: 600, cursor: 'pointer',
+              }}>Sign Out</button>
             </div>
           )}
 
