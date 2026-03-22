@@ -133,6 +133,10 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
 
         {/* Elo Sparkline */}
         <EloSparkline history={eloHistory} />
+        <button onClick={() => generateShareCard(player, earnedBadges, eloHistory)} style={{ marginTop: 16, width: "100%", padding: "12px", borderRadius: 10, background: C.midnight, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          Share My Card
+        </button>
       </div>
 
       {/* ── Badges Card ── */}
@@ -236,4 +240,215 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
       }}>Sign Out</button>
     </div>
   )
+}
+
+// ── Share Card Generator ──
+async function generateShareCard(player, earnedBadges, eloHistory) {
+  const W = 1080, H = 1350
+  const canvas = document.createElement('canvas')
+  canvas.width = W; canvas.height = H
+  const ctx = canvas.getContext('2d')
+
+  // Background
+  ctx.fillStyle = '#0F172A'
+  ctx.fillRect(0, 0, W, H)
+
+  // Subtle gradient overlay
+  const grad = ctx.createLinearGradient(0, 0, 0, H)
+  grad.addColorStop(0, 'rgba(6,95,70,0.08)')
+  grad.addColorStop(1, 'rgba(220,38,38,0.05)')
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, W, H)
+
+  // Top accent line
+  ctx.fillStyle = '#065F46'
+  ctx.fillRect(0, 0, W, 4)
+
+  // "MahjRank" title
+  ctx.fillStyle = '#065F46'
+  ctx.font = '800 52px Outfit, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('Mahj', W/2 - 52, 80)
+  ctx.fillStyle = '#DC2626'
+  ctx.fillText('Rank', W/2 + 52, 80)
+
+  // Player initial circle
+  const initials = player.name ? player.name.split(' ').map(n => n[0]).join('') : '?'
+  ctx.fillStyle = '#065F46'
+  const circleY = 160
+  ctx.beginPath()
+  ctx.roundRect(W/2 - 40, circleY, 80, 80, 20)
+  ctx.fill()
+  ctx.fillStyle = '#FFFFFF'
+  ctx.font = '700 32px Outfit, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(initials, W/2, circleY + 40)
+
+  // Player name
+  ctx.textBaseline = 'top'
+  ctx.fillStyle = '#FFFFFF'
+  ctx.font = '700 44px Outfit, sans-serif'
+  ctx.fillText(player.name || 'Player', W/2, 260)
+
+  // Tier badge
+  const tier = getTier(player.elo || 800)
+  ctx.fillStyle = tier.bg
+  const tierW = ctx.measureText(tier.name).width + 40
+  ctx.beginPath()
+  ctx.roundRect(W/2 - tierW/2, 320, tierW, 36, 18)
+  ctx.fill()
+  ctx.fillStyle = tier.textColor
+  ctx.font = '700 18px "DM Sans", sans-serif'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(tier.name, W/2, 338)
+
+  // Elo rating big
+  ctx.textBaseline = 'top'
+  ctx.fillStyle = '#DC2626'
+  ctx.font = '800 96px "JetBrains Mono", monospace'
+  ctx.fillText(Math.round(player.elo || 800), W/2, 380)
+
+  ctx.fillStyle = '#64748B'
+  ctx.font = '600 16px "JetBrains Mono", monospace'
+  ctx.fillText('ELO RATING', W/2, 485)
+
+  // Stats row
+  const statsY = 540
+  const stats = [
+    { label: 'WINS', value: `${player.wins || 0}`, color: '#065F46' },
+    { label: 'LOSSES', value: `${player.losses || 0}`, color: '#64748B' },
+    { label: 'GAMES', value: `${player.games_played || 0}`, color: '#64748B' },
+    { label: 'WIN %', value: `${player.games_played ? Math.round((player.wins||0)/(player.games_played)*100) : 0}%`, color: '#F59E0B' },
+  ]
+  const statW = 220, statGap = 24
+  const statsStartX = (W - (stats.length * statW + (stats.length - 1) * statGap)) / 2
+
+  stats.forEach((s, i) => {
+    const x = statsStartX + i * (statW + statGap)
+    ctx.fillStyle = 'rgba(255,255,255,0.05)'
+    ctx.beginPath()
+    ctx.roundRect(x, statsY, statW, 90, 12)
+    ctx.fill()
+    // Top accent
+    ctx.fillStyle = s.color
+    ctx.fillRect(x, statsY, statW, 3)
+
+    ctx.fillStyle = s.color
+    ctx.font = '700 36px "JetBrains Mono", monospace'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'top'
+    ctx.fillText(s.value, x + statW/2, statsY + 16)
+    ctx.fillStyle = '#64748B'
+    ctx.font = '600 12px "DM Sans", sans-serif'
+    ctx.fillText(s.label, x + statW/2, statsY + 62)
+  })
+
+  // Sparkline
+  if (eloHistory && eloHistory.length >= 2) {
+    const sparkY = 670, sparkH = 60, sparkW = 800
+    const sparkX = (W - sparkW) / 2
+    const ratings = eloHistory.map(h => h.rating_after)
+    const min = Math.min(...ratings) - 5
+    const max = Math.max(...ratings) + 5
+    const range = max - min || 1
+    const color = ratings[ratings.length-1] >= ratings[0] ? '#065F46' : '#DC2626'
+
+    ctx.strokeStyle = color
+    ctx.lineWidth = 2.5
+    ctx.lineJoin = 'round'
+    ctx.lineCap = 'round'
+    ctx.beginPath()
+    ratings.forEach((r, i) => {
+      const x = sparkX + (i / (ratings.length - 1)) * sparkW
+      const y = sparkY + (1 - (r - min) / range) * sparkH
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+    })
+    ctx.stroke()
+
+    ctx.fillStyle = '#475569'
+    ctx.font = '500 12px "DM Sans", sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'top'
+    ctx.fillText(`Last ${eloHistory.length} games`, W/2, sparkY + sparkH + 8)
+  }
+
+  // Badges section
+  const badgeStartY = 770
+  ctx.fillStyle = '#F59E0B'
+  ctx.font = '700 24px Outfit, sans-serif'
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'top'
+  ctx.fillText(`Badges  ${earnedBadges.length}/${BADGES.length}`, 80, badgeStartY)
+
+  // Badge grid (earned only)
+  const badgeCols = 6, badgeSize = 140, badgeGap = 16
+  const badgeGridW = badgeCols * badgeSize + (badgeCols - 1) * badgeGap
+  const badgeGridX = (W - badgeGridW) / 2
+  let bx = badgeGridX, by = badgeStartY + 50
+
+  earnedBadges.forEach((eb, i) => {
+    const badge = BADGES.find(b => b.id === eb.badge_id)
+    if (!badge) return
+
+    ctx.fillStyle = 'rgba(255,255,255,0.06)'
+    ctx.beginPath()
+    ctx.roundRect(bx, by, badgeSize, badgeSize, 12)
+    ctx.fill()
+    // Gold left accent
+    ctx.fillStyle = '#F59E0B'
+    ctx.fillRect(bx, by + 8, 3, badgeSize - 16)
+
+    ctx.font = '32px serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(badge.emoji, bx + badgeSize/2, by + 45)
+
+    ctx.fillStyle = '#FFFFFF'
+    ctx.font = '600 13px "DM Sans", sans-serif'
+    ctx.fillText(badge.name, bx + badgeSize/2, by + 90)
+
+    ctx.fillStyle = '#64748B'
+    ctx.font = '400 10px "DM Sans", sans-serif'
+
+    bx += badgeSize + badgeGap
+    if ((i + 1) % badgeCols === 0) {
+      bx = badgeGridX
+      by += badgeSize + badgeGap
+    }
+  })
+
+  // Footer
+  ctx.fillStyle = '#1E293B'
+  ctx.fillRect(0, H - 80, W, 80)
+  ctx.fillStyle = '#065F46'
+  ctx.fillRect(0, H - 80, W, 2)
+
+  ctx.fillStyle = '#065F46'
+  ctx.font = '700 28px Outfit, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('Mahj', W/2 - 30, H - 40)
+  ctx.fillStyle = '#DC2626'
+  ctx.fillText('Rank', W/2 + 30, H - 40)
+  ctx.fillStyle = '#475569'
+  ctx.font = '400 14px "DM Sans", sans-serif'
+  ctx.fillText('mahjrank.com', W/2, H - 16)
+
+  // Export
+  const blob = await new Promise(r => canvas.toBlob(r, 'image/png'))
+
+  if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+    try {
+      const file = new File([blob], 'mahjrank-card.png', { type: 'image/png' })
+      await navigator.share({ files: [file], title: `${player.name} on MahjRank` })
+      return
+    } catch (e) { /* fallback to download */ }
+  }
+
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = `mahjrank-${(player.name||'player').toLowerCase().replace(/\s+/g,'-')}.png`
+  a.click()
+  URL.revokeObjectURL(url)
 }
