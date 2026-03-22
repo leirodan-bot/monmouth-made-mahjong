@@ -130,7 +130,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           onClick={() => setTab(session ? 'home' : 'landing')}
         >
-          <img src={logoHeader} alt="MahjRank" style={{ height: 72 }} />
+          <img src={logoHeader} alt="MahjRank" style={{ height: 56 }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {session && player && (
@@ -181,160 +181,73 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
       <div style={{ height: 2, background: `linear-gradient(to right, ${C.jade}, ${C.jadeLt}, ${C.crimson})`, opacity: 0.4 }} />
 
       {/* ===== CONTENT ===== */}
-      <div style={{
-        flex: 1,
-        paddingBottom: showBottomNav ? 80 : 0,
-      }}>
+      <div style={{ flex: 1, paddingBottom: showBottomNav ? 80 : 0 }}>
         <main style={{ maxWidth: 600, margin: '0 auto', padding: '16px 12px' }}>
 
           {/* Home tab */}
           {tab === 'home' && session && (
             <div>
               {/* Welcome card */}
-              <div style={{
-                background: 'white',
-                border: `1px solid ${C.border}`,
-                borderRadius: 16,
-                padding: '20px',
-                marginBottom: 14,
-              }}>
+              <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 16, padding: '20px', marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                   <div>
-                    <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>
-                      Welcome back,
-                    </div>
-                    <div style={{
-                      fontFamily: "'Outfit', sans-serif",
-                      fontSize: 24, fontWeight: 800,
-                      color: C.midnight,
-                      letterSpacing: -0.5,
-                    }}>
-                      {player?.name || 'Player'}
-                    </div>
+                    <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Welcome back,</div>
+                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 24, fontWeight: 800, color: C.midnight, letterSpacing: -0.5 }}>{player?.name || 'Player'}</div>
                   </div>
                   <TierBadge elo={player?.elo || 800} />
                 </div>
-
-                {/* Quick stats */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                   {[
                     { label: 'Games', value: player?.games_played || 0, color: C.jadeLt },
                     { label: 'Wins', value: player?.wins || 0, color: C.ink },
                     { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
                   ].map((s, i) => (
-                    <div key={i} style={{
-                      background: C.cloud,
-                      border: `1px solid ${C.border}`,
-                      borderRadius: 12,
-                      padding: '14px 10px',
-                      textAlign: 'center',
-                    }}>
-                      <div style={{
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: 26, fontWeight: 700,
-                        color: s.color,
-                        lineHeight: 1,
-                      }}>{s.value}</div>
-                      <div style={{
-                        fontSize: 10, color: C.slateLt,
-                        textTransform: 'uppercase', letterSpacing: '1px',
-                        fontFamily: "'DM Sans', sans-serif", marginTop: 6,
-                        fontWeight: 600,
-                      }}>{s.label}</div>
+                    <div key={i} style={{ background: C.cloud, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 10px', textAlign: 'center' }}>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                      <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", marginTop: 6, fontWeight: 600 }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Pending confirmations banner */}
+              {/* Pending confirmations */}
               {pendingCount > 0 && (
-                <button
-                  onClick={() => setTab('activity')}
-                  style={{
-                    width: '100%',
-                    background: 'rgba(245,158,11,0.05)',
-                    border: `1px solid rgba(245,158,11,0.15)`,
-                    borderRadius: 12,
-                    padding: '12px 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    marginBottom: 14,
-                    fontFamily: "'DM Sans', sans-serif",
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div style={{
-                    width: 24, height: 24, borderRadius: 8,
-                    background: C.gold, color: 'white',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700, flexShrink: 0,
-                  }}>{pendingCount}</div>
+                <button onClick={() => setTab('activity')} style={{
+                  width: '100%', background: 'rgba(245,158,11,0.05)', border: `1px solid rgba(245,158,11,0.15)`,
+                  borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
+                  fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 8, background: C.gold, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{pendingCount}</div>
                   <div style={{ flex: 1, textAlign: 'left' }}>
-                    <div style={{ color: C.goldDk, fontSize: 13, fontWeight: 600 }}>
-                      {pendingCount === 1 ? 'game needs' : 'games need'} your review
-                    </div>
+                    <div style={{ color: C.goldDk, fontSize: 13, fontWeight: 600 }}>{pendingCount === 1 ? 'game needs' : 'games need'} your review</div>
                     <div style={{ fontSize: 11, color: C.slate, marginTop: 1 }}>Tap to review and confirm</div>
                   </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.goldDk} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.goldDk} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                 </button>
               )}
 
-              {/* Awaiting verification banner */}
+              {/* Awaiting verification */}
               {awaitingCount > 0 && (
-                <div
-                  style={{
-                    width: '100%',
-                    background: 'rgba(245,158,11,0.03)',
-                    border: `1px solid rgba(245,158,11,0.12)`,
-                    borderRadius: 12,
-                    padding: '12px 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    marginBottom: 14,
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                >
-                  <div style={{
-                    width: 24, height: 24, borderRadius: 8,
-                    background: 'rgba(245,158,11,0.15)', color: C.goldDk,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700, flexShrink: 0,
-                  }}>{awaitingCount}</div>
+                <div style={{
+                  width: '100%', background: 'rgba(245,158,11,0.03)', border: `1px solid rgba(245,158,11,0.12)`,
+                  borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: C.goldDk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{awaitingCount}</div>
                   <div>
-                    <div style={{ color: C.goldDk, fontSize: 13, fontWeight: 600 }}>
-                      {awaitingCount === 1 ? 'game' : 'games'} awaiting verification
-                    </div>
+                    <div style={{ color: C.goldDk, fontSize: 13, fontWeight: 600 }}>{awaitingCount === 1 ? 'game' : 'games'} awaiting verification</div>
                     <div style={{ fontSize: 11, color: C.slate, marginTop: 1 }}>Waiting for another player to confirm</div>
                   </div>
                 </div>
               )}
 
-              {/* Quick action — log a game */}
-              <button
-                onClick={() => setTab('record')}
-                style={{
-                  width: '100%',
-                  background: C.crimson,
-                  border: 'none',
-                  borderRadius: 14,
-                  padding: '16px',
-                  color: '#fff',
-                  fontFamily: "'Outfit', sans-serif",
-                  fontSize: 16,
-                  fontWeight: 700,
-                  marginBottom: 20,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  boxShadow: '0 4px 20px rgba(220,38,38,0.25)',
-                  letterSpacing: -0.3,
-                }}
-              >
+              {/* Record a Game */}
+              <button onClick={() => setTab('record')} style={{
+                width: '100%', background: C.crimson, border: 'none', borderRadius: 14, padding: '16px', color: '#fff',
+                fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 20,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: '0 4px 20px rgba(220,38,38,0.25)', letterSpacing: -0.3,
+              }}>
                 <span style={{ fontSize: 20, fontWeight: 300 }}>+</span> Record a Game
               </button>
 
@@ -346,19 +259,10 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks' },
                   { label: 'Players', icon: '👥', sub: 'Browse all players', tab: 'players' },
                 ].map((link, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setTab(link.tab)}
-                    style={{
-                      background: 'white',
-                      border: `1px solid ${C.border}`,
-                      borderRadius: 14,
-                      padding: '18px 16px',
-                      textAlign: 'left',
-                      fontFamily: "'DM Sans', sans-serif",
-                      cursor: 'pointer',
-                    }}
-                  >
+                  <button key={i} onClick={() => setTab(link.tab)} style={{
+                    background: 'white', border: `1px solid ${C.border}`, borderRadius: 14, padding: '18px 16px',
+                    textAlign: 'left', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                  }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>{link.icon}</div>
                     <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>{link.label}</div>
                     <div style={{ fontSize: 11, color: C.slateLt, marginTop: 3, lineHeight: 1.3 }}>{link.sub}</div>
@@ -371,37 +275,14 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           {/* Profile tab */}
           {tab === 'profile' && session && (
             <div>
-              <div style={{
-                background: 'white',
-                border: `1px solid ${C.border}`,
-                borderRadius: 16,
-                padding: '24px 20px',
-                textAlign: 'center',
-                marginBottom: 16,
-              }}>
-                <div style={{
-                  width: 64, height: 64, borderRadius: 16,
-                  background: C.jade, color: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 22, fontWeight: 700,
-                  fontFamily: "'Outfit', sans-serif",
-                  margin: '0 auto 12px',
-                }}>
+              <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 16 }}>
+                <div style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, fontFamily: "'Outfit', sans-serif", margin: '0 auto 12px' }}>
                   {player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'}
                 </div>
-                <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>
-                  {player?.name || 'Player'}
-                </div>
-                <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>
-                  {session?.user?.email}
-                </div>
-                <div style={{ marginTop: 8 }}>
-                  <TierBadge elo={player?.elo || 800} />
-                </div>
-                <div style={{
-                  display: 'flex', justifyContent: 'center', gap: 24, marginTop: 20,
-                  paddingTop: 16, borderTop: `1px solid ${C.border}`,
-                }}>
+                <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
+                <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>{session?.user?.email}</div>
+                <div style={{ marginTop: 8 }}><TierBadge elo={player?.elo || 800} /></div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
                   {[
                     { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
                     { label: 'Wins', value: player?.wins || 0, color: C.jade },
@@ -414,58 +295,19 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   ))}
                 </div>
               </div>
-
-              {[
-                { label: 'My Clubs', tab: 'clubs' },
-                { label: 'How It Works', tab: 'howitworks' },
-                { label: 'Terms of Service', tab: 'terms' },
-                { label: 'Privacy Policy', tab: 'privacy' },
-              ].map((link, i) => (
-                <button
-                  key={i}
-                  onClick={() => setTab(link.tab)}
-                  style={{
-                    width: '100%',
-                    background: 'white',
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 10,
-                    padding: '14px 16px',
-                    marginBottom: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 14,
-                    color: C.midnight,
-                    cursor: 'pointer',
-                  }}
-                >
+              {[{ label: 'My Clubs', tab: 'clubs' }, { label: 'How It Works', tab: 'howitworks' }, { label: 'Terms of Service', tab: 'terms' }, { label: 'Privacy Policy', tab: 'privacy' }].map((link, i) => (
+                <button key={i} onClick={() => setTab(link.tab)} style={{
+                  width: '100%', background: 'white', border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px', marginBottom: 8,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.midnight, cursor: 'pointer',
+                }}>
                   {link.label}
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                 </button>
               ))}
-
-              <button
-                onClick={onSignOut}
-                style={{
-                  width: '100%',
-                  background: 'white',
-                  border: `1px solid rgba(220,38,38,0.2)`,
-                  borderRadius: 10,
-                  padding: '14px 16px',
-                  marginTop: 8,
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 14,
-                  color: C.crimson,
-                  textAlign: 'center',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                Sign Out
-              </button>
+              <button onClick={onSignOut} style={{
+                width: '100%', background: 'white', border: `1px solid rgba(220,38,38,0.2)`, borderRadius: 10, padding: '14px 16px', marginTop: 8,
+                fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.crimson, textAlign: 'center', fontWeight: 600, cursor: 'pointer',
+              }}>Sign Out</button>
             </div>
           )}
 
@@ -489,143 +331,58 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
       {/* ===== BOTTOM NAV ===== */}
       {showBottomNav && session && (
         <nav style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: 'rgba(255,255,255,0.95)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderTop: `1px solid ${C.border}`,
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-around',
-          paddingBottom: 'env(safe-area-inset-bottom, 8px)',
-          paddingTop: 6,
-          zIndex: 200,
+          position: 'fixed', bottom: 0, left: 0, right: 0,
+          background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+          borderTop: `1px solid ${C.border}`, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around',
+          paddingBottom: 'env(safe-area-inset-bottom, 8px)', paddingTop: 6, zIndex: 200,
         }}>
           {NAV_ITEMS.map(item => {
             const isActive = tab === item.id
             const Icon = item.icon
             const showBadge = item.id === 'activity' && pendingCount > 0
-
             if (item.center) {
               return (
-                <button
-                  key={item.id}
-                  onClick={() => setTab(item.id)}
-                  style={{
-                    background: C.crimson,
-                    border: 'none',
-                    width: 52, height: 52,
-                    borderRadius: 16,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginTop: -20,
-                    boxShadow: '0 4px 20px rgba(220,38,38,0.3)',
-                    position: 'relative',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <Icon color="#fff" size={24} />
-                </button>
+                <button key={item.id} onClick={() => setTab(item.id)} style={{
+                  background: C.crimson, border: 'none', width: 52, height: 52, borderRadius: 16,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -20,
+                  boxShadow: '0 4px 20px rgba(220,38,38,0.3)', position: 'relative', cursor: 'pointer',
+                }}><Icon color="#fff" size={24} /></button>
               )
             }
-
             return (
-              <button
-                key={item.id}
-                onClick={() => setTab(item.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 2,
-                  padding: '4px 12px 8px',
-                  position: 'relative',
-                  minWidth: 56,
-                  cursor: 'pointer',
-                }}
-              >
+              <button key={item.id} onClick={() => setTab(item.id)} style={{
+                background: 'none', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center',
+                gap: 2, padding: '4px 12px 8px', position: 'relative', minWidth: 56, cursor: 'pointer',
+              }}>
                 <div style={{ position: 'relative' }}>
                   <Icon color={isActive ? C.midnight : C.slateLt} size={22} />
                   {showBadge && (
-                    <div style={{
-                      position: 'absolute', top: -4, right: -8,
-                      background: C.crimson, color: '#fff',
-                      fontSize: 9, fontWeight: 700,
-                      minWidth: 16, height: 16, borderRadius: 8,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}>{pendingCount}</div>
+                    <div style={{ position: 'absolute', top: -4, right: -8, background: C.crimson, color: '#fff', fontSize: 9, fontWeight: 700, minWidth: 16, height: 16, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif" }}>{pendingCount}</div>
                   )}
                 </div>
-                <span style={{
-                  fontSize: 10,
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: isActive ? 700 : 500,
-                  color: isActive ? C.midnight : C.slateLt,
-                }}>{item.label}</span>
+                <span style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 700 : 500, color: isActive ? C.midnight : C.slateLt }}>{item.label}</span>
               </button>
             )
           })}
         </nav>
       )}
-
       <InstallPrompt />
     </div>
   )
 }
 
-/* ===== NAV ICONS ===== */
 function HomeIcon({ color, size }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
-  )
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>)
 }
-
 function RankingsIcon({ color, size }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7" />
-      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7" />
-      <path d="M4 22h16" />
-      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22" />
-      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22" />
-      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
-    </svg>
-  )
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>)
 }
-
 function LogIcon({ color, size }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="5" x2="12" y2="19" />
-      <line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-  )
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>)
 }
-
 function ActivityIcon({ color, size }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-  )
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>)
 }
-
 function ProfileIcon({ color, size }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  )
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>)
 }
