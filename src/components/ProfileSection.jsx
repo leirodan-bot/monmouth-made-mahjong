@@ -6,8 +6,8 @@ import { BADGES, BADGE_CATEGORIES } from '../badgeUtils'
 const C = {
   jade: '#065F46', jadeLt: '#059669', crimson: '#DC2626',
   gold: '#F59E0B', goldDk: '#D97706', midnight: '#0F172A',
-  ink: '#1E293B', cloud: '#EAECF0', slate: '#64748B',
-  slateLt: '#94A3B8', border: '#E2E8F0',
+  ink: '#1E293B', cloud: '#E5E9EF', slate: '#64748B',
+  slateLt: '#94A3B8', border: '#E2E8F0', cloudLt: '#F4F6F8',
 }
 
 function TierBadge({ elo }) {
@@ -118,7 +118,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
             { label: 'Win %', value: `${winRate}%`, color: C.gold },
           ].map((s, i) => (
             <div key={i} style={{
-              background: C.cloud,
+              background: C.cloudLt,
               borderTop: `3px solid ${s.color}`,
               borderRight: `1px solid ${C.border}`,
               borderBottom: `1px solid ${C.border}`,
@@ -189,7 +189,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
                     })}
                     {locked.map(b => (
                       <div key={b.id} title={b.desc} style={{
-                        background: C.cloud, border: `1px solid ${C.border}`,
+                        background: C.cloudLt, border: `1px solid ${C.border}`,
                         borderRadius: 10, padding: '6px 10px',
                         display: 'flex', alignItems: 'center', gap: 6, opacity: 0.45,
                       }}>

@@ -25,10 +25,10 @@ const C = {
   goldDk: '#D97706',
   midnight: '#0F172A',
   ink: '#1E293B',
-  cloud: '#EAECF0',
+  cloud: '#E5E9EF',
   slate: '#64748B',
   slateLt: '#94A3B8',
-  border: '#E2E8F0',
+  border: '#E2E8F0', cloudLt: '#F4F6F8',
 }
 
 // Helper: makes a style with a colored left accent border
@@ -199,7 +199,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
                   ].map((s, i) => (
                     <div key={i} style={{
-                      background: C.cloud,
+                      background: C.cloudLt,
                       borderTop: `3px solid ${s.color}`,
                       borderRight: `1px solid ${C.border}`,
                       borderBottom: `1px solid ${C.border}`,
