@@ -2,6 +2,20 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
 import logoWhite from '../assets/mahjrank/mahjranklogomonowhite1800.png'
 
+const C = {
+  jade: '#065F46',
+  jadeLt: '#059669',
+  crimson: '#DC2626',
+  gold: '#F59E0B',
+  goldDk: '#D97706',
+  midnight: '#0F172A',
+  ink: '#1E293B',
+  cloud: '#F8FAFC',
+  slate: '#64748B',
+  slateLt: '#94A3B8',
+  border: '#E2E8F0',
+}
+
 export default function Homepage({ setTab }) {
   const [topPlayers, setTopPlayers] = useState([])
   const [stats, setStats] = useState({ players: 0, games: 0, clubs: 0 })
@@ -51,7 +65,7 @@ export default function Homepage({ setTab }) {
     if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el)
   }
 
-  const rankColors = ['#F59E0B', '#C0C0C0', '#CD7F32', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']
+  const rankColors = [C.gold, '#C0C0C0', '#CD7F32', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']
 
   return (
     <div style={{ minHeight: '100vh', overflow: 'hidden' }}>
@@ -64,7 +78,7 @@ export default function Homepage({ setTab }) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#0F172A',
+        background: C.midnight,
         overflow: 'hidden',
         textAlign: 'center',
         padding: '2rem',
@@ -93,7 +107,7 @@ export default function Homepage({ setTab }) {
           marginBottom: '1rem',
           animation: 'mr-fadeUp 1s ease-out 0.5s both',
         }}>
-          Track your game. Climb the ranks. Know your <em style={{ color: '#F59E0B', fontStyle: 'italic' }}>number.</em>
+          Track your game. Climb the ranks. Know your <em style={{ color: C.gold, fontStyle: 'italic' }}>number.</em>
         </p>
 
         <p style={{
@@ -116,13 +130,14 @@ export default function Homepage({ setTab }) {
             onClick={() => setTab('players')}
             style={{
               padding: '14px 36px', borderRadius: 50, border: 'none',
-              background: '#DC2626', color: '#fff',
+              background: C.crimson, color: '#fff',
               fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 700,
               cursor: 'pointer', letterSpacing: '0.02em',
               transition: 'all 0.3s ease',
+              boxShadow: '0 4px 20px rgba(220,38,38,0.3)',
             }}
-            onMouseEnter={e => { e.target.style.background = '#EF4444'; e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(220,38,38,0.3)' }}
-            onMouseLeave={e => { e.target.style.background = '#DC2626'; e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none' }}
+            onMouseEnter={e => { e.target.style.background = '#EF4444'; e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(220,38,38,0.4)' }}
+            onMouseLeave={e => { e.target.style.background = C.crimson; e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(220,38,38,0.3)' }}
           >
             Get Started — Free
           </button>
@@ -163,9 +178,9 @@ export default function Homepage({ setTab }) {
 
       {/* ===== STATS BAR ===== */}
       <div style={{
-        background: '#1E293B', padding: '1.4rem 2rem',
+        background: C.ink, padding: '1.4rem 2rem',
         display: 'flex', justifyContent: 'center', gap: '3rem', flexWrap: 'wrap',
-        borderTop: '1px solid rgba(6,95,70,0.2)',
+        borderTop: `1px solid rgba(6,95,70,0.2)`,
       }}>
         {[
           { num: stats.players || '—', label: 'Players' },
@@ -174,20 +189,20 @@ export default function Homepage({ setTab }) {
           { num: 'Season 1', label: 'May 2025 – Apr 2026' },
         ].map((s, i) => (
           <div key={i} style={{ textAlign: 'center', color: '#fff' }}>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '1.6rem', fontWeight: 700, color: '#F59E0B', display: 'block' }}>{s.num}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '1.6rem', fontWeight: 700, color: C.gold, display: 'block' }}>{s.num}</span>
             <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: 2, display: 'block', fontFamily: "'DM Sans', sans-serif" }}>{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* ===== WHAT IS THIS ===== */}
-      <section style={{ padding: '5rem 2rem', background: '#F8FAFC' }}>
+      <section style={{ padding: '5rem 2rem', background: C.cloud }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#065F46', fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'DM Sans', sans-serif" }}>What is MahjRank?</div>
-          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#0F172A', lineHeight: 1.2, marginBottom: '1.2rem' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.jade, fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'JetBrains Mono', monospace" }}>What is MahjRank?</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: C.midnight, lineHeight: 1.2, marginBottom: '1.2rem' }}>
             Your Mahjong game,<br />finally measured.
           </h2>
-          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, fontFamily: "'DM Sans', sans-serif" }}>
+          <p style={{ fontSize: '1.05rem', color: C.slate, lineHeight: 1.8, maxWidth: 640, fontFamily: "'DM Sans', sans-serif" }}>
             MahjRank is the first platform to bring Elo-based skill ratings to in-person American Mahjong. Track your wins, earn badges, and see how you stack up — whether you play at the community center, your friend's kitchen table, or a tournament.
           </p>
 
@@ -197,7 +212,7 @@ export default function Homepage({ setTab }) {
             opacity: 0, transform: 'translateY(30px)', transition: 'all 0.8s ease',
           }}>
             <div style={{
-              background: '#0F172A', borderRadius: 20, padding: '3rem',
+              background: C.midnight, borderRadius: 20, padding: '3rem',
               display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 280,
             }}>
               <img src={logoWhite} alt="MahjRank" style={{ width: '80%' }} />
@@ -205,19 +220,25 @@ export default function Homepage({ setTab }) {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.8rem' }}>
               {[
-                { icon: '📊', title: 'Elo-Rated Rankings', desc: 'The same rating system used in chess, adapted for 4-player Mahjong. Every game counts toward your rating.' },
-                { icon: '🏅', title: 'Badges & Achievements', desc: 'Earn recognition for milestones — first win, win streaks, climbing the leaderboard, and more.' },
-                { icon: '🏠', title: 'Club Management', desc: 'Organize your group, track club stats, and run seasonal leagues all in one place.' },
-                { icon: '📱', title: 'Works Like an App', desc: 'Install it right from your browser — no app store needed. Log games on your phone at the table.' },
+                { icon: '📊', title: 'Elo-Rated Rankings', desc: 'The same rating system used in chess, adapted for 4-player Mahjong. Every game counts toward your rating.', accent: C.jade },
+                { icon: '🏅', title: 'Badges & Achievements', desc: 'Earn recognition for milestones — first win, win streaks, climbing the leaderboard, and more.', accent: C.gold },
+                { icon: '🏠', title: 'Club Management', desc: 'Organize your group, track club stats, and run seasonal leagues all in one place.', accent: C.jadeLt },
+                { icon: '📱', title: 'Works Like an App', desc: 'Install it right from your browser — no app store needed. Log games on your phone at the table.', accent: C.crimson },
               ].map((f, i) => (
-                <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div key={i} style={{
+                  display: 'flex', gap: '1rem', alignItems: 'flex-start',
+                  background: 'white', borderRadius: 14, padding: '1.2rem 1.4rem',
+                  border: `1px solid ${C.border}`,
+                  borderLeft: `4px solid ${f.accent}`,
+                }}>
                   <div style={{
-                    width: 44, height: 44, background: '#0F172A', borderRadius: 12,
+                    width: 44, height: 44, background: C.cloud, borderRadius: 12,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem',
+                    border: `1px solid ${C.border}`,
                   }}>{f.icon}</div>
                   <div>
-                    <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.05rem', color: '#0F172A', marginBottom: '0.3rem' }}>{f.title}</h4>
-                    <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif" }}>{f.desc}</p>
+                    <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.05rem', color: C.midnight, marginBottom: '0.3rem' }}>{f.title}</h4>
+                    <p style={{ fontSize: '0.9rem', color: C.slate, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif" }}>{f.desc}</p>
                   </div>
                 </div>
               ))}
@@ -229,44 +250,48 @@ export default function Homepage({ setTab }) {
       {/* ===== HOW IT WORKS ===== */}
       <section style={{ padding: '5rem 2rem', background: '#ffffff' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#065F46', fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'DM Sans', sans-serif" }}>How it works</div>
-          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#0F172A', lineHeight: 1.2, marginBottom: '1.2rem' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.jade, fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'JetBrains Mono', monospace" }}>How it works</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: C.midnight, lineHeight: 1.2, marginBottom: '1.2rem' }}>
             Three steps to the table.
           </h2>
-          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, fontFamily: "'DM Sans', sans-serif" }}>
+          <p style={{ fontSize: '1.05rem', color: C.slate, lineHeight: 1.8, maxWidth: 640, fontFamily: "'DM Sans', sans-serif" }}>
             Getting started takes less than a minute.
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2.5rem', marginTop: '3.5rem' }}>
             {[
-              { num: '1', icon: '✍️', title: 'Sign Up & Join a Club', desc: 'Create your free account and join your Mahjong group — or start a new one. Every player starts with an 800 Elo rating.' },
-              { num: '2', icon: '🀄', title: 'Play & Log Your Games', desc: 'After each session, log who played and who won. It takes 30 seconds. Other players verify the result for accuracy.' },
-              { num: '3', icon: '🏆', title: 'Watch Your Rating Rise', desc: 'Your Elo rating updates after every verified game. Track your progress, earn badges, and climb the leaderboard.' },
+              { num: '1', icon: '✍️', title: 'Sign Up & Join a Club', desc: 'Create your free account and join your Mahjong group — or start a new one. Every player starts with an 800 Elo rating.', accent: C.jade },
+              { num: '2', icon: '🀄', title: 'Play & Log Your Games', desc: 'After each session, log who played and who won. It takes 30 seconds. Other players verify the result for accuracy.', accent: C.crimson },
+              { num: '3', icon: '🏆', title: 'Watch Your Rating Rise', desc: 'Your Elo rating updates after every verified game. Track your progress, earn badges, and climb the leaderboard.', accent: C.gold },
             ].map((s, i) => (
               <div
                 key={i}
                 ref={addRevealRef}
                 style={{
-                  position: 'relative', background: '#F8FAFC',
+                  position: 'relative', background: C.cloud,
                   borderRadius: 20,
-                  padding: '2.5rem 2rem 2rem', border: '1px solid #e8e8e4',
+                  padding: '2.5rem 2rem 2rem',
+                  border: `1px solid ${C.border}`,
+                  borderTop: `4px solid ${s.accent}`,
                   transition: 'all 0.3s ease',
                   opacity: 0, transform: 'translateY(30px)',
                   transitionDelay: `${i * 0.15}s`,
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(15,23,42,0.08)' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(15,23,42,0.06)' }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
               >
                 <span style={{
-                  fontFamily: "'Outfit', sans-serif", fontSize: '3.5rem', fontWeight: 700,
-                  color: '#F59E0B', opacity: 0.3, position: 'absolute', top: '1rem', right: '1.5rem', lineHeight: 1,
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: '3.5rem', fontWeight: 700,
+                  color: s.accent, opacity: 0.15, position: 'absolute', top: '1rem', right: '1.5rem', lineHeight: 1,
                 }}>{s.num}</span>
                 <div style={{
-                  width: 56, height: 56, background: '#0F172A', borderRadius: 16,
+                  width: 56, height: 56, background: 'white', borderRadius: 16,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '1.5rem',
+                  border: `1px solid ${C.border}`,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 }}>{s.icon}</div>
-                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.2rem', color: '#0F172A', marginBottom: '0.6rem' }}>{s.title}</h3>
-                <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.7, fontFamily: "'DM Sans', sans-serif" }}>{s.desc}</p>
+                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.2rem', color: C.midnight, marginBottom: '0.6rem' }}>{s.title}</h3>
+                <p style={{ fontSize: '0.9rem', color: C.slate, lineHeight: 1.7, fontFamily: "'DM Sans', sans-serif" }}>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -275,13 +300,13 @@ export default function Homepage({ setTab }) {
 
       {/* ===== LEADERBOARD PREVIEW ===== */}
       <section style={{
-        background: '#0F172A', color: '#fff', padding: '5rem 2rem',
+        background: C.midnight, color: '#fff', padding: '5rem 2rem',
         position: 'relative', overflow: 'hidden',
       }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(6,95,70,0.06), transparent)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#F59E0B', fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'DM Sans', sans-serif" }}>Rankings</div>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.gold, fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'JetBrains Mono', monospace" }}>Rankings</div>
           <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '1.2rem' }}>
             Who's on top?
           </h2>
@@ -301,16 +326,17 @@ export default function Homepage({ setTab }) {
             }}>
               <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.1rem', color: '#fff', margin: 0 }}>Season 1 Leaderboard</h3>
               <span style={{
-                fontSize: '0.75rem', color: '#F59E0B', textTransform: 'uppercase',
-                letterSpacing: '0.1em', background: 'rgba(245,158,11,0.1)',
-                padding: '0.35rem 0.9rem', borderRadius: 20, fontFamily: "'DM Sans', sans-serif",
-              }}>Live Rankings</span>
+                fontSize: '0.7rem', color: C.gold, textTransform: 'uppercase',
+                letterSpacing: '0.15em', background: 'rgba(245,158,11,0.1)',
+                padding: '0.35rem 0.9rem', borderRadius: 20, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
+              }}>Live</span>
             </div>
 
             {topPlayers.length > 0 ? topPlayers.map((p, i) => (
               <div key={p.id} style={{
                 display: 'flex', alignItems: 'center', padding: '1rem 2rem',
                 borderBottom: i < topPlayers.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                borderLeft: i === 0 ? `4px solid ${C.gold}` : '4px solid transparent',
                 transition: 'background 0.2s',
               }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
@@ -325,7 +351,7 @@ export default function Homepage({ setTab }) {
                   {p.wins || 0}W – {p.losses || 0}L
                 </span>
                 <span style={{
-                  fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, color: '#F59E0B',
+                  fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, color: C.crimson,
                   fontSize: '1rem', width: 60, textAlign: 'right',
                 }}>{p.elo ? Math.round(p.elo).toLocaleString() : '—'}</span>
               </div>
@@ -339,8 +365,8 @@ export default function Homepage({ setTab }) {
               <button
                 onClick={() => setTab('rankings')}
                 style={{
-                  background: 'none', border: 'none', color: '#F59E0B', cursor: 'pointer',
-                  fontSize: '0.85rem', fontWeight: 500, letterSpacing: '0.03em', fontFamily: "'DM Sans', sans-serif",
+                  background: 'none', border: 'none', color: C.gold, cursor: 'pointer',
+                  fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.03em', fontFamily: "'DM Sans', sans-serif",
                 }}
               >
                 View Full Rankings →
@@ -351,13 +377,13 @@ export default function Homepage({ setTab }) {
       </section>
 
       {/* ===== CTA ===== */}
-      <section style={{ padding: '5rem 2rem', textAlign: 'center', background: '#F8FAFC' }}>
+      <section style={{ padding: '5rem 2rem', textAlign: 'center', background: C.cloud }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#065F46', fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'DM Sans', sans-serif" }}>Ready to play?</div>
-          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#0F172A', lineHeight: 1.2, marginBottom: '1rem' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.jade, fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'JetBrains Mono', monospace" }}>Ready to play?</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: C.midnight, lineHeight: 1.2, marginBottom: '1rem' }}>
             Your seat at the table is waiting.
           </h2>
-          <p style={{ fontSize: '1.05rem', color: '#6B7280', lineHeight: 1.8, maxWidth: 640, margin: '0 auto 2.5rem', fontFamily: "'DM Sans', sans-serif" }}>
+          <p style={{ fontSize: '1.05rem', color: C.slate, lineHeight: 1.8, maxWidth: 640, margin: '0 auto 2.5rem', fontFamily: "'DM Sans', sans-serif" }}>
             Join MahjRank today — it's free. Start tracking your games, earning your rating, and connecting with players everywhere.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -365,12 +391,13 @@ export default function Homepage({ setTab }) {
               onClick={() => setTab('players')}
               style={{
                 padding: '14px 36px', borderRadius: 50, border: 'none',
-                background: '#DC2626', color: '#fff',
+                background: C.crimson, color: '#fff',
                 fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 700,
                 cursor: 'pointer', transition: 'all 0.3s ease',
+                boxShadow: '0 4px 20px rgba(220,38,38,0.25)',
               }}
-              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(220,38,38,0.2)' }}
-              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none' }}
+              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(220,38,38,0.3)' }}
+              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(220,38,38,0.25)' }}
             >
               Create Your Free Account
             </button>
@@ -378,11 +405,13 @@ export default function Homepage({ setTab }) {
               onClick={() => setTab('howitworks')}
               style={{
                 padding: '14px 36px', borderRadius: 50,
-                background: 'transparent', color: '#0F172A',
-                border: '1.5px solid #0F172A',
+                background: 'transparent', color: C.midnight,
+                border: `1.5px solid ${C.border}`,
                 fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 600,
                 cursor: 'pointer', transition: 'all 0.3s ease',
               }}
+              onMouseEnter={e => { e.target.style.borderColor = C.midnight }}
+              onMouseLeave={e => { e.target.style.borderColor = C.border }}
             >
               Learn About Elo Ratings
             </button>
@@ -392,7 +421,7 @@ export default function Homepage({ setTab }) {
 
       {/* ===== FOOTER ===== */}
       <footer style={{
-        background: '#0F172A', color: 'rgba(255,255,255,0.4)', padding: '2.5rem 2rem',
+        background: C.midnight, color: 'rgba(255,255,255,0.4)', padding: '2.5rem 2rem',
         textAlign: 'center', fontSize: '0.8rem', fontFamily: "'DM Sans', sans-serif",
         borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
@@ -411,7 +440,7 @@ export default function Homepage({ setTab }) {
                 fontSize: '0.8rem', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer', padding: 0,
                 transition: 'color 0.2s',
               }}
-              onMouseEnter={e => e.target.style.color = '#F59E0B'}
+              onMouseEnter={e => e.target.style.color = C.gold}
               onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.4)'}
             >
               {link.label}
