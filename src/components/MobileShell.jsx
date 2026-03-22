@@ -94,7 +94,7 @@ function TierBadge({ elo }) {
   const img = TIER_IMAGES[tier]
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      {img && <img src={img} alt={tier} style={{ width: 44, height: 44, objectFit: 'contain' }} />}
+      {img && <img src={img} alt={tier} style={{ width: 36, height: 48, objectFit: 'contain' }} />}
       <span style={{
         fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase',
         color, background: bg, border: `1px solid ${color}33`,
