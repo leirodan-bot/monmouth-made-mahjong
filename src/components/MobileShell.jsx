@@ -184,11 +184,19 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
       <div style={{ flex: 1, paddingBottom: showBottomNav ? 80 : 0 }}>
         <main style={{ maxWidth: 600, margin: '0 auto', padding: '16px 12px' }}>
 
-          {/* Home tab */}
+          {/* ═══ HOME TAB ═══ */}
           {tab === 'home' && session && (
             <div>
-              {/* Welcome card */}
-              <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 16, padding: '20px', marginBottom: 14 }}>
+              {/* Welcome card — jade left border */}
+              <div style={{
+                background: 'white',
+                border: `1px solid ${C.border}`,
+                borderLeft: `4px solid ${C.jade}`,
+                borderRadius: 16,
+                padding: '20px',
+                marginBottom: 14,
+                boxShadow: '0 2px 8px rgba(6,95,70,0.06)',
+              }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                   <div>
                     <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Welcome back,</div>
@@ -196,13 +204,22 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   </div>
                   <TierBadge elo={player?.elo || 800} />
                 </div>
+
+                {/* Stat boxes — colored top borders */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                   {[
                     { label: 'Games', value: player?.games_played || 0, color: C.jadeLt },
                     { label: 'Wins', value: player?.wins || 0, color: C.ink },
                     { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
                   ].map((s, i) => (
-                    <div key={i} style={{ background: C.cloud, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 10px', textAlign: 'center' }}>
+                    <div key={i} style={{
+                      background: C.cloud,
+                      border: `1px solid ${C.border}`,
+                      borderTop: `3px solid ${s.color}`,
+                      borderRadius: 12,
+                      padding: '14px 10px',
+                      textAlign: 'center',
+                    }}>
                       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
                       <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", marginTop: 6, fontWeight: 600 }}>{s.label}</div>
                     </div>
@@ -210,12 +227,21 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </div>
               </div>
 
-              {/* Pending confirmations */}
+              {/* Pending confirmations — gold left border */}
               {pendingCount > 0 && (
                 <button onClick={() => setTab('activity')} style={{
-                  width: '100%', background: 'rgba(245,158,11,0.05)', border: `1px solid rgba(245,158,11,0.15)`,
-                  borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
-                  fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                  width: '100%',
+                  background: 'rgba(245,158,11,0.05)',
+                  border: `1px solid rgba(245,158,11,0.15)`,
+                  borderLeft: `4px solid ${C.gold}`,
+                  borderRadius: 12,
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  marginBottom: 14,
+                  fontFamily: "'DM Sans', sans-serif",
+                  cursor: 'pointer',
                 }}>
                   <div style={{ width: 24, height: 24, borderRadius: 8, background: C.gold, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{pendingCount}</div>
                   <div style={{ flex: 1, textAlign: 'left' }}>
@@ -226,11 +252,19 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </button>
               )}
 
-              {/* Awaiting verification */}
+              {/* Awaiting verification — gold left border */}
               {awaitingCount > 0 && (
                 <div style={{
-                  width: '100%', background: 'rgba(245,158,11,0.03)', border: `1px solid rgba(245,158,11,0.12)`,
-                  borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
+                  width: '100%',
+                  background: 'rgba(245,158,11,0.03)',
+                  border: `1px solid rgba(245,158,11,0.12)`,
+                  borderLeft: `4px solid ${C.goldDk}`,
+                  borderRadius: 12,
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  marginBottom: 14,
                   fontFamily: "'DM Sans', sans-serif",
                 }}>
                   <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: C.goldDk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{awaitingCount}</div>
@@ -241,7 +275,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </div>
               )}
 
-              {/* Record a Game */}
+              {/* Record a Game CTA */}
               <button onClick={() => setTab('record')} style={{
                 width: '100%', background: C.crimson, border: 'none', borderRadius: 14, padding: '16px', color: '#fff',
                 fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 20,
@@ -251,17 +285,24 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 <span style={{ fontSize: 20, fontWeight: 300 }}>+</span> Record a Game
               </button>
 
-              {/* Quick links */}
+              {/* Quick links — colored left borders */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[
-                  { label: 'Rankings', icon: '🏆', sub: 'See where you stand', tab: 'rankings' },
-                  { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs' },
-                  { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks' },
-                  { label: 'Players', icon: '👥', sub: 'Browse all players', tab: 'players' },
+                  { label: 'Rankings', icon: '🏆', sub: 'See where you stand', tab: 'rankings', accent: C.gold },
+                  { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs', accent: C.jade },
+                  { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks', accent: C.jadeLt },
+                  { label: 'Players', icon: '👥', sub: 'Browse all players', tab: 'players', accent: C.crimson },
                 ].map((link, i) => (
                   <button key={i} onClick={() => setTab(link.tab)} style={{
-                    background: 'white', border: `1px solid ${C.border}`, borderRadius: 14, padding: '18px 16px',
-                    textAlign: 'left', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                    background: 'white',
+                    border: `1px solid ${C.border}`,
+                    borderLeft: `4px solid ${link.accent}`,
+                    borderRadius: 14,
+                    padding: '18px 16px',
+                    textAlign: 'left',
+                    fontFamily: "'DM Sans', sans-serif",
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
                   }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>{link.icon}</div>
                     <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>{link.label}</div>
@@ -272,42 +313,109 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             </div>
           )}
 
-          {/* Profile tab */}
+          {/* ═══ PROFILE TAB ═══ */}
           {tab === 'profile' && session && (
             <div>
-              <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 16 }}>
-                <div style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, fontFamily: "'Outfit', sans-serif", margin: '0 auto 12px' }}>
+              {/* Profile card — jade left border */}
+              <div style={{
+                background: 'white',
+                border: `1px solid ${C.border}`,
+                borderLeft: `4px solid ${C.jade}`,
+                borderRadius: 16,
+                padding: '24px 20px',
+                textAlign: 'center',
+                marginBottom: 16,
+                boxShadow: '0 2px 8px rgba(6,95,70,0.06)',
+              }}>
+                <div style={{
+                  width: 64, height: 64, borderRadius: 16,
+                  background: C.jade, color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 22, fontWeight: 700,
+                  fontFamily: "'Outfit', sans-serif",
+                  margin: '0 auto 12px',
+                }}>
                   {player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'}
                 </div>
                 <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
                 <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>{session?.user?.email}</div>
                 <div style={{ marginTop: 8 }}><TierBadge elo={player?.elo || 800} /></div>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
+
+                {/* Profile stats — colored top borders */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
                   {[
                     { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
                     { label: 'Wins', value: player?.wins || 0, color: C.jade },
                     { label: 'Losses', value: player?.losses || 0, color: C.ink },
                   ].map((s, i) => (
-                    <div key={i} style={{ textAlign: 'center' }}>
+                    <div key={i} style={{
+                      background: C.cloud,
+                      border: `1px solid ${C.border}`,
+                      borderTop: `3px solid ${s.color}`,
+                      borderRadius: 10,
+                      padding: '12px 8px',
+                      textAlign: 'center',
+                    }}>
                       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700, color: s.color }}>{s.value}</div>
-                      <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>{s.label}</div>
+                      <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginTop: 4 }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
               </div>
-              {[{ label: 'My Clubs', tab: 'clubs' }, { label: 'How It Works', tab: 'howitworks' }, { label: 'Terms of Service', tab: 'terms' }, { label: 'Privacy Policy', tab: 'privacy' }].map((link, i) => (
-                <button key={i} onClick={() => setTab(link.tab)} style={{
-                  width: '100%', background: 'white', border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px', marginBottom: 8,
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.midnight, cursor: 'pointer',
-                }}>
+
+              {/* Profile nav links — colored left borders */}
+              {[
+                { label: 'My Clubs', tab: 'clubs', accent: C.jade },
+                { label: 'How It Works', tab: 'howitworks', accent: C.jadeLt },
+                { label: 'Terms of Service', tab: 'terms', accent: C.slateLt },
+                { label: 'Privacy Policy', tab: 'privacy', accent: C.slateLt },
+              ].map((link, i) => (
+                <button
+                  key={i}
+                  onClick={() => setTab(link.tab)}
+                  style={{
+                    width: '100%',
+                    background: 'white',
+                    border: `1px solid ${C.border}`,
+                    borderLeft: `4px solid ${link.accent}`,
+                    borderRadius: 10,
+                    padding: '14px 16px',
+                    marginBottom: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 14,
+                    color: C.midnight,
+                    cursor: 'pointer',
+                  }}
+                >
                   {link.label}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                 </button>
               ))}
-              <button onClick={onSignOut} style={{
-                width: '100%', background: 'white', border: `1px solid rgba(220,38,38,0.2)`, borderRadius: 10, padding: '14px 16px', marginTop: 8,
-                fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.crimson, textAlign: 'center', fontWeight: 600, cursor: 'pointer',
-              }}>Sign Out</button>
+
+              {/* Sign out — crimson left border */}
+              <button
+                onClick={onSignOut}
+                style={{
+                  width: '100%',
+                  background: 'white',
+                  border: `1px solid rgba(220,38,38,0.2)`,
+                  borderLeft: `4px solid ${C.crimson}`,
+                  borderRadius: 10,
+                  padding: '14px 16px',
+                  marginTop: 8,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 14,
+                  color: C.crimson,
+                  textAlign: 'center',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Sign Out
+              </button>
             </div>
           )}
 
