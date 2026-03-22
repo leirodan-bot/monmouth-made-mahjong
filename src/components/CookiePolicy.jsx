@@ -1,13 +1,13 @@
 import LegalPage, { Section, SubSection, P } from './LegalPage'
 
 export default function CookiePolicy({ setTab }) {
-  const cellStyle = { padding: '10px 12px', borderBottom: '0.5px solid #c8cdd6', fontSize: 12.5, verticalAlign: 'top' }
-  const headerStyle = { ...cellStyle, background: '#1e2b65', color: '#fff', fontWeight: 700, fontSize: 12, letterSpacing: 0.5 }
+  const cellStyle = { padding: '10px 12px', borderBottom: '1px solid #E2E8F0', fontSize: 12.5, verticalAlign: 'top' }
+  const headerStyle = { ...cellStyle, background: '#065F46', color: '#fff', fontWeight: 700, fontSize: 12, letterSpacing: 0.5 }
 
   return (
     <LegalPage title="Cookie Policy" effectiveDate="03/17/2026" setTab={setTab}>
       <P>Monmouth Made Mah Jongg™ ("we," "our," or "us") uses cookies and similar tracking technologies on monmouthmademahjongg.com and the associated Progressive Web Application (collectively, the "Platform"). This Cookie Policy explains what cookies are, how we use them, and your choices regarding their use.</P>
-      <P>This policy should be read together with our <span style={{ color: '#1e2b65', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setTab('privacy')}>Privacy Policy</span>, which provides additional detail on how we collect and use personal information.</P>
+      <P>This policy should be read together with our <span style={{ color: '#065F46', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setTab('privacy')}>Privacy Policy</span>, which provides additional detail on how we collect and use personal information.</P>
 
       <Section number={1} title="What Are Cookies?">
         <P>Cookies are small text files that are stored on your device (computer, tablet, or mobile phone) when you visit a website. They are widely used to make websites work efficiently, provide a better user experience, and give website operators information about how their site is being used.</P>
@@ -17,7 +17,7 @@ export default function CookiePolicy({ setTab }) {
       <Section number={2} title="Types of Cookies We Use">
         <P>The following table describes the categories of cookies used on the Platform:</P>
         <div style={{ overflowX: 'auto', margin: '12px 0 16px' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '0.5px solid #c8cdd6', borderRadius: 6 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #E2E8F0', borderRadius: 6 }}>
             <thead>
               <tr>
                 <th style={{ ...headerStyle, width: '15%' }}>Category</th>

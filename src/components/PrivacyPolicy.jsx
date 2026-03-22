@@ -17,7 +17,7 @@ export default function PrivacyPolicy({ setTab }) {
           <P>When you use the Platform's community features, we collect content you post on the community board (including text, images, and any other media), direct messages you send to and receive from other users, reports you submit about other users or content, and your interactions with community content (such as replies and reactions). Community board posts are visible to all Platform users. Direct messages are stored on our servers and are accessible to the sender and recipient(s). We may access direct message content when required by law, to enforce our Terms of Service, to investigate reports of abuse or violations, or to protect the safety of our users.</P>
         </SubSection>
         <SubSection number="1.4" title="Information Collected Automatically">
-          <P>When you access the Platform, we may automatically collect device information (browser type, operating system, device model), IP address, usage data (pages viewed, features used, time spent on the Platform), cookies and similar tracking technologies (see our <span style={{ color: '#1e2b65', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setTab('cookies')}>Cookie Policy</span> for details), PWA installation and usage data, push notification interaction data, and referral source information.</P>
+          <P>When you access the Platform, we may automatically collect device information (browser type, operating system, device model), IP address, usage data (pages viewed, features used, time spent on the Platform), cookies and similar tracking technologies (see our <span style={{ color: '#065F46', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setTab('cookies')}>Cookie Policy</span> for details), PWA installation and usage data, push notification interaction data, and referral source information.</P>
         </SubSection>
       </Section>
 
@@ -63,7 +63,7 @@ export default function PrivacyPolicy({ setTab }) {
       </Section>
 
       <Section number={7} title="Cookies and Tracking Technologies">
-        <P>The Platform uses cookies and similar technologies as described in our separate <span style={{ color: '#1e2b65', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setTab('cookies')}>Cookie Policy</span>. Please refer to our Cookie Policy for detailed information about the types of cookies we use, their purposes, and your choices regarding cookies.</P>
+        <P>The Platform uses cookies and similar technologies as described in our separate <span style={{ color: '#065F46', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setTab('cookies')}>Cookie Policy</span>. Please refer to our Cookie Policy for detailed information about the types of cookies we use, their purposes, and your choices regarding cookies.</P>
       </Section>
 
       <Section number={8} title="Data Security">
