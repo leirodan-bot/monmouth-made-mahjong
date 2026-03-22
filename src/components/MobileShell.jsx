@@ -25,7 +25,7 @@ const C = {
   goldDk: '#D97706',
   midnight: '#0F172A',
   ink: '#1E293B',
-  cloud: '#F8FAFC',
+  cloud: '#EAECF0',
   slate: '#64748B',
   slateLt: '#94A3B8',
   border: '#E2E8F0',

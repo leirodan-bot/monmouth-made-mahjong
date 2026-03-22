@@ -6,7 +6,7 @@ import { BADGES, BADGE_CATEGORIES } from '../badgeUtils'
 const C = {
   jade: '#065F46', jadeLt: '#059669', crimson: '#DC2626',
   gold: '#F59E0B', goldDk: '#D97706', midnight: '#0F172A',
-  ink: '#1E293B', cloud: '#F8FAFC', slate: '#64748B',
+  ink: '#1E293B', cloud: '#EAECF0', slate: '#64748B',
   slateLt: '#94A3B8', border: '#E2E8F0',
 }
 
