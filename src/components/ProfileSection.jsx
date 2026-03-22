@@ -10,17 +10,30 @@ const C = {
   slateLt: '#94A3B8', border: '#E2E8F0', cloudLt: '#FFFFFF',
 }
 
+import noviceBadge from '../assets/badges/novice.png'
+import beginnerBadge from '../assets/badges/beginner.png'
+import skilledBadge from '../assets/badges/skilled.png'
+import expertBadge from '../assets/badges/expert.png'
+import masterBadge from '../assets/badges/master.png'
+import grandmasterBadge from '../assets/badges/grandmaster.png'
+
+const TIER_IMAGES = { Novice: noviceBadge, Beginner: beginnerBadge, Skilled: skilledBadge, Expert: expertBadge, Master: masterBadge, Grandmaster: grandmasterBadge }
+
 function TierBadge({ elo }) {
   const tier = getTier(elo)
+  const img = TIER_IMAGES[tier.name]
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      background: tier.bg, color: tier.textColor,
-      padding: '4px 12px', borderRadius: 20,
-      fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
-    }}>
-      {tier.name}
-    </span>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      {img && <img src={img} alt={tier.name} style={{ width: 36, height: 48, borderRadius: 4 }} />}
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        background: tier.bg, color: tier.textColor,
+        padding: '4px 12px', borderRadius: 20,
+        fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+      }}>
+        {tier.name}
+      </span>
+    </div>
   )
 }
 
@@ -106,7 +119,6 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
           {player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'}
         </div>
         <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
-        <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>{session?.user?.email}</div>
         <div style={{ marginTop: 8 }}><TierBadge elo={player?.elo || 800} /></div>
 
         {/* Stats */}
