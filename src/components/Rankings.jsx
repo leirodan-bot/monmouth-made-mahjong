@@ -124,10 +124,12 @@ export default function Rankings({ session }) {
       {/* Current Leader Spotlight */}
       {spotlight && !isProvisional(spotlight.games_played) && (
         <div style={{
-          background: C.cloud,
+          background: 'white',
           border: `1px solid ${C.border}`,
+          borderLeft: `4px solid ${C.jade}`,
           borderRadius: 14,
           padding: '16px 18px',
+          boxShadow: '0 2px 8px rgba(6,95,70,0.08)',
           marginBottom: 20,
           display: 'flex',
           alignItems: 'center',
