@@ -306,18 +306,18 @@ async function generateShareCard(player, earnedBadges) {
   // ── Tier badge image + pill ──
   const tierY = 295
   if (tierImg) {
-    const imgSize = 100
-    ctx.drawImage(tierImg, W/2 - imgSize/2, tierY, imgSize, imgSize)
+    const imgW = 80, imgH = 110
+    ctx.drawImage(tierImg, W/2 - imgW/2, tierY, imgW, imgH)
     // Tier name below image
     ctx.font = '700 20px "DM Sans", sans-serif'
     ctx.fillStyle = tier.bg
     const pillW = ctx.measureText(tier.name.toUpperCase()).width + 48
     ctx.beginPath()
-    ctx.roundRect(W/2 - pillW/2, tierY + imgSize + 10, pillW, 36, 18)
+    ctx.roundRect(W/2 - pillW/2, tierY + imgH + 10, pillW, 36, 18)
     ctx.fill()
     ctx.fillStyle = tier.textColor
     ctx.textBaseline = 'middle'
-    ctx.fillText(tier.name.toUpperCase(), W/2, tierY + imgSize + 28)
+    ctx.fillText(tier.name.toUpperCase(), W/2, tierY + imgH + 28)
   } else {
     // Fallback: just the pill
     ctx.font = '700 20px "DM Sans", sans-serif'
