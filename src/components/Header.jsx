@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../supabase'
-import logoHeader from '../assets/mahjrank/mahjranklogotransparent2400.png'
+import logoHeader from '../assets/mahjrank/mahjranklogolight2400.png'
 import NotificationBell from './NotificationBell'
 
 export default function Header({ session, player, tab, setTab, refreshPlayer }) {
