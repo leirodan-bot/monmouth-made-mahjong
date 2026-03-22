@@ -204,7 +204,7 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
           </div>
 
           {pendingConfirms.length > 0 && (
-            <div style={{ padding: '12px 16px', background: 'rgba(220,38,38,0.03)', borderBottom: `1px solid ${C.border}` }}>
+            <div style={{ padding: '12px 16px', background: 'rgba(220,38,38,0.08)', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace", marginBottom: 8, letterSpacing: '1px' }}>
                 {pendingConfirms.length} GAME{pendingConfirms.length > 1 ? 'S' : ''} NEED YOUR CONFIRMATION
               </div>

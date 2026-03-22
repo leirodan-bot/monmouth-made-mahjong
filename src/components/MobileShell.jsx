@@ -216,9 +216,9 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               {/* Pending confirmations */}
               {pendingCount > 0 && (
                 <button onClick={() => setTab('activity')} style={{
-                  width: '100%', background: 'rgba(245,158,11,0.05)',
-                  borderTop: '1px solid rgba(245,158,11,0.15)', borderRight: '1px solid rgba(245,158,11,0.15)',
-                  borderBottom: '1px solid rgba(245,158,11,0.15)', borderLeft: `4px solid ${C.gold}`,
+                  width: '100%', background: 'rgba(245,158,11,0.12)',
+                  borderTop: '1px solid rgba(245,158,11,0.35)', borderRight: '1px solid rgba(245,158,11,0.15)',
+                  borderBottom: '1px solid rgba(245,158,11,0.35)', borderLeft: `4px solid ${C.gold}`,
                   borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
                   marginBottom: 14, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
                 }}>
