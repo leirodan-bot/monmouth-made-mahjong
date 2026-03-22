@@ -39,6 +39,14 @@ export default function Auth() {
     await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
   }
 
+  async function handleForgotPassword(e) {
+    e.preventDefault(); setLoading(true); setError(''); setMessage('')
+    if (!email.trim()) { setError('Please enter your email address first'); setLoading(false); return }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin })
+    if (error) { setError(error.message) } else { setMessage('Password reset link sent! Check your email.') }
+    setLoading(false)
+  }
+
   return (
     <div style={{ maxWidth: 420, margin: '0 auto', padding: '40px 16px' }}>
       <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 14, padding: 28 }}>
@@ -87,10 +95,17 @@ export default function Auth() {
             <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Email address</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@email.com" required />
           </div>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: mode === 'signin' ? 8 : 20 }}>
             <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
           </div>
+          {mode === 'signin' && (
+            <div style={{ textAlign: 'right', marginBottom: 16 }}>
+              <span onClick={handleForgotPassword} style={{ fontSize: 12, color: C.jade, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer', fontWeight: 600 }}>
+                Forgot password?
+              </span>
+            </div>
+          )}
           {mode === 'signup' && (
             <p style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", color: C.slate, lineHeight: 1.5, marginBottom: 16, textAlign: 'center' }}>
               By creating an account, you agree to our{' '}
