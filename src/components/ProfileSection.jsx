@@ -249,141 +249,188 @@ async function generateShareCard(player, earnedBadges, eloHistory) {
   canvas.width = W; canvas.height = H
   const ctx = canvas.getContext('2d')
 
-  // Background
-  ctx.fillStyle = '#0F172A'
+  // ── White background with subtle texture ──
+  ctx.fillStyle = '#FFFFFF'
   ctx.fillRect(0, 0, W, H)
 
-  // Subtle gradient overlay
-  const grad = ctx.createLinearGradient(0, 0, 0, H)
-  grad.addColorStop(0, 'rgba(6,95,70,0.08)')
-  grad.addColorStop(1, 'rgba(220,38,38,0.05)')
-  ctx.fillStyle = grad
-  ctx.fillRect(0, 0, W, H)
-
-  // Top accent line
+  // Top jade bar
   ctx.fillStyle = '#065F46'
-  ctx.fillRect(0, 0, W, 4)
+  ctx.fillRect(0, 0, W, 6)
 
-  // "MahjRank" title
-  ctx.fillStyle = '#065F46'
-  ctx.font = '800 52px Outfit, sans-serif'
+  // ── LOGO ──
   ctx.textAlign = 'center'
-  ctx.fillText('Mahj', W/2 - 52, 80)
+  ctx.textBaseline = 'top'
+  ctx.font = '800 48px Outfit, sans-serif'
+  const mahjW = ctx.measureText('Mahj').width
+  const rankW = ctx.measureText('Rank').width
+  const totalW = mahjW + rankW
+  const logoX = W / 2 - totalW / 2
+  ctx.fillStyle = '#065F46'
+  ctx.textAlign = 'left'
+  ctx.fillText('Mahj', logoX, 40)
   ctx.fillStyle = '#DC2626'
-  ctx.fillText('Rank', W/2 + 52, 80)
+  ctx.fillText('Rank', logoX + mahjW, 40)
 
-  // Player initial circle
+  // ── MR tile icon ──
+  const iconSize = 36, iconX = W/2 - iconSize/2, iconY = 44
+  // skip icon for now, logo text is enough
+
+  // ── Player initials circle ──
   const initials = player.name ? player.name.split(' ').map(n => n[0]).join('') : '?'
   ctx.fillStyle = '#065F46'
-  const circleY = 160
   ctx.beginPath()
-  ctx.roundRect(W/2 - 40, circleY, 80, 80, 20)
+  ctx.roundRect(W/2 - 44, 120, 88, 88, 22)
   ctx.fill()
   ctx.fillStyle = '#FFFFFF'
-  ctx.font = '700 32px Outfit, sans-serif'
+  ctx.font = '700 36px Outfit, sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(initials, W/2, circleY + 40)
+  ctx.fillText(initials, W/2, 164)
 
-  // Player name
+  // ── Player name ──
   ctx.textBaseline = 'top'
-  ctx.fillStyle = '#FFFFFF'
-  ctx.font = '700 44px Outfit, sans-serif'
-  ctx.fillText(player.name || 'Player', W/2, 260)
+  ctx.fillStyle = '#0F172A'
+  ctx.font = '700 48px Outfit, sans-serif'
+  ctx.fillText(player.name || 'Player', W/2, 225)
 
-  // Tier badge
+  // ── Tier badge (styled pill) ──
   const tier = getTier(player.elo || 800)
+  ctx.font = '700 20px "DM Sans", sans-serif'
+  const tierTextW = ctx.measureText(tier.name.toUpperCase()).width + 48
   ctx.fillStyle = tier.bg
-  const tierW = ctx.measureText(tier.name).width + 40
   ctx.beginPath()
-  ctx.roundRect(W/2 - tierW/2, 320, tierW, 36, 18)
+  ctx.roundRect(W/2 - tierTextW/2, 290, tierTextW, 40, 20)
   ctx.fill()
   ctx.fillStyle = tier.textColor
-  ctx.font = '700 18px "DM Sans", sans-serif'
   ctx.textBaseline = 'middle'
-  ctx.fillText(tier.name, W/2, 338)
+  ctx.fillText(tier.name.toUpperCase(), W/2, 310)
 
-  // Elo rating big
+  // ── Elo rating ──
   ctx.textBaseline = 'top'
   ctx.fillStyle = '#DC2626'
-  ctx.font = '800 96px "JetBrains Mono", monospace'
-  ctx.fillText(Math.round(player.elo || 800), W/2, 380)
+  ctx.font = '800 112px "JetBrains Mono", monospace'
+  ctx.fillText(Math.round(player.elo || 800), W/2, 350)
+  ctx.fillStyle = '#94A3B8'
+  ctx.font = '700 14px "JetBrains Mono", monospace'
+  ctx.letterSpacing = '4px'
+  ctx.fillText('ELO RATING', W/2, 472)
+  ctx.letterSpacing = '0px'
 
-  ctx.fillStyle = '#64748B'
-  ctx.font = '600 16px "JetBrains Mono", monospace'
-  ctx.fillText('ELO RATING', W/2, 485)
+  // ── Divider line ──
+  ctx.strokeStyle = '#E2E8F0'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(100, 510)
+  ctx.lineTo(W - 100, 510)
+  ctx.stroke()
 
-  // Stats row
-  const statsY = 540
+  // ── Stats row ──
+  const statsY = 535
   const stats = [
-    { label: 'WINS', value: `${player.wins || 0}`, color: '#065F46' },
-    { label: 'LOSSES', value: `${player.losses || 0}`, color: '#64748B' },
-    { label: 'GAMES', value: `${player.games_played || 0}`, color: '#64748B' },
-    { label: 'WIN %', value: `${player.games_played ? Math.round((player.wins||0)/(player.games_played)*100) : 0}%`, color: '#F59E0B' },
+    { label: 'WINS', value: String(player.wins || 0), color: '#065F46' },
+    { label: 'LOSSES', value: String(player.losses || 0), color: '#64748B' },
+    { label: 'GAMES', value: String(player.games_played || 0), color: '#0F172A' },
+    { label: 'WIN %', value: (player.games_played ? Math.round((player.wins||0)/(player.games_played)*100) : 0) + '%', color: '#F59E0B' },
   ]
-  const statW = 220, statGap = 24
+  const statW = 200, statGap = 28
   const statsStartX = (W - (stats.length * statW + (stats.length - 1) * statGap)) / 2
 
   stats.forEach((s, i) => {
     const x = statsStartX + i * (statW + statGap)
-    ctx.fillStyle = 'rgba(255,255,255,0.05)'
+    // Card background
+    ctx.fillStyle = '#F8FAFC'
     ctx.beginPath()
-    ctx.roundRect(x, statsY, statW, 90, 12)
+    ctx.roundRect(x, statsY, statW, 100, 14)
     ctx.fill()
-    // Top accent
+    // Top color bar
     ctx.fillStyle = s.color
-    ctx.fillRect(x, statsY, statW, 3)
-
+    ctx.beginPath()
+    ctx.roundRect(x, statsY, statW, 4, [14, 14, 0, 0])
+    ctx.fill()
+    // Value
     ctx.fillStyle = s.color
-    ctx.font = '700 36px "JetBrains Mono", monospace'
+    ctx.font = '700 40px "JetBrains Mono", monospace'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
-    ctx.fillText(s.value, x + statW/2, statsY + 16)
-    ctx.fillStyle = '#64748B'
-    ctx.font = '600 12px "DM Sans", sans-serif'
-    ctx.fillText(s.label, x + statW/2, statsY + 62)
+    ctx.fillText(s.value, x + statW/2, statsY + 18)
+    // Label
+    ctx.fillStyle = '#94A3B8'
+    ctx.font = '700 11px "DM Sans", sans-serif'
+    ctx.fillText(s.label, x + statW/2, statsY + 72)
   })
 
-  // Sparkline
+  // ── Sparkline ──
   if (eloHistory && eloHistory.length >= 2) {
-    const sparkY = 670, sparkH = 60, sparkW = 800
+    const sparkY = 680, sparkH = 70, sparkW = 820
     const sparkX = (W - sparkW) / 2
     const ratings = eloHistory.map(h => h.rating_after)
-    const min = Math.min(...ratings) - 5
-    const max = Math.max(...ratings) + 5
+    const min = Math.min(...ratings) - 10
+    const max = Math.max(...ratings) + 10
     const range = max - min || 1
-    const color = ratings[ratings.length-1] >= ratings[0] ? '#065F46' : '#DC2626'
+    const trending = ratings[ratings.length-1] >= ratings[0]
+    const lineColor = trending ? '#065F46' : '#DC2626'
 
-    ctx.strokeStyle = color
-    ctx.lineWidth = 2.5
+    // Gradient fill under line
+    const gradient = ctx.createLinearGradient(0, sparkY, 0, sparkY + sparkH)
+    gradient.addColorStop(0, trending ? 'rgba(6,95,70,0.12)' : 'rgba(220,38,38,0.12)')
+    gradient.addColorStop(1, 'rgba(255,255,255,0)')
+
+    // Build path
+    const points = ratings.map((r, i) => ({
+      x: sparkX + (i / (ratings.length - 1)) * sparkW,
+      y: sparkY + (1 - (r - min) / range) * sparkH,
+    }))
+
+    // Fill area
+    ctx.beginPath()
+    ctx.moveTo(points[0].x, sparkY + sparkH)
+    points.forEach(p => ctx.lineTo(p.x, p.y))
+    ctx.lineTo(points[points.length-1].x, sparkY + sparkH)
+    ctx.closePath()
+    ctx.fillStyle = gradient
+    ctx.fill()
+
+    // Draw line
+    ctx.strokeStyle = lineColor
+    ctx.lineWidth = 3
     ctx.lineJoin = 'round'
     ctx.lineCap = 'round'
     ctx.beginPath()
-    ratings.forEach((r, i) => {
-      const x = sparkX + (i / (ratings.length - 1)) * sparkW
-      const y = sparkY + (1 - (r - min) / range) * sparkH
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
-    })
+    points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y))
     ctx.stroke()
 
-    ctx.fillStyle = '#475569'
-    ctx.font = '500 12px "DM Sans", sans-serif'
+    // End dot
+    const last = points[points.length - 1]
+    ctx.fillStyle = lineColor
+    ctx.beginPath()
+    ctx.arc(last.x, last.y, 5, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = '#FFFFFF'
+    ctx.beginPath()
+    ctx.arc(last.x, last.y, 2.5, 0, Math.PI * 2)
+    ctx.fill()
+
+    ctx.fillStyle = '#94A3B8'
+    ctx.font = '500 13px "DM Sans", sans-serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
-    ctx.fillText(`Last ${eloHistory.length} games`, W/2, sparkY + sparkH + 8)
+    ctx.fillText('Last ' + eloHistory.length + ' games', W/2, sparkY + sparkH + 12)
   }
 
-  // Badges section
-  const badgeStartY = 770
-  ctx.fillStyle = '#F59E0B'
-  ctx.font = '700 24px Outfit, sans-serif'
+  // ── Badges section ──
+  const badgeStartY = 800
+  ctx.fillStyle = '#0F172A'
+  ctx.font = '700 26px Outfit, sans-serif'
   ctx.textAlign = 'left'
   ctx.textBaseline = 'top'
-  ctx.fillText(`Badges  ${earnedBadges.length}/${BADGES.length}`, 80, badgeStartY)
+  ctx.fillText('Badges', 80, badgeStartY)
+  ctx.fillStyle = '#94A3B8'
+  ctx.font = '500 26px Outfit, sans-serif'
+  ctx.fillText('  ' + earnedBadges.length + '/' + BADGES.length, 80 + ctx.measureText('Badges').width, badgeStartY)
 
-  // Badge grid (earned only)
-  const badgeCols = 6, badgeSize = 140, badgeGap = 16
-  const badgeGridW = badgeCols * badgeSize + (badgeCols - 1) * badgeGap
+  // Badge grid
+  const badgeCols = 5, badgeW = 170, badgeH = 80, badgeGap = 14
+  const badgeGridW = badgeCols * badgeW + (badgeCols - 1) * badgeGap
   const badgeGridX = (W - badgeGridW) / 2
   let bx = badgeGridX, by = badgeStartY + 50
 
@@ -391,64 +438,81 @@ async function generateShareCard(player, earnedBadges, eloHistory) {
     const badge = BADGES.find(b => b.id === eb.badge_id)
     if (!badge) return
 
-    ctx.fillStyle = 'rgba(255,255,255,0.06)'
+    // Badge card
+    ctx.fillStyle = '#F8FAFC'
     ctx.beginPath()
-    ctx.roundRect(bx, by, badgeSize, badgeSize, 12)
+    ctx.roundRect(bx, by, badgeW, badgeH, 10)
     ctx.fill()
-    // Gold left accent
+    // Left accent
     ctx.fillStyle = '#F59E0B'
-    ctx.fillRect(bx, by + 8, 3, badgeSize - 16)
+    ctx.beginPath()
+    ctx.roundRect(bx, by + 8, 3, badgeH - 16, 2)
+    ctx.fill()
 
-    ctx.font = '32px serif'
+    // Emoji
+    ctx.font = '28px serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(badge.emoji, bx + badgeSize/2, by + 45)
+    ctx.fillText(badge.emoji, bx + 30, by + badgeH/2)
 
-    ctx.fillStyle = '#FFFFFF'
+    // Name
+    ctx.fillStyle = '#0F172A'
     ctx.font = '600 13px "DM Sans", sans-serif'
-    ctx.fillText(badge.name, bx + badgeSize/2, by + 90)
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(badge.name, bx + 52, by + badgeH/2)
 
-    ctx.fillStyle = '#64748B'
-    ctx.font = '400 10px "DM Sans", sans-serif'
-
-    bx += badgeSize + badgeGap
+    bx += badgeW + badgeGap
     if ((i + 1) % badgeCols === 0) {
       bx = badgeGridX
-      by += badgeSize + badgeGap
+      by += badgeH + badgeGap
     }
   })
 
-  // Footer
-  ctx.fillStyle = '#1E293B'
-  ctx.fillRect(0, H - 80, W, 80)
-  ctx.fillStyle = '#065F46'
-  ctx.fillRect(0, H - 80, W, 2)
+  // ── Footer ──
+  ctx.fillStyle = '#F8FAFC'
+  ctx.fillRect(0, H - 90, W, 90)
+  ctx.strokeStyle = '#E2E8F0'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(0, H - 90)
+  ctx.lineTo(W, H - 90)
+  ctx.stroke()
 
+  // Footer jade bar
   ctx.fillStyle = '#065F46'
-  ctx.font = '700 28px Outfit, sans-serif'
+  ctx.fillRect(0, H - 4, W, 4)
+
+  ctx.font = '700 30px Outfit, sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText('Mahj', W/2 - 30, H - 40)
+  const fMahjW = ctx.measureText('Mahj').width
+  const fRankW = ctx.measureText('Rank').width
+  const fTotalW = fMahjW + fRankW
+  const fX = W / 2 - fTotalW / 2
+  ctx.fillStyle = '#065F46'
+  ctx.textAlign = 'left'
+  ctx.fillText('Mahj', fX, H - 52)
   ctx.fillStyle = '#DC2626'
-  ctx.fillText('Rank', W/2 + 30, H - 40)
-  ctx.fillStyle = '#475569'
+  ctx.fillText('Rank', fX + fMahjW, H - 52)
+  ctx.fillStyle = '#94A3B8'
   ctx.font = '400 14px "DM Sans", sans-serif'
-  ctx.fillText('mahjrank.com', W/2, H - 16)
+  ctx.textAlign = 'center'
+  ctx.fillText('mahjrank.com', W/2, H - 22)
 
-  // Export
+  // ── Export ──
   const blob = await new Promise(r => canvas.toBlob(r, 'image/png'))
-
   if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
     try {
       const file = new File([blob], 'mahjrank-card.png', { type: 'image/png' })
-      await navigator.share({ files: [file], title: `${player.name} on MahjRank` })
+      await navigator.share({ files: [file], title: player.name + ' on MahjRank' })
       return
-    } catch (e) { /* fallback to download */ }
+    } catch (e) { /* fallback */ }
   }
-
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  a.href = url; a.download = `mahjrank-${(player.name||'player').toLowerCase().replace(/\s+/g,'-')}.png`
+  a.href = url
+  a.download = 'mahjrank-' + (player.name||'player').toLowerCase().replace(/\s+/g,'-') + '.png'
   a.click()
   URL.revokeObjectURL(url)
 }
