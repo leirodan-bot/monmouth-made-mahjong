@@ -457,7 +457,7 @@ async function generateShareCard(player, earnedBadges) {
   ctx.font = '400 14px "DM Sans", sans-serif'
   ctx.textAlign = 'center'
   const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-  ctx.fillText('mahjrank.com  ·  ' + today, W/2, H - 28)
+  ctx.fillText('mahjrank.com  ·  Date Created: ' + today, W/2, H - 28)
 
   // ── Export ──
   const blob = await new Promise(r => canvas.toBlob(r, 'image/png'))
