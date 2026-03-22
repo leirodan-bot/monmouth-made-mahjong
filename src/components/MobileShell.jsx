@@ -25,10 +25,10 @@ const C = {
   goldDk: '#D97706',
   midnight: '#0F172A',
   ink: '#1E293B',
-  cloud: '#E5E9EF',
+  cloud: '#EDF0F4',
   slate: '#64748B',
   slateLt: '#94A3B8',
-  border: '#E2E8F0', cloudLt: '#F4F6F8',
+  border: '#E2E8F0', cloudLt: '#FFFFFF',
 }
 
 // Helper: makes a style with a colored left accent border

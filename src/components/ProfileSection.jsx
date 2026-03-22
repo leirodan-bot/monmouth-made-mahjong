@@ -6,8 +6,8 @@ import { BADGES, BADGE_CATEGORIES } from '../badgeUtils'
 const C = {
   jade: '#065F46', jadeLt: '#059669', crimson: '#DC2626',
   gold: '#F59E0B', goldDk: '#D97706', midnight: '#0F172A',
-  ink: '#1E293B', cloud: '#E5E9EF', slate: '#64748B',
-  slateLt: '#94A3B8', border: '#E2E8F0', cloudLt: '#F4F6F8',
+  ink: '#1E293B', cloud: '#EDF0F4', slate: '#64748B',
+  slateLt: '#94A3B8', border: '#E2E8F0', cloudLt: '#FFFFFF',
 }
 
 function TierBadge({ elo }) {
