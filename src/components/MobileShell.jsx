@@ -184,7 +184,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               <div style={accentCard(C.jade, { padding: '20px', marginBottom: 14 })}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                   <div>
-                    <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>TESTING 123,</div>
+                    <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Welcome back,</div>
                     <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 24, fontWeight: 800, color: C.midnight, letterSpacing: -0.5 }}>{player?.name || 'Player'}</div>
                   </div>
                   <TierBadge elo={player?.elo || 800} />
