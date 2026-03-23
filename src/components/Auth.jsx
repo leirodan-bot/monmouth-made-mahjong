@@ -84,6 +84,7 @@ export default function Auth() {
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Display name</label>
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. MahjQueen42" required />
+                <div style={{ fontSize: 10, color: C.crimson, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>⚠️ This is your public display name. Do NOT use your real name.</div>
               </div>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Town (optional)</label>
