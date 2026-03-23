@@ -82,8 +82,8 @@ export default function Auth() {
           {mode === 'signup' && (
             <>
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Full name</label>
-                <input value={name} onChange={e => setName(e.target.value)} placeholder="Jane Smith" required />
+                <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Display name</label>
+                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. MahjQueen42" required />
               </div>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Town (optional)</label>
