@@ -16,7 +16,6 @@ import PrivacyPolicy from './components/PrivacyPolicy'
 import CookiePolicy from './components/CookiePolicy'
 import CookieConsent from './components/CookieConsent'
 import InstallPrompt from './components/InstallPrompt'
-import ProfileSetup from './components/ProfileSetup'
 import logoLoading from './assets/mahjrank/mahjranklogomonowhite1800.png'
 
 function useIsMobile() {
@@ -105,9 +104,18 @@ function App() {
   )
 
   if (session && !player) {
+    supabase.from('players').insert({
+      user_id: session.user.id,
+      name: session.user.email.split('@')[0],
+      email: session.user.email,
+      elo: 800
+    }).then(() => fetchPlayer(session.user.id))
     return (
-      <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
-        <ProfileSetup session={session} onComplete={() => fetchPlayer(session.user.id)} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0F172A' }}>
+        <div style={{ textAlign: 'center', color: '#F8FAFC' }}>
+          <img src={logoLoading} alt="MahjRank" style={{ height: 48 }} />
+          <div style={{ marginTop: 16, fontSize: 14, fontFamily: "'DM Sans', sans-serif", opacity: 0.7 }}>Setting up your account...</div>
+        </div>
       </div>
     )
   }
