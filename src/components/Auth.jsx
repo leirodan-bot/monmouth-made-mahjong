@@ -29,13 +29,20 @@ export default function Auth() {
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) { setError(error.message); setLoading(false); return }
     if (data.user) {
-      await supabase.from('players').insert({ user_id: data.user.id, name: name.trim(), email, town: town || null, elo: 800 })
+      // FIX (Mar 23 2026): Changed from .insert() to .upsert() to prevent duplicate player rows.
+      // Root cause: users tapping "Create Account" multiple times while spinner was loading
+      // created 20+ duplicate rows for the same user_id, which then broke profile loading.
+      // DB-level safety net: UNIQUE constraint on players.user_id (added same day).
+      // upsert updates the existing row if user_id already exists instead of failing.
+      await supabase.from('players').upsert({ user_id: data.user.id, name: name.trim(), email, town: town || null, elo: 800 }, { onConflict: 'user_id' })
       setMessage('Account created! Please check your email to verify your account.')
     }
     setLoading(false)
   }
 
   async function handleGoogle() {
+    // Google OAuth users who don't have a players row yet will be caught by
+    // the ProfileSetup gate in App.jsx after redirect.
     await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
   }
 
@@ -82,6 +89,8 @@ export default function Auth() {
           {mode === 'signup' && (
             <>
               <div style={{ marginBottom: 12 }}>
+                {/* WARNING: Do not change this back to "Full name" — display names are public on leaderboards.
+                    The ProfileSetup.jsx screen must also say "Display name" to stay consistent. */}
                 <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Display name</label>
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. MahjQueen42" required />
                 <div style={{ fontSize: 10, color: C.crimson, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>⚠️ This is your public display name. Do NOT use your real name.</div>
