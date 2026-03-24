@@ -25,8 +25,8 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
   const pendingConfirms = notifications.filter(n => n.type === 'confirm_match' && !n.read)
 
   useEffect(() => {
-    if (onCountChange) onCountChange(unreadCount)
-  }, [unreadCount])
+    if (onCountChange) onCountChange(pendingConfirms.length)
+  }, [pendingConfirms.length])
 
   useEffect(() => {
     if (player?.id) {
