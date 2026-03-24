@@ -260,11 +260,11 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
               }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                  background: n.type === 'verified' ? 'rgba(6,95,70,0.08)' : n.type === 'confirm_match' ? 'rgba(220,38,38,0.06)' : C.cloud,
-                  color: n.type === 'verified' ? C.jade : n.type === 'confirm_match' ? C.crimson : C.slateLt,
+                  background: n.type === 'verified' ? 'rgba(6,95,70,0.08)' : n.type === 'confirm_match' ? 'rgba(220,38,38,0.06)' : n.type === 'follow' ? 'rgba(6,95,70,0.06)' : C.cloud,
+                  color: n.type === 'verified' ? C.jade : n.type === 'confirm_match' ? C.crimson : n.type === 'follow' ? C.jade : C.slateLt,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13
                 }}>
-                  {n.type === 'verified' ? '✓' : n.type === 'confirm_match' ? '✓' : '●'}
+                  {n.type === 'verified' ? '✓' : n.type === 'confirm_match' ? '✓' : n.type === 'follow' ? '👤' : '●'}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: C.ink, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.4 }}>{n.message}</div>
