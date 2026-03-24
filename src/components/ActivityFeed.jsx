@@ -13,6 +13,7 @@ export default function ActivityFeed({ player }) {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
   const [followedIds, setFollowedIds] = useState([])
+  const [clubMemberIds, setClubMemberIds] = useState([])
 
   useEffect(() => { fetchActivity() }, [])
 
@@ -23,6 +24,13 @@ export default function ActivityFeed({ player }) {
     if (player?.id) {
       const { data: followData } = await supabase.from('follows').select('following_id').eq('follower_id', player.id)
       setFollowedIds((followData || []).map(f => f.following_id))
+      // Also fetch club members for "My Club" filter
+      const { data: myClubs } = await supabase.from('club_members').select('club_id').eq('player_id', player.id).eq('status', 'approved')
+      if (myClubs?.length) {
+        const clubIds = myClubs.map(c => c.club_id)
+        const { data: members } = await supabase.from('club_members').select('player_id').in('club_id', clubIds).eq('status', 'approved')
+        setClubMemberIds((members || []).map(m => m.player_id))
+      }
     }
     const allItems = []
     const { data: matches } = await supabase.from('matches').select('*').order('played_at', { ascending: false }).limit(50)
@@ -72,6 +80,12 @@ export default function ActivityFeed({ player }) {
       if (i.playerId) return followedIds.includes(i.playerId)
       return false
     })
+    : filter === 'club' ? items.filter(i => {
+      // Show items involving club members
+      if (i.eloUpdates) return i.eloUpdates.some(u => clubMemberIds.includes(u.id))
+      if (i.playerId) return clubMemberIds.includes(i.playerId)
+      return false
+    })
     : items.filter(i => i.type === filter)
 
   if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: "'DM Sans', sans-serif", color: C.slate }}>Loading activity...</div>
@@ -83,7 +97,7 @@ export default function ActivityFeed({ player }) {
         <p style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>Recent games, badges, and community updates</p>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
-        {[{ key: 'all', label: 'All' }, { key: 'circle', label: 'My Circle' }, { key: 'game', label: 'Games' }, { key: 'badge', label: 'Badges' }].map(f => (
+        {[{ key: 'all', label: 'All' }, { key: 'circle', label: 'My Circle' }, { key: 'club', label: 'My Club' }, { key: 'game', label: 'Games' }, { key: 'badge', label: 'Badges' }].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)} style={{
             padding: '5px 14px', borderRadius: 20, fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
             background: filter === f.key ? C.midnight : 'white', color: filter === f.key ? C.cloud : C.slate,
