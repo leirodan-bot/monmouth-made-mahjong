@@ -170,16 +170,6 @@ export default function Players({ session, player }) {
       <div style={{ display: 'grid', gap: 8 }}>
         {players.map((p, i) => (
           <div key={p.id} onClick={() => selectPlayer(p)} style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-              {/* Follow/unfollow button — only show for logged-in users viewing other players */}
-              {player && p.id !== player.id && (
-                <button onClick={(e) => toggleFollow(e, p.id)} style={{
-                  marginLeft: 'auto', flexShrink: 0, padding: '4px 12px', borderRadius: 20, fontSize: 11,
-                  fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
-                  background: followedIds.includes(p.id) ? C.jade : 'white',
-                  color: followedIds.includes(p.id) ? 'white' : C.jade,
-                  border: followedIds.includes(p.id) ? 'none' : '1px solid ' + C.jade,
-                }}>{followedIds.includes(p.id) ? 'Following' : 'Follow'}</button>
-              )}
             <div style={{ fontSize: 14, fontWeight: 700, color: C.slateLt, minWidth: 24, fontFamily: "'JetBrains Mono', monospace" }}>{i + 1}</div>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: C.jade, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0, fontFamily: "'Outfit', sans-serif" }}>{p.name.split(' ').map(n => n[0]).join('')}</div>
             <div style={{ flex: 1 }}>
@@ -192,6 +182,16 @@ export default function Players({ session, player }) {
               <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>{p.wins || 0}W–{p.losses || 0}L</div>
             </div>
             {(p.current_streak || 0) > 1 && <div style={{ fontSize: 11 }}>🔥{p.current_streak}</div>}
+            {/* Follow button — right side of card */}
+            {player && p.id !== player.id && (
+              <button onClick={(e) => toggleFollow(e, p.id)} style={{
+                flexShrink: 0, padding: '4px 12px', borderRadius: 20, fontSize: 11,
+                fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
+                background: followedIds.includes(p.id) ? C.jade : 'white',
+                color: followedIds.includes(p.id) ? 'white' : C.jade,
+                border: followedIds.includes(p.id) ? 'none' : '1px solid ' + C.jade,
+              }}>{followedIds.includes(p.id) ? 'Following' : 'Follow'}</button>
+            )}
           </div>
         ))}
       </div>
