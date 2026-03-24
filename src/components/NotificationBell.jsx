@@ -285,10 +285,10 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
 
           {notifications.length > 0 && (
             <div
-              onClick={() => { setShowDropdown(false); onNavigate('record') }}
-              style={{ padding: '10px 16px', textAlign: 'center', borderTop: `1px solid ${C.border}`, fontSize: 12, color: C.jade, fontWeight: 600, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}
+              onClick={() => { markAllRead(); setShowDropdown(false) }}
+              style={{ padding: '10px 16px', textAlign: 'center', borderTop: `1px solid ${C.border}`, fontSize: 12, color: C.crimson, fontWeight: 600, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}
             >
-              View All in Record Tab →
+              Clear All Notifications
             </div>
           )}
         </div>
