@@ -12,12 +12,18 @@ export default function ActivityFeed({ player }) {
   const [players, setPlayers] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const [followedIds, setFollowedIds] = useState([])
 
   useEffect(() => { fetchActivity() }, [])
 
   async function fetchActivity() {
     const { data: playerData } = await supabase.from('players').select('id, name')
     setPlayers(playerData || [])
+    // Fetch who this player follows for "My Circle" filter
+    if (player?.id) {
+      const { data: followData } = await supabase.from('follows').select('following_id').eq('follower_id', player.id)
+      setFollowedIds((followData || []).map(f => f.following_id))
+    }
     const allItems = []
     const { data: matches } = await supabase.from('matches').select('*').order('played_at', { ascending: false }).limit(50)
     if (matches) {
@@ -41,7 +47,7 @@ export default function ActivityFeed({ player }) {
         const badge = getBadge(b.badge_id)
         const p = playerData?.find(pl => pl.id === b.player_id)
         if (!badge || !p) continue
-        allItems.push({ id: `badge-${b.id}`, type: 'badge', time: new Date(b.earned_at), icon: badge.emoji, title: `${p.name} earned "${badge.name}"`, detail: badge.desc })
+        allItems.push({ id: `badge-${b.id}`, type: 'badge', time: new Date(b.earned_at), icon: badge.emoji, title: `${p.name} earned "${badge.name}"`, detail: badge.desc, playerId: b.player_id })
       }
     }
     allItems.sort((a, b) => b.time - a.time)
@@ -59,7 +65,14 @@ export default function ActivityFeed({ player }) {
     return date.toLocaleDateString()
   }
 
-  const filtered = filter === 'all' ? items : items.filter(i => i.type === filter)
+  const filtered = filter === 'all' ? items
+    : filter === 'circle' ? items.filter(i => {
+      // Show items involving players you follow
+      if (i.eloUpdates) return i.eloUpdates.some(u => followedIds.includes(u.id))
+      if (i.playerId) return followedIds.includes(i.playerId)
+      return false
+    })
+    : items.filter(i => i.type === filter)
 
   if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: "'DM Sans', sans-serif", color: C.slate }}>Loading activity...</div>
 
@@ -70,7 +83,7 @@ export default function ActivityFeed({ player }) {
         <p style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>Recent games, badges, and community updates</p>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
-        {[{ key: 'all', label: 'All' }, { key: 'game', label: 'Games' }, { key: 'badge', label: 'Badges' }].map(f => (
+        {[{ key: 'all', label: 'All' }, { key: 'circle', label: 'My Circle' }, { key: 'game', label: 'Games' }, { key: 'badge', label: 'Badges' }].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)} style={{
             padding: '5px 14px', borderRadius: 20, fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
             background: filter === f.key ? C.midnight : 'white', color: filter === f.key ? C.cloud : C.slate,

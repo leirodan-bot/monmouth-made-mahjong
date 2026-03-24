@@ -24,6 +24,27 @@ export default function Players({ session, player }) {
   async function fetchBadges(playerId) { const { data } = await supabase.from('player_badges').select('badge_id, earned_at').eq('player_id', playerId).order('earned_at', { ascending: false }); setBadges(data || []) }
   function selectPlayer(p) { setSelected(p); fetchBadges(p.id) }
 
+  // Follow system — fetch who this player follows
+  const [followedIds, setFollowedIds] = useState([])
+  useEffect(() => {
+    if (!player?.id) return
+    supabase.from('follows').select('following_id').eq('follower_id', player.id)
+      .then(({ data }) => setFollowedIds((data || []).map(f => f.following_id)))
+  }, [player?.id])
+
+  async function toggleFollow(e, targetId) {
+    e.stopPropagation()
+    if (!player?.id || targetId === player.id) return
+    const isFollowing = followedIds.includes(targetId)
+    if (isFollowing) {
+      await supabase.from('follows').delete().eq('follower_id', player.id).eq('following_id', targetId)
+      setFollowedIds(prev => prev.filter(id => id !== targetId))
+    } else {
+      await supabase.from('follows').insert({ follower_id: player.id, following_id: targetId })
+      setFollowedIds(prev => [...prev, targetId])
+    }
+  }
+
   async function generateShareCard(p, earnedBadges) {
     const canvas = document.createElement('canvas')
     const w = 600, h = 400, scale = 2
@@ -149,6 +170,16 @@ export default function Players({ session, player }) {
       <div style={{ display: 'grid', gap: 8 }}>
         {players.map((p, i) => (
           <div key={p.id} onClick={() => selectPlayer(p)} style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+              {/* Follow/unfollow button — only show for logged-in users viewing other players */}
+              {player && p.id !== player.id && (
+                <button onClick={(e) => toggleFollow(e, p.id)} style={{
+                  marginLeft: 'auto', flexShrink: 0, padding: '4px 12px', borderRadius: 20, fontSize: 11,
+                  fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+                  background: followedIds.includes(p.id) ? C.jade : 'white',
+                  color: followedIds.includes(p.id) ? 'white' : C.jade,
+                  border: followedIds.includes(p.id) ? 'none' : '1px solid ' + C.jade,
+                }}>{followedIds.includes(p.id) ? 'Following' : 'Follow'}</button>
+              )}
             <div style={{ fontSize: 14, fontWeight: 700, color: C.slateLt, minWidth: 24, fontFamily: "'JetBrains Mono', monospace" }}>{i + 1}</div>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: C.jade, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0, fontFamily: "'Outfit', sans-serif" }}>{p.name.split(' ').map(n => n[0]).join('')}</div>
             <div style={{ flex: 1 }}>
