@@ -111,6 +111,7 @@ function Chevron() {
 export default function MobileShell({ session, player, onSignOut, refreshPlayer }) {
   const [tab, setTab] = useState(session ? 'home' : 'landing')
   const [pendingCount, setPendingCount] = useState(0)
+  const [unreadTotal, setUnreadTotal] = useState(0)
   const [awaitingCount, setAwaitingCount] = useState(0)
 
   useEffect(() => {
@@ -175,7 +176,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           <img src={logoHeader} alt="MahjRank" style={{ height: 56 }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {session && player && <NotificationBell player={player} onNavigate={setTab} refreshPlayer={refreshPlayer} onCountChange={(count) => setPendingCount(count)} />}
+          {session && player && <NotificationBell player={player} onNavigate={setTab} refreshPlayer={refreshPlayer} onCountChange={({ pending, total }) => { setPendingCount(pending); setUnreadTotal(total); }} />}
           {session ? (
             <button onClick={onSignOut} style={{ background: C.cloud, borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, borderLeft: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 12px', color: C.slate, fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>Sign Out</button>
           ) : (
@@ -329,7 +330,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           {NAV_ITEMS.map(item => {
             const isActive = tab === item.id
             const Icon = item.icon
-            const showBadge = item.id === 'activity' && pendingCount > 0
+            const showBadge = item.id === 'activity' && unreadTotal > 0
             if (item.center) {
               return (
                 <button key={item.id} onClick={() => setTab(item.id)} style={{
@@ -347,7 +348,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 <div style={{ position: 'relative' }}>
                   <Icon color={isActive ? C.midnight : C.slateLt} size={22} />
                   {showBadge && (
-                    <div style={{ position: 'absolute', top: -4, right: -8, background: C.crimson, color: '#fff', fontSize: 9, fontWeight: 700, minWidth: 16, height: 16, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif" }}>{pendingCount}</div>
+                    <div style={{ position: 'absolute', top: -4, right: -8, background: C.crimson, color: '#fff', fontSize: 9, fontWeight: 700, minWidth: 16, height: 16, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif" }}>{unreadTotal}</div>
                   )}
                 </div>
                 <span style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 700 : 500, color: isActive ? C.midnight : C.slateLt }}>{item.label}</span>
