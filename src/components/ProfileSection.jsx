@@ -102,6 +102,15 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
     setLoading(false)
   }
 
+  const [followerCount, setFollowerCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0)
+  useEffect(() => {
+    if (!player?.id) return
+    supabase.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', player.id)
+      .then(({ count }) => setFollowerCount(count || 0))
+    supabase.from('follows').select('id', { count: 'exact', head: true }).eq('follower_id', player.id)
+      .then(({ count }) => setFollowingCount(count || 0))
+  }, [player?.id])
   const earnedIds = earnedBadges.map(b => b.badge_id)
   const gamesPlayed = player?.games_played || 0
   const winRate = gamesPlayed > 0 ? Math.round(((player?.wins || 0) / gamesPlayed) * 100) : 0
@@ -120,6 +129,19 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
         </div>
         <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
         <div style={{ marginTop: 8 }}><TierBadge elo={player?.elo || 800} /></div>
+
+        {/* Follow counts */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 12 }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace" }}>{followerCount}</div>
+            <div style={{ fontSize: 10, color: C.slate, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: 0.5 }}>Followers</div>
+          </div>
+          <div style={{ width: 1, background: C.border }} />
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace" }}>{followingCount}</div>
+            <div style={{ fontSize: 10, color: C.slate, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: 0.5 }}>Following</div>
+          </div>
+        </div>
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>

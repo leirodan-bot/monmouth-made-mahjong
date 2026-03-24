@@ -73,12 +73,29 @@ function PlayerCard({ player, rank, inactive }) {
   )
 }
 
-export default function Rankings({ session }) {
+export default function Rankings({ session, player }) {
   const [players, setPlayers] = useState([])
+  const [view, setView] = useState('global') // 'global', 'circle', 'club'
+  const [followedIds, setFollowedIds] = useState([])
+  const [clubMemberIds, setClubMemberIds] = useState([])
   const [loading, setLoading] = useState(true)
   const [spotlight, setSpotlight] = useState(null)
 
   useEffect(() => { fetchPlayers() }, [])
+  // Fetch follows and club members for filtering
+  useEffect(() => {
+    if (!player?.id) return
+    supabase.from('follows').select('following_id').eq('follower_id', player.id)
+      .then(({ data }) => setFollowedIds((data || []).map(f => f.following_id)))
+    // Get clubs this player belongs to, then get all members of those clubs
+    supabase.from('club_members').select('club_id').eq('player_id', player.id).eq('status', 'approved')
+      .then(({ data }) => {
+        if (!data?.length) return
+        const clubIds = data.map(d => d.club_id)
+        supabase.from('club_members').select('player_id').in('club_id', clubIds).eq('status', 'approved')
+          .then(({ data: members }) => setClubMemberIds((members || []).map(m => m.player_id)))
+      })
+  }, [player?.id])
 
   async function fetchPlayers() {
     const { data } = await supabase
@@ -110,8 +127,14 @@ export default function Rankings({ session }) {
     </div>
   )
 
-  const rankedPlayers = players.filter(p => !isProvisional(p.games_played))
-  const provisionalPlayers = players.filter(p => isProvisional(p.games_played))
+  // Apply view filter first
+  const viewFiltered = view === 'circle'
+    ? players.filter(p => followedIds.includes(p.id) || p.id === player?.id)
+    : view === 'club'
+    ? players.filter(p => clubMemberIds.includes(p.id) || p.id === player?.id)
+    : players
+  const rankedPlayers = viewFiltered.filter(p => !isProvisional(p.games_played))
+  const provisionalPlayers = viewFiltered.filter(p => isProvisional(p.games_played))
   const top3 = rankedPlayers.filter(p => !isInactive(p.last_game_date)).slice(0, 3)
 
   return (
@@ -120,6 +143,19 @@ export default function Rankings({ session }) {
         <h2 style={{ fontSize: 18, fontWeight: 700, color: C.midnight }}>Rankings</h2>
         <p style={{ fontSize: 12, color: C.slate, fontFamily: "'JetBrains Mono', monospace", marginTop: 4, letterSpacing: 0.3 }}>Season 1 · May 2025 – April 2026</p>
       </div>
+
+      {/* View toggle: Global / My Circle / Club */}
+      {player && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
+          {[{ key: 'global', label: 'Global' }, { key: 'circle', label: 'My Circle' }, { key: 'club', label: 'My Club' }].map(v => (
+            <button key={v.key} onClick={() => setView(v.key)} style={{
+              padding: '5px 14px', borderRadius: 20, fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
+              background: view === v.key ? C.midnight : 'white', color: view === v.key ? C.cloud : C.slate,
+              border: view === v.key ? 'none' : '1px solid ' + C.border
+            }}>{v.label}</button>
+          ))}
+        </div>
+      )}
 
       {/* Current Leader Spotlight */}
       {spotlight && !isProvisional(spotlight.games_played) && (
