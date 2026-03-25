@@ -440,10 +440,7 @@ See Visual Guide section 06 for the exact layout.
 
 **File:** `src/eloUtils.js` line 19-26
 
-Current code uses thresholds: 750/850/950/1050/1150
-Elo spec v2.0 document says: 700/800/900/1000/1100
-
-**Decision needed from Dan:** Which thresholds to use. The code thresholds (v2.1) are wider and probably better for a small player pool. If keeping v2.1, update the spec document. If reverting to v2.0, update `eloUtils.js`.
+**Resolved:** Keeping v2.1 thresholds (750/850/950/1050/1150). This ensures a new player starting at 800 Elo is listed as Beginner with room to climb to Skilled. The v2.0 spec document should be updated to match.
 
 ### 9.2 Supabase Site URL
 
@@ -474,7 +471,7 @@ Complete in order. Each section is independently committable.
 [ ] 16. Auth.jsx: consent checkbox
 [ ] 17. ProfileSetup.jsx: display name bug fix
 [ ] 18. Image optimization: bg-floral.jpg
-[ ] 19. Tier threshold decision + reconciliation
+[x] 19. Tier threshold decision + reconciliation (keeping v2.1)
 [ ] 20. Supabase Site URL fix
 ```
 
