@@ -16,9 +16,9 @@ function RankBadge({ elo }) {
   const tier = getTier(elo)
   return (
     <span style={{
-      display: 'inline-block', fontSize: 10, padding: '2px 8px', borderRadius: 20,
+      display: 'inline-flex', fontSize: 11, padding: '3px 10px', borderRadius: 20,
       fontFamily: "'DM Sans', sans-serif", fontWeight: 600,
-      background: tier.bg, color: tier.textColor
+      background: `${tier.color}22`, color: tier.color,
     }}>
       {tier.name}
     </span>
@@ -30,8 +30,9 @@ function PlayerCard({ player, rank, inactive, onPlayerClick }) {
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '12px 14px',
-      background: rank <= 3 && !inactive ? 'rgba(245,158,11,0.04)' : 'white',
+      background: rank === 1 && !inactive ? 'rgba(245,158,11,0.02)' : 'white',
       borderBottom: `1px solid ${C.border}`,
+      borderLeft: rank === 1 ? `4px solid ${C.gold}` : '4px solid transparent',
       opacity: inactive ? 0.45 : 1,
       cursor: onPlayerClick ? 'pointer' : 'default',
     }} onClick={() => onPlayerClick && onPlayerClick(player.id)}>
@@ -80,6 +81,7 @@ function PlayerCard({ player, rank, inactive, onPlayerClick }) {
 export default function Rankings({ session, player, onPlayerClick }) {
   const [players, setPlayers] = useState([])
   const [view, setView] = useState('global') // 'global', 'circle', 'club'
+  const [timeRange, setTimeRange] = useState('season')
   const [followedIds, setFollowedIds] = useState([])
   const [clubMemberIds, setClubMemberIds] = useState([])
   const [loading, setLoading] = useState(true)
@@ -143,9 +145,20 @@ export default function Rankings({ session, player, onPlayerClick }) {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: C.midnight }}>Rankings</h2>
-        <p style={{ fontSize: 12, color: C.slate, fontFamily: "'JetBrains Mono', monospace", marginTop: 4, letterSpacing: 0.3 }}>Season 1 · May 2025 – April 2026</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+        <div>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: C.midnight }}>Rankings</h2>
+          <p style={{ fontSize: 12, color: C.slate, fontFamily: "'JetBrains Mono', monospace", marginTop: 4, letterSpacing: 0.3 }}>Season 1 · May 2025 – April 2026</p>
+        </div>
+        <div style={{ display: 'flex', gap: 0, borderRadius: 10, overflow: 'hidden', border: `1.5px solid ${C.border}` }}>
+          {[{ key: 'season', label: 'Season' }, { key: 'alltime', label: 'All-Time' }].map(t => (
+            <button key={t.key} onClick={() => setTimeRange(t.key)} style={{
+              padding: '6px 16px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
+              background: timeRange === t.key ? C.midnight : C.white, color: timeRange === t.key ? '#fff' : C.slate,
+              border: 'none',
+            }}>{t.label}</button>
+          ))}
+        </div>
       </div>
 
       {/* View toggle: Global / My Circle / Club */}
@@ -217,7 +230,18 @@ export default function Rankings({ session, player, onPlayerClick }) {
 
       {/* Ranked Players — Card Layout */}
       {rankedPlayers.length > 0 && (
-        <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden', marginBottom: 20 }}>
+        <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 14, overflow: 'hidden', marginBottom: 20 }}>
+          {/* Column headers */}
+          <div style={{
+            display: 'flex', alignItems: 'center', padding: '8px 14px',
+            borderBottom: `1px solid ${C.border}`, background: C.cloud,
+          }}>
+            <span style={{ width: 38, fontSize: 10, fontWeight: 600, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'JetBrains Mono', monospace" }}>#</span>
+            <span style={{ flex: 1, fontSize: 10, fontWeight: 600, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'JetBrains Mono', monospace" }}>Player</span>
+            <span style={{ width: 60, fontSize: 10, fontWeight: 600, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'JetBrains Mono', monospace", textAlign: 'center' }}>Tier</span>
+            <span style={{ width: 60, fontSize: 10, fontWeight: 600, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'JetBrains Mono', monospace", textAlign: 'right' }}>W – L</span>
+            <span style={{ width: 50, fontSize: 10, fontWeight: 600, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'JetBrains Mono', monospace", textAlign: 'right' }}>Elo</span>
+          </div>
           {rankedPlayers.map((p, i) => (
             <PlayerCard
               key={p.id}
