@@ -3,6 +3,12 @@ import { supabase } from '../supabase'
 import { getTier, TIERS } from '../eloUtils'
 import logoWhite from '../assets/mahjrank/mahjranklogomonowhite1800.png'
 import EloCalculator from './EloCalculator'
+import noviceBadge from '../assets/badges/novice.png'
+import beginnerBadge from '../assets/badges/beginner.png'
+import skilledBadge from '../assets/badges/skilled.png'
+import expertBadge from '../assets/badges/expert.png'
+import masterBadge from '../assets/badges/master.png'
+import grandmasterBadge from '../assets/badges/grandmaster.png'
 
 const C = {
   jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
@@ -327,19 +333,19 @@ export default function Homepage({ setTab }) {
             opacity: 0, transform: 'translateY(30px)', transition: 'all 0.8s ease',
           }}>
             {[
-              { emoji: '🀆', name: 'Novice', range: '0 – 749', color: '#6b7280', bg: C.white },
-              { emoji: '🌸', name: 'Beginner', range: '750 – 849', color: '#CD7F32', bg: C.white },
-              { emoji: '🎋', name: 'Skilled', range: '850 – 949', color: '#94a3b8', bg: C.white },
-              { emoji: '🐲', name: 'Expert', range: '950 – 1049', color: C.gold, bg: C.white },
-              { emoji: '🐉', name: 'Master', range: '1050 – 1149', color: C.slate, bg: C.white },
-              { emoji: '🐉🐲', name: 'Grandmaster', range: '1150+', color: C.gold, bg: C.midnight },
+              { img: noviceBadge, name: 'Novice', range: '0 – 749', color: '#6b7280', bg: C.white },
+              { img: beginnerBadge, name: 'Beginner', range: '750 – 849', color: '#CD7F32', bg: C.white },
+              { img: skilledBadge, name: 'Skilled', range: '850 – 949', color: '#94a3b8', bg: C.white },
+              { img: expertBadge, name: 'Expert', range: '950 – 1049', color: C.gold, bg: C.white },
+              { img: masterBadge, name: 'Master', range: '1050 – 1149', color: C.slate, bg: C.white },
+              { img: grandmasterBadge, name: 'Grandmaster', range: '1150+', color: C.gold, bg: C.midnight },
             ].map((t, i) => (
               <div key={i} style={{
                 background: t.bg, borderRadius: 16, padding: '1.5rem 1rem',
                 border: t.bg === C.midnight ? 'none' : `1px solid ${C.border}`,
                 textAlign: 'center',
               }}>
-                <div style={{ fontSize: '2rem', marginBottom: '0.6rem' }}>{t.emoji}</div>
+                <img src={t.img} alt={t.name} style={{ width: 48, height: 48, marginBottom: '0.6rem', objectFit: 'contain' }} />
                 <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: '0.95rem', color: t.color, marginBottom: '0.3rem' }}>{t.name}</div>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: t.bg === C.midnight ? 'rgba(255,255,255,0.5)' : C.slateLt }}>{t.range}</div>
               </div>
