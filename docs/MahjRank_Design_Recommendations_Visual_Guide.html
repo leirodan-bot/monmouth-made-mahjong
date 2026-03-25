@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MahjRank — Design Recommendations Visual Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --midnight: #0F172A;
+    --ink: #1E293B;
+    --jade: #065F46;
+    --jade-lt: #059669;
+    --crimson: #DC2626;
+    --gold: #F59E0B;
+    --gold-dk: #D97706;
+    --cloud: #F8FAFC;
+    --slate: #64748B;
+    --slate-lt: #94A3B8;
+    --border: #E2E8F0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cloud); color: var(--midnight); }
+
+  .doc-header {
+    background: var(--midnight); color: white; padding: 48px 40px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .doc-header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(6,95,70,0.08), transparent 60%),
+                radial-gradient(ellipse at 70% 50%, rgba(220,38,38,0.05), transparent 60%);
+  }
+  .doc-header h1 { font-family: 'Outfit', sans-serif; font-size: 36px; font-weight: 800; position: relative; letter-spacing: -0.5px; }
+  .doc-header p { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 8px; position: relative; }
+  .doc-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--gold); margin-bottom: 12px; font-weight: 600; position: relative; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  .section { padding: 48px 0 0; }
+  .sec-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--crimson); letter-spacing: 2px; font-weight: 600; margin-bottom: 4px; }
+  .sec-title { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .sec-desc { font-size: 13px; color: var(--slate); margin-bottom: 24px; line-height: 1.7; }
+
+  .demo-card {
+    background: white; border-radius: 16px; padding: 32px;
+    margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+  }
+  .demo-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--jade); letter-spacing: 1.5px; font-weight: 600; margin-bottom: 12px; }
+  .demo-title { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .demo-desc { font-size: 13px; color: var(--slate); line-height: 1.7; margin-bottom: 20px; }
+
+  .trigger-btn {
+    padding: 10px 24px; border-radius: 8px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .trigger-btn.primary { background: var(--crimson); color: white; }
+  .trigger-btn.primary:hover { background: #EF4444; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(220,38,38,0.3); }
+  .trigger-btn.jade { background: var(--jade); color: white; }
+  .trigger-btn.jade:hover { background: var(--jade-lt); }
+  .trigger-btn.outline { background: transparent; border: 1.5px solid var(--border); color: var(--midnight); }
+  .trigger-btn.outline:hover { border-color: var(--midnight); }
+  .trigger-btn.gold { background: var(--gold); color: var(--midnight); }
+
+  .phone-frame {
+    width: 320px; height: 580px; border-radius: 32px;
+    border: 3px solid #333; background: var(--cloud);
+    overflow: hidden; position: relative; margin: 0 auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  }
+  .phone-status { height: 32px; background: var(--midnight); display: flex; align-items: center; justify-content: center; }
+  .phone-notch { width: 80px; height: 20px; background: #000; border-radius: 0 0 12px 12px; }
+  .phone-content { height: calc(100% - 32px); overflow-y: auto; position: relative; }
+
+  /* Toast animation */
+  .toast-container { position: absolute; top: 40px; left: 16px; right: 16px; z-index: 100; pointer-events: none; }
+  .badge-toast {
+    background: white; border-radius: 14px; padding: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    border-left: 4px solid var(--gold);
+    display: flex; align-items: center; gap: 14px;
+    opacity: 0; transform: translateY(-20px) scale(0.95);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: auto;
+  }
+  .badge-toast.show { opacity: 1; transform: translateY(0) scale(1); }
+  .badge-toast .emoji { font-size: 28px; }
+  .badge-toast .info h4 { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; color: var(--midnight); }
+  .badge-toast .info p { font-size: 11px; color: var(--slate); margin-top: 2px; }
+  .badge-toast .share-btn {
+    margin-left: auto; background: var(--gold); border: none; border-radius: 6px;
+    padding: 6px 12px; font-size: 11px; font-weight: 700; color: var(--midnight);
+    cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap;
+  }
+
+  /* Rating animation */
+  .elo-display {
+    font-family: 'JetBrains Mono', monospace; font-size: 48px; font-weight: 600;
+    color: var(--midnight); text-align: center; transition: color 0.3s;
+  }
+  .elo-delta {
+    font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600;
+    text-align: center; opacity: 0; transition: all 0.4s;
+  }
+  .elo-delta.show { opacity: 1; transform: translateY(0); }
+  .elo-delta.gain { color: var(--jade); }
+  .elo-delta.loss { color: var(--crimson); }
+  .elo-glow { transition: box-shadow 0.6s; border-radius: 16px; padding: 24px; }
+  .elo-glow.gain { box-shadow: 0 0 30px rgba(6,95,70,0.15); }
+  .elo-glow.loss { box-shadow: 0 0 30px rgba(220,38,38,0.15); }
+
+  /* Tier promotion overlay */
+  .promo-overlay {
+    position: absolute; inset: 0; z-index: 200;
+    background: rgba(15,23,42,0.92); backdrop-filter: blur(8px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s;
+  }
+  .promo-overlay.show { opacity: 1; pointer-events: auto; }
+  .promo-tier {
+    font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800;
+    color: white; opacity: 0; transform: scale(0.7);
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); transition-delay: 0.3s;
+  }
+  .promo-overlay.show .promo-tier { opacity: 1; transform: scale(1); }
+  .promo-sub {
+    font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 8px;
+    opacity: 0; transition: opacity 0.5s; transition-delay: 0.6s;
+  }
+  .promo-overlay.show .promo-sub { opacity: 1; }
+  .promo-badge { font-size: 64px; margin-bottom: 16px; opacity: 0; transform: scale(0); transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transition-delay: 0.1s; }
+  .promo-overlay.show .promo-badge { opacity: 1; transform: scale(1); }
+
+  /* Confetti */
+  .confetti { position: absolute; width: 8px; height: 8px; border-radius: 2px; opacity: 0; }
+  @keyframes confetti-fall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(400px) rotate(720deg); }
+  }
+
+  /* Skeleton loaders */
+  .skeleton { background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%); background-size: 200% 100%; animation: skeleton-pulse 1.5s ease-in-out infinite; border-radius: 8px; }
+  @keyframes skeleton-pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* Dark mode preview */
+  .dark-preview { background: var(--midnight); border-radius: 16px; padding: 24px; color: white; }
+  .dark-preview .dp-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+
+  /* Side by side */
+  .side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 768px) { .side-by-side { grid-template-columns: 1fr; } }
+
+  .divider { height: 1px; background: var(--border); margin: 48px 0; }
+
+  /* Landing section mockup */
+  .lp-section { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+  .lp-hero { background: var(--midnight); padding: 40px 24px; text-align: center; color: white; }
+
+  .tier-showcase { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .tier-card {
+    background: white; border-radius: 12px; padding: 16px 8px; text-align: center;
+    border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .tier-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+  .tier-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+  .tier-name { font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+  .tier-range { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--slate); }
+
+  @media (max-width: 600px) { .tier-showcase { grid-template-columns: repeat(3, 1fr); } }
+
+  .footer { text-align: center; font-size: 11px; color: var(--slate); padding: 32px 0 48px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-label">VISUAL COMPANION TO DESIGN REPORT v2.0</div>
+  <h1>Design Recommendations</h1>
+  <p>Interactive mockups of every recommendation · Click buttons to preview animations</p>
+</div>
+
+<div class="container">
+
+<!-- ====== 1. BADGE CELEBRATION TOAST ====== -->
+<div class="section">
+  <div class="sec-num">01 — POLISH</div>
+  <div class="sec-title">Badge Celebration Toast</div>
+  <div class="sec-desc">When a player earns a badge via the confirm_game RPC, a toast slides in from the top with the badge emoji, name, description, and a Share CTA. Auto-dismisses after 4 seconds.</div>
+</div>
+
+<div class="demo-card">
+  <div class="demo-label">LIVE DEMO</div>
+  <div style="position: relative;">
+    <div class="phone-frame">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content" style="padding: 16px; background: var(--cloud);">
+        <div class="toast-container">
+          <div class="badge-toast" id="toast1">
+            <div class="emoji">🔥</div>
+            <div class="info">
+              <h4>Hot Hand earned!</h4>
+              <p>Win 3 games in a row</p>
+            </div>
+            <button class="share-btn">Share</button>
+          </div>
+        </div>
+        <!-- Mock dashboard content behind -->
+        <div style="background:white;border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;color:var(--slate);font-family:'JetBrains Mono',monospace;">YOUR ELO</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--midnight);">842</div>
+            </div>
+            <div style="background:var(--jade);color:white;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">Skilled</div>
+          </div>
+        </div>
+        <div style="background:white;border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--midnight);margin-bottom:8px;">Recent Games</div>
+          <div style="font-size:12px;color:var(--slate);padding:8px 0;border-bottom:1px solid var(--border);">vs Barbara, Linda, Susan · <span style="color:var(--jade);font-weight:700;">Won +6.5</span></div>
+          <div style="font-size:12px;color:var(--slate);padding:8px 0;border-bottom:1px solid var(--border);">vs Carol, Nancy, Diane · <span style="color:var(--jade);font-weight:700;">Won +5.8</span></div>
+          <div style="font-size:12px;color:var(--slate);padding:8px 0;">vs Linda, Susan, Carol · <span style="color:var(--jade);font-weight:700;">Won +7.1</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:20px;">
+    <button class="trigger-btn gold" onclick="showToast()">▶ Trigger Badge Toast</button>
+  </div>
+</div>
+
+<!-- ====== 2. RATING CHANGE ANIMATION ====== -->
+<div class="section">
+  <div class="sec-num">02 — POLISH</div>
+  <div class="sec-title">Rating Change Animation</div>
+  <div class="sec-desc">When Elo updates after game confirmation, the number animates from old to new with a green glow (gain) or red glow (loss). 600ms ease-out with requestAnimationFrame.</div>
+</div>
+
+<div class="demo-card">
+  <div class="demo-label">LIVE DEMO — CLICK TO SIMULATE</div>
+  <div class="side-by-side">
+    <div>
+      <div style="text-align:center;margin-bottom:12px;font-size:12px;font-weight:700;color:var(--jade);">WIN SCENARIO</div>
+      <div class="elo-glow" id="eloGlowWin" style="background:var(--cloud);text-align:center;">
+        <div style="font-size:11px;color:var(--slate);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">YOUR ELO</div>
+        <div class="elo-display" id="eloWin">842</div>
+        <div class="elo-delta" id="eloDeltaWin" style="transform:translateY(10px);">+6.5</div>
+        <div style="margin-top:12px;">
+          <button class="trigger-btn jade" onclick="animateElo('Win', 842, 848.5, true)">▶ Simulate Win</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="text-align:center;margin-bottom:12px;font-size:12px;font-weight:700;color:var(--crimson);">LOSS SCENARIO</div>
+      <div class="elo-glow" id="eloGlowLoss" style="background:var(--cloud);text-align:center;">
+        <div style="font-size:11px;color:var(--slate);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">YOUR ELO</div>
+        <div class="elo-display" id="eloLoss">842</div>
+        <div class="elo-delta" id="eloDeltaLoss" style="transform:translateY(10px);">-2.1</div>
+        <div style="margin-top:12px;">
+          <button class="trigger-btn primary" onclick="animateElo('Loss', 842, 839.9, false)">▶ Simulate Loss</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 3. TIER PROMOTION OVERLAY ====== -->
+<div class="section">
+  <div class="sec-num">03 — POLISH</div>
+  <div class="sec-title">Tier Promotion Celebration</div>
+  <div class="sec-desc">When a player crosses a tier threshold (e.g., 850 → Skilled), a full-screen overlay celebrates with the tier's dragon artwork, confetti in tier colors, and a Share CTA. Auto-dismisses after 4 seconds.</div>
+</div>
+
+<div class="demo-card">
+  <div class="demo-label">LIVE DEMO</div>
+  <div style="position:relative;">
+    <div class="phone-frame">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content" style="padding:16px;background:var(--cloud);">
+        <div class="promo-overlay" id="promoOverlay">
+          <div class="promo-badge">🐉</div>
+          <div class="promo-tier" style="color:var(--gold);">EXPERT</div>
+          <div class="promo-sub">You reached Expert tier · Elo 950+</div>
+          <button class="trigger-btn gold" style="margin-top:20px;opacity:0;transition:opacity 0.5s;transition-delay:0.8s;" id="promoShare">Share Achievement</button>
+        </div>
+        <div style="background:white;border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;color:var(--slate);font-family:'JetBrains Mono',monospace;">YOUR ELO</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--midnight);">953</div>
+            </div>
+            <div style="background:var(--gold);color:var(--midnight);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">Expert</div>
+          </div>
+        </div>
+        <div style="background:white;border-radius:12px;border:1px solid var(--border);padding:16px;">
+          <div style="font-size:12px;font-weight:700;color:var(--midnight);margin-bottom:8px;">Latest Result</div>
+          <div style="font-size:12px;color:var(--slate);">You won at Red Bank MJ Club</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--jade);font-weight:600;margin-top:4px;">+8.2 → 953</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:20px;">
+    <button class="trigger-btn gold" onclick="showPromotion()">▶ Trigger Tier Promotion</button>
+  </div>
+</div>
+
+<!-- ====== 4. SKELETON LOADERS ====== -->
+<div class="section">
+  <div class="sec-num">04 — POLISH</div>
+  <div class="sec-title">Skeleton Loaders</div>
+  <div class="sec-desc">Pulse-animated placeholder shapes matching card layouts for Rankings, Profile, and Activity Feed while data loads from Supabase. Prevents layout shift and feels fast.</div>
+</div>
+
+<div class="demo-card">
+  <div class="demo-label">LEADERBOARD SKELETON</div>
+  <div style="max-width:500px;">
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);">
+      <div class="skeleton" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton" style="height:14px;width:60%;margin-bottom:6px;"></div>
+        <div class="skeleton" style="height:10px;width:35%;"></div>
+      </div>
+      <div class="skeleton" style="width:50px;height:22px;border-radius:20px;"></div>
+      <div class="skeleton" style="width:44px;height:18px;"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);">
+      <div class="skeleton" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton" style="height:14px;width:50%;margin-bottom:6px;"></div>
+        <div class="skeleton" style="height:10px;width:40%;"></div>
+      </div>
+      <div class="skeleton" style="width:50px;height:22px;border-radius:20px;"></div>
+      <div class="skeleton" style="width:44px;height:18px;"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);">
+      <div class="skeleton" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton" style="height:14px;width:55%;margin-bottom:6px;"></div>
+        <div class="skeleton" style="height:10px;width:30%;"></div>
+      </div>
+      <div class="skeleton" style="width:50px;height:22px;border-radius:20px;"></div>
+      <div class="skeleton" style="width:44px;height:18px;"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 0;">
+      <div class="skeleton" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton" style="height:14px;width:45%;margin-bottom:6px;"></div>
+        <div class="skeleton" style="height:10px;width:38%;"></div>
+      </div>
+      <div class="skeleton" style="width:50px;height:22px;border-radius:20px;"></div>
+      <div class="skeleton" style="width:44px;height:18px;"></div>
+    </div>
+  </div>
+  <div style="margin-top:24px;">
+    <div class="demo-label">PROFILE CARD SKELETON</div>
+    <div style="max-width:320px;background:var(--cloud);border-radius:12px;padding:20px;border:1px solid var(--border);">
+      <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px;">
+        <div class="skeleton" style="width:48px;height:64px;border-radius:8px;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div class="skeleton" style="height:16px;width:60%;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:12px;width:40%;"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+      </div>
+      <div class="skeleton" style="height:60px;border-radius:8px;margin-top:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ====== 5. LANDING PAGE: TIER SHOWCASE ====== -->
+<div class="section">
+  <div class="sec-num">05 — LANDING PAGE</div>
+  <div class="sec-title">Badge Tier Showcase Section</div>
+  <div class="sec-desc">Add the Midjourney tier artwork to the landing page as a visual selling point. The dragon illustrations are unique in the mahjong space and create an aspirational progression. Hover reveals the Elo range.</div>
+</div>
+
+<div class="demo-card" style="padding:0;overflow:hidden;">
+  <div style="background:var(--cloud);padding:48px 32px;text-align:center;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--jade);font-weight:600;margin-bottom:8px;">EARN YOUR RANK</div>
+    <h2 style="font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;color:var(--midnight);margin-bottom:8px;">Six tiers. One goal.</h2>
+    <p style="font-size:14px;color:var(--slate);max-width:500px;margin:0 auto 32px;line-height:1.7;">Every game counts. Win consistently, climb the ranks, and earn your place among Monmouth County's best Mahjong players.</p>
+    <div class="tier-showcase">
+      <div class="tier-card">
+        <span class="tier-icon">🀆</span>
+        <div class="tier-name" style="color:#6b7280;">Novice</div>
+        <div class="tier-range">Below 750</div>
+      </div>
+      <div class="tier-card" style="border-color:#CD7F32;">
+        <span class="tier-icon">🌸</span>
+        <div class="tier-name" style="color:#CD7F32;">Beginner</div>
+        <div class="tier-range">750 – 849</div>
+      </div>
+      <div class="tier-card" style="border-color:#94a3b8;">
+        <span class="tier-icon">🎋</span>
+        <div class="tier-name" style="color:#64748B;">Skilled</div>
+        <div class="tier-range">850 – 949</div>
+      </div>
+      <div class="tier-card" style="border-color:var(--gold);">
+        <span class="tier-icon">🐲</span>
+        <div class="tier-name" style="color:var(--gold-dk);">Expert</div>
+        <div class="tier-range">950 – 1049</div>
+      </div>
+      <div class="tier-card" style="border-color:#64748B;">
+        <span class="tier-icon">🐉</span>
+        <div class="tier-name" style="color:#334155;">Master</div>
+        <div class="tier-range">1050 – 1149</div>
+      </div>
+      <div class="tier-card" style="border-color:var(--midnight);background:var(--midnight);">
+        <span class="tier-icon">🐉🐲</span>
+        <div class="tier-name" style="color:var(--gold);">Grandmaster</div>
+        <div class="tier-range" style="color:rgba(255,255,255,0.5);">1150+</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 6. LANDING PAGE: ELO CALCULATOR ====== -->
+<div class="section">
+  <div class="sec-num">06 — LANDING PAGE</div>
+  <div class="sec-title">Interactive Elo Calculator (Promote to Homepage)</div>
+  <div class="sec-desc">This already exists in HowItWorks.jsx. Surfacing it on the landing page lets visitors experience the product before signing up — a proven SaaS conversion technique.</div>
+</div>
+
+<div class="demo-card" style="padding:0;overflow:hidden;">
+  <div style="background:var(--midnight);padding:48px 32px;text-align:center;color:white;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--gold);font-weight:600;margin-bottom:8px;">TRY IT</div>
+    <h2 style="font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;margin-bottom:8px;">See how Elo works</h2>
+    <p style="font-size:14px;color:rgba(255,255,255,0.5);max-width:450px;margin:0 auto 32px;">Adjust the sliders to see how your rating changes based on opponent strength and experience.</p>
+    <div style="max-width:400px;margin:0 auto;text-align:left;">
+      <div style="margin-bottom:20px;">
+        <label style="display:flex;justify-content:space-between;font-size:12px;color:var(--slate-lt);margin-bottom:6px;">
+          <span>Your Elo</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--gold);" id="myEloLabel">842</span>
+        </label>
+        <input type="range" min="500" max="1200" value="842" id="myEloSlider" oninput="updateCalc()" style="width:100%;accent-color:var(--jade);">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:flex;justify-content:space-between;font-size:12px;color:var(--slate-lt);margin-bottom:6px;">
+          <span>Avg Opponent Elo</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--gold);" id="oppEloLabel">820</span>
+        </label>
+        <input type="range" min="500" max="1200" value="820" id="oppEloSlider" oninput="updateCalc()" style="width:100%;accent-color:var(--crimson);">
+      </div>
+      <div style="margin-bottom:24px;">
+        <label style="display:flex;justify-content:space-between;font-size:12px;color:var(--slate-lt);margin-bottom:6px;">
+          <span>Games Played</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--gold);" id="gamesLabel">15</span>
+        </label>
+        <input type="range" min="1" max="200" value="15" id="gamesSlider" oninput="updateCalc()" style="width:100%;accent-color:var(--gold);">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:rgba(6,95,70,0.15);border:1px solid rgba(6,95,70,0.2);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:11px;color:var(--jade-lt);margin-bottom:4px;">If you WIN</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--jade-lt);" id="winGain">+24.8</div>
+        </div>
+        <div style="background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:11px;color:#f87171;margin-bottom:4px;">If you LOSE</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:#f87171;" id="lossAmount">-8.0</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.35);">
+        K-factor: <span id="kDisplay" style="font-family:'JetBrains Mono',monospace;">0.90</span> · Gap adjustment: <span id="gapDisplay" style="font-family:'JetBrains Mono',monospace;">-0.55</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 7. DARK MODE PREVIEW ====== -->
+<div class="section">
+  <div class="sec-num">07 — GROWTH FEATURE</div>
+  <div class="sec-title">Dark Mode Toggle</div>
+  <div class="sec-desc">The color token system in every component (C = {...}) makes dark mode feasible. Create a dark variant of the token set and toggle via React context. Preview of the logged-in dashboard in dark mode:</div>
+</div>
+
+<div class="demo-card">
+  <div class="demo-label">SIDE-BY-SIDE COMPARISON</div>
+  <div class="side-by-side">
+    <div>
+      <div style="text-align:center;font-size:11px;font-weight:700;color:var(--slate);margin-bottom:8px;">LIGHT MODE (CURRENT)</div>
+      <div style="background:var(--cloud);border-radius:12px;padding:16px;border:1px solid var(--border);">
+        <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--slate);font-family:'JetBrains Mono',monospace;">YOUR ELO</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;color:var(--midnight);">842</div>
+          <span style="background:var(--jade);color:white;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;">Skilled</span>
+        </div>
+        <div style="background:white;border-radius:10px;padding:12px;border:1px solid var(--border);font-size:11px;color:var(--midnight);">
+          <div style="font-weight:700;margin-bottom:6px;">Rankings</div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span>1. Dan</span><span style="font-family:'JetBrains Mono',monospace;color:var(--crimson);">842</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span>2. Barbara</span><span style="font-family:'JetBrains Mono',monospace;color:var(--crimson);">821</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;"><span>3. Linda</span><span style="font-family:'JetBrains Mono',monospace;color:var(--crimson);">808</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="text-align:center;font-size:11px;font-weight:700;color:var(--slate);margin-bottom:8px;">DARK MODE (PROPOSED)</div>
+      <div class="dark-preview">
+        <div class="dp-card">
+          <div style="font-size:10px;color:var(--slate-lt);font-family:'JetBrains Mono',monospace;">YOUR ELO</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;color:white;">842</div>
+          <span style="background:var(--jade);color:white;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;">Skilled</span>
+        </div>
+        <div class="dp-card" style="font-size:11px;">
+          <div style="font-weight:700;margin-bottom:6px;">Rankings</div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:rgba(255,255,255,0.8);">1. Dan</span><span style="font-family:'JetBrains Mono',monospace;color:var(--crimson);">842</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:rgba(255,255,255,0.8);">2. Barbara</span><span style="font-family:'JetBrains Mono',monospace;color:var(--crimson);">821</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:rgba(255,255,255,0.8);">3. Linda</span><span style="font-family:'JetBrains Mono',monospace;color:var(--crimson);">808</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 8. CLUB LEADERBOARD ====== -->
+<div class="section">
+  <div class="sec-num">08 — GROWTH FEATURE</div>
+  <div class="sec-title">Club Leaderboards</div>
+  <div class="sec-desc">Each club page should show a mini-leaderboard of its members ranked by Elo. The data already exists in Supabase — just needs a filtered query and display component.</div>
+</div>
+
+<div class="demo-card">
+  <div class="demo-label">CLUB PAGE MOCKUP</div>
+  <div style="max-width:480px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--jade);color:white;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;">RB</div>
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;">Red Bank MJ Club</div>
+        <div style="font-size:12px;color:var(--slate);">Red Bank, NJ · Tuesdays · 8 members</div>
+      </div>
+    </div>
+    <div style="background:var(--cloud);border-radius:12px;padding:16px;border:1px solid var(--border);">
+      <div style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--midnight);margin-bottom:12px;">Club Leaderboard</div>
+      <div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="width:24px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--gold);">1</span>
+        <span style="flex:1;font-size:13px;font-weight:500;">Dan</span>
+        <span style="background:var(--jade);color:white;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-right:12px;">Skilled</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--crimson);">842</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="width:24px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#C0C0C0;">2</span>
+        <span style="flex:1;font-size:13px;font-weight:500;">Barbara</span>
+        <span style="background:#CD7F32;color:white;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-right:12px;">Beginner</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--crimson);">821</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="width:24px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#CD7F32;">3</span>
+        <span style="flex:1;font-size:13px;font-weight:500;">Nancy</span>
+        <span style="background:#CD7F32;color:white;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-right:12px;">Beginner</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--crimson);">808</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:8px 0;">
+        <span style="width:24px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--slate);">4</span>
+        <span style="flex:1;font-size:13px;font-weight:500;">Susan</span>
+        <span style="background:#CD7F32;color:white;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-right:12px;">Beginner</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--crimson);">795</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="footer">
+  MahjRank Design Recommendations Visual Guide · Companion to Design Research Report v2.0 · March 2026 · Confidential
+</div>
+
+</div>
+
+<script>
+// Badge Toast
+function showToast() {
+  const toast = document.getElementById('toast1');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+// Elo Animation
+function animateElo(suffix, from, to, isGain) {
+  const el = document.getElementById('elo' + suffix);
+  const delta = document.getElementById('eloDelta' + suffix);
+  const glow = document.getElementById('eloGlow' + suffix);
+  const diff = to - from;
+  const duration = 600;
+  const start = performance.now();
+
+  el.textContent = from.toFixed(1);
+  delta.classList.remove('show', 'gain', 'loss');
+  glow.classList.remove('gain', 'loss');
+
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const current = from + diff * eased;
+    el.textContent = current.toFixed(1);
+    el.style.color = isGain ? '#065F46' : '#DC2626';
+    if (t < 1) requestAnimationFrame(tick);
+    else {
+      setTimeout(() => { el.style.color = '#0F172A'; }, 1200);
+      delta.classList.add('show', isGain ? 'gain' : 'loss');
+      delta.style.transform = 'translateY(0)';
+      glow.classList.add(isGain ? 'gain' : 'loss');
+      setTimeout(() => { glow.classList.remove('gain', 'loss'); }, 2000);
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+// Tier Promotion
+function showPromotion() {
+  const overlay = document.getElementById('promoOverlay');
+  const share = document.getElementById('promoShare');
+  overlay.classList.add('show');
+  share.style.opacity = '1';
+
+  // Confetti
+  const colors = ['#F59E0B', '#DC2626', '#065F46', '#ffffff'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = '-10px';
+    c.style.animation = `confetti-fall ${1.5 + Math.random() * 1.5}s ease-out ${Math.random() * 0.5}s forwards`;
+    overlay.appendChild(c);
+  }
+
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    share.style.opacity = '0';
+    overlay.querySelectorAll('.confetti').forEach(c => c.remove());
+  }, 4000);
+}
+
+// Elo Calculator
+function updateCalc() {
+  const myElo = parseInt(document.getElementById('myEloSlider').value);
+  const oppElo = parseInt(document.getElementById('oppEloSlider').value);
+  const games = parseInt(document.getElementById('gamesSlider').value);
+
+  document.getElementById('myEloLabel').textContent = myElo;
+  document.getElementById('oppEloLabel').textContent = oppElo;
+  document.getElementById('gamesLabel').textContent = games;
+
+  const K_MIN = 0.2, G = 120, D = 40;
+  const k = games >= G ? K_MIN : Math.max(K_MIN, 1 - (1 - K_MIN) * (games / G));
+  const gap = Math.max(-400, Math.min(400, oppElo - myElo)) / D;
+  const winG = k * (30 + gap);
+  const lossL = Math.abs(k * (-10 + gap));
+
+  document.getElementById('winGain').textContent = '+' + winG.toFixed(1);
+  document.getElementById('lossAmount').textContent = '-' + lossL.toFixed(1);
+  document.getElementById('kDisplay').textContent = k.toFixed(2);
+  document.getElementById('gapDisplay').textContent = (gap > 0 ? '+' : '') + gap.toFixed(2);
+}
+updateCalc();
+</script>
+</body>
+</html>

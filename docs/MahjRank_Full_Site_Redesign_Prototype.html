@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MahjRank — Full Site Redesign Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --midnight: #0F172A; --ink: #1E293B; --jade: #065F46; --jade-lt: #059669; --jade-pale: #ECFDF5;
+  --crimson: #DC2626; --crimson-lt: #EF4444; --crimson-pale: #FEF2F2;
+  --gold: #F59E0B; --gold-dk: #D97706; --gold-pale: #FFFBEB;
+  --cloud: #F8FAFC; --white: #FFFFFF; --slate: #64748B; --slate-lt: #94A3B8; --slate-xlt: #CBD5E1;
+  --border: #E2E8F0; --border-lt: #F1F5F9;
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md: 0 4px 16px rgba(15,23,42,0.06);
+  --shadow-lg: 0 8px 32px rgba(15,23,42,0.08);
+  --shadow-xl: 0 16px 48px rgba(15,23,42,0.12);
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:#e8ecf0; color:var(--midnight); -webkit-font-smoothing:antialiased; }
+
+/* ═══ PROTOTYPE CHROME ═══ */
+.proto-nav { position:sticky; top:0; z-index:9999; background:var(--midnight); border-bottom:1px solid rgba(255,255,255,0.06); padding:0; }
+.proto-nav-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; gap:0; overflow-x:auto; padding:0 16px; }
+.proto-tab { padding:14px 20px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; color:rgba(255,255,255,0.45); background:none; border:none; cursor:pointer; white-space:nowrap; border-bottom:2px solid transparent; transition:all 0.2s; }
+.proto-tab:hover { color:rgba(255,255,255,0.7); }
+.proto-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+.proto-label { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--gold); padding:14px 16px; font-weight:600; flex-shrink:0; }
+
+.view { display:none; min-height:100vh; }
+.view.active { display:block; }
+
+/* ═══ SHARED COMPONENT STYLES ═══ */
+.card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:box-shadow 0.2s, transform 0.2s; }
+.card:hover { box-shadow:var(--shadow-md); }
+.card-accent { border-left:4px solid var(--jade); }
+.card-inner { padding:20px; }
+
+.btn { padding:12px 28px; border-radius:var(--radius-sm); border:none; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; }
+.btn-crimson { background:var(--crimson); color:#fff; box-shadow:0 2px 12px rgba(220,38,38,0.25); }
+.btn-crimson:hover { background:var(--crimson-lt); transform:translateY(-1px); box-shadow:0 4px 20px rgba(220,38,38,0.3); }
+.btn-jade { background:var(--jade); color:#fff; }
+.btn-jade:hover { background:var(--jade-lt); transform:translateY(-1px); }
+.btn-outline { background:transparent; border:1.5px solid var(--border); color:var(--midnight); }
+.btn-outline:hover { border-color:var(--midnight); }
+.btn-ghost { background:transparent; border:none; color:var(--slate); padding:8px 16px; }
+.btn-ghost:hover { color:var(--midnight); background:var(--cloud); border-radius:var(--radius-sm); }
+
+.tag { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; font-family:'DM Sans',sans-serif; }
+.tag-jade { background:var(--jade); color:#fff; }
+.tag-gold { background:var(--gold); color:var(--midnight); }
+.tag-crimson { background:var(--crimson); color:#fff; }
+.tag-slate { background:var(--slate); color:#fff; }
+.tag-bronze { background:#CD7F32; color:#fff; }
+.tag-silver { background:#94a3b8; color:#fff; }
+
+.mono { font-family:'JetBrains Mono',monospace; }
+.outfit { font-family:'Outfit',sans-serif; }
+.section-label { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; font-weight:600; margin-bottom:6px; }
+.section-title { font-family:'Outfit',sans-serif; font-weight:700; line-height:1.2; margin-bottom:8px; letter-spacing:-0.5px; }
+.section-desc { font-size:15px; color:var(--slate); line-height:1.8; }
+
+.skeleton { background:linear-gradient(90deg,#e8ecf0 25%,#f3f5f7 50%,#e8ecf0 75%); background-size:200% 100%; animation:sk-pulse 1.5s ease-in-out infinite; border-radius:var(--radius-sm); }
+@keyframes sk-pulse { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes scaleIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+@keyframes slideDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes countGlow { 0%{box-shadow:none} 50%{box-shadow:0 0 20px rgba(6,95,70,0.2)} 100%{box-shadow:none} }
+@keyframes bounceScroll { 0%,100%{transform:translateX(-50%) translateY(0);opacity:0.4} 50%{transform:translateX(-50%) translateY(10px);opacity:1} }
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px) {
+  .desktop-only { display:none!important; }
+  .hero-grid { grid-template-columns:1fr!important; }
+  .stats-bar { gap:1.5rem!important; }
+  .tier-grid { grid-template-columns:repeat(3,1fr)!important; }
+  .features-grid { grid-template-columns:1fr!important; }
+  .steps-grid { grid-template-columns:1fr!important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- PROTOTYPE NAVIGATION                   -->
+<!-- ═══════════════════════════════════════ -->
+<nav class="proto-nav">
+  <div class="proto-nav-inner">
+    <div class="proto-label">PROTOTYPE</div>
+    <button class="proto-tab active" onclick="showView('landing')">Landing Page</button>
+    <button class="proto-tab" onclick="showView('dashboard')">Dashboard</button>
+    <button class="proto-tab" onclick="showView('rankings')">Rankings</button>
+    <button class="proto-tab" onclick="showView('profile')">Profile</button>
+    <button class="proto-tab" onclick="showView('record')">Game Logging</button>
+    <button class="proto-tab" onclick="showView('activity')">Activity Feed</button>
+    <button class="proto-tab" onclick="showView('header')">Header / Nav</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- VIEW 1: LANDING PAGE                   -->
+<!-- ═══════════════════════════════════════ -->
+<div class="view active" id="view-landing">
+
+  <!-- HERO -->
+  <section style="position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--midnight);overflow:hidden;text-align:center;padding:3rem 2rem;">
+    <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 50% at 50% 30%,rgba(6,95,70,0.06),transparent 70%),radial-gradient(ellipse 40% 30% at 80% 70%,rgba(220,38,38,0.04),transparent);"></div>
+
+    <!-- Subtle grid pattern -->
+    <div style="position:absolute;inset:0;opacity:0.02;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px);background-size:60px 60px;"></div>
+
+    <div style="position:relative;z-index:1;max-width:720px;">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(6,95,70,0.12);border:1px solid rgba(6,95,70,0.2);border-radius:24px;padding:6px 16px;margin-bottom:32px;animation:fadeUp 0.8s ease-out 0.1s both;">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--jade-lt);"></span>
+        <span style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--jade-lt);font-weight:600;letter-spacing:0.5px;">Season 1 is live</span>
+      </div>
+
+      <h1 style="font-family:'Outfit',sans-serif;font-size:clamp(2.5rem,6vw,4rem);font-weight:800;color:#fff;line-height:1.08;letter-spacing:-2px;margin-bottom:20px;animation:fadeUp 0.8s ease-out 0.2s both;">
+        Your skill.<br><span style="background:linear-gradient(135deg,var(--jade-lt),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Measured.</span>
+      </h1>
+
+      <p style="font-size:clamp(1rem,2vw,1.2rem);color:rgba(255,255,255,0.55);line-height:1.7;max-width:520px;margin:0 auto 36px;font-weight:400;animation:fadeUp 0.8s ease-out 0.4s both;">
+        The first Elo rating system for in-person American Mahjong. Log games, earn badges, and see where you rank.
+      </p>
+
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.8s ease-out 0.6s both;">
+        <button class="btn btn-crimson" style="padding:16px 40px;border-radius:50px;font-size:15px;">Get Started — Free</button>
+        <button class="btn btn-outline" style="padding:16px 40px;border-radius:50px;font-size:15px;color:#fff;border-color:rgba(255,255,255,0.2);">See Rankings</button>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);animation:fadeUp 1s ease-out 1s both;">
+      <div style="width:24px;height:38px;border:2px solid rgba(255,255,255,0.15);border-radius:12px;position:relative;">
+        <div style="width:4px;height:8px;background:rgba(255,255,255,0.35);border-radius:2px;position:absolute;top:6px;left:50%;transform:translateX(-50%);animation:bounceScroll 2s ease-in-out infinite;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar" style="background:var(--ink);padding:1.5rem 2rem;display:flex;justify-content:center;gap:4rem;flex-wrap:wrap;border-top:1px solid rgba(6,95,70,0.15);">
+    <div style="text-align:center;"><span class="mono" style="font-size:1.8rem;font-weight:700;color:var(--gold);display:block;">24</span><span style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.15em;">Players</span></div>
+    <div style="text-align:center;"><span class="mono" style="font-size:1.8rem;font-weight:700;color:var(--gold);display:block;">187</span><span style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.15em;">Games Logged</span></div>
+    <div style="text-align:center;"><span class="mono" style="font-size:1.8rem;font-weight:700;color:var(--gold);display:block;">6</span><span style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.15em;">Clubs</span></div>
+    <div style="text-align:center;"><span class="mono" style="font-size:1.8rem;font-weight:700;color:var(--gold);display:block;">S1</span><span style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.15em;">May 2025 – Apr 2026</span></div>
+  </div>
+
+  <!-- FEATURES -->
+  <section style="padding:5rem 2rem;background:var(--cloud);">
+    <div style="max-width:1080px;margin:0 auto;">
+      <div class="section-label" style="color:var(--jade);">WHAT IS MAHJRANK?</div>
+      <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.6rem);color:var(--midnight);margin-bottom:12px;">Your Mahjong game, finally measured.</h2>
+      <p class="section-desc" style="max-width:600px;margin-bottom:48px;">MahjRank brings Elo-based skill ratings to in-person American Mahjong for the first time. Whether you play at a club, a kitchen table, or a tournament — every game counts.</p>
+
+      <div class="features-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+        <div class="card card-accent" style="border-left-color:var(--jade);">
+          <div class="card-inner" style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:48px;height:48px;background:var(--jade-pale);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📊</div>
+            <div>
+              <h4 class="outfit" style="font-size:15px;font-weight:700;margin-bottom:4px;">Elo-Rated Rankings</h4>
+              <p style="font-size:13px;color:var(--slate);line-height:1.6;">The same system used in chess, adapted for 4-player Mahjong. Beat stronger players, gain more points.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card card-accent" style="border-left-color:var(--gold);">
+          <div class="card-inner" style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:48px;height:48px;background:var(--gold-pale);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏅</div>
+            <div>
+              <h4 class="outfit" style="font-size:15px;font-weight:700;margin-bottom:4px;">27 Badges & Achievements</h4>
+              <p style="font-size:13px;color:var(--slate);line-height:1.6;">Win streaks, milestones, jokerless victories — all tracked automatically. Share your achievements.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card card-accent" style="border-left-color:var(--jade-lt);">
+          <div class="card-inner" style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:48px;height:48px;background:var(--jade-pale);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏠</div>
+            <div>
+              <h4 class="outfit" style="font-size:15px;font-weight:700;margin-bottom:4px;">Club Management</h4>
+              <p style="font-size:13px;color:var(--slate);line-height:1.6;">Create your club, manage members, track your group's stats. Club leaderboards let groups compete.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card card-accent" style="border-left-color:var(--crimson);">
+          <div class="card-inner" style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:48px;height:48px;background:var(--crimson-pale);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📱</div>
+            <div>
+              <h4 class="outfit" style="font-size:15px;font-weight:700;margin-bottom:4px;">Works Like an App</h4>
+              <p style="font-size:13px;color:var(--slate);line-height:1.6;">Install right from your browser. Log games at the table in seconds. Push notifications keep you updated.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section style="padding:5rem 2rem;background:var(--white);">
+    <div style="max-width:1080px;margin:0 auto;">
+      <div class="section-label" style="color:var(--jade);">HOW IT WORKS</div>
+      <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.6rem);">Three steps to the table.</h2>
+      <p class="section-desc" style="max-width:480px;margin-bottom:48px;">Getting started takes less than a minute.</p>
+
+      <div class="steps-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+        <div class="card" style="border-top:4px solid var(--jade);position:relative;overflow:hidden;">
+          <div class="card-inner" style="padding:28px 24px;">
+            <span class="mono" style="font-size:4rem;font-weight:800;color:var(--jade);opacity:0.07;position:absolute;top:8px;right:16px;line-height:1;">1</span>
+            <div style="width:52px;height:52px;background:var(--jade-pale);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">✍️</div>
+            <h3 class="outfit" style="font-size:17px;font-weight:700;margin-bottom:8px;">Sign Up & Join</h3>
+            <p style="font-size:13px;color:var(--slate);line-height:1.7;">Create your free account and join your Mahjong group. Every player starts at 800 Elo.</p>
+          </div>
+        </div>
+        <div class="card" style="border-top:4px solid var(--crimson);position:relative;overflow:hidden;">
+          <div class="card-inner" style="padding:28px 24px;">
+            <span class="mono" style="font-size:4rem;font-weight:800;color:var(--crimson);opacity:0.07;position:absolute;top:8px;right:16px;line-height:1;">2</span>
+            <div style="width:52px;height:52px;background:var(--crimson-pale);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🀄</div>
+            <h3 class="outfit" style="font-size:17px;font-weight:700;margin-bottom:8px;">Play & Log Games</h3>
+            <p style="font-size:13px;color:var(--slate);line-height:1.7;">After each session, log who played and who won. Takes 30 seconds. Others verify the result.</p>
+          </div>
+        </div>
+        <div class="card" style="border-top:4px solid var(--gold);position:relative;overflow:hidden;">
+          <div class="card-inner" style="padding:28px 24px;">
+            <span class="mono" style="font-size:4rem;font-weight:800;color:var(--gold);opacity:0.07;position:absolute;top:8px;right:16px;line-height:1;">3</span>
+            <div style="width:52px;height:52px;background:var(--gold-pale);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🏆</div>
+            <h3 class="outfit" style="font-size:17px;font-weight:700;margin-bottom:8px;">Climb the Ranks</h3>
+            <p style="font-size:13px;color:var(--slate);line-height:1.7;">Your Elo updates after every verified game. Track your progress, earn badges, climb the leaderboard.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIER SHOWCASE -->
+  <section style="padding:5rem 2rem;background:var(--cloud);">
+    <div style="max-width:1080px;margin:0 auto;text-align:center;">
+      <div class="section-label" style="color:var(--jade);">EARN YOUR RANK</div>
+      <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:12px;">Six tiers. One goal.</h2>
+      <p class="section-desc" style="max-width:520px;margin:0 auto 48px;">Win consistently, climb the ranks, and earn your place among the best.</p>
+
+      <div class="tier-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px;">
+        <div class="card" style="text-align:center;border-color:var(--slate-xlt);cursor:default;"><div class="card-inner" style="padding:20px 12px;">
+          <div style="font-size:40px;margin-bottom:10px;">🀆</div>
+          <div class="outfit" style="font-size:13px;font-weight:700;color:#6b7280;">Novice</div>
+          <div class="mono" style="font-size:11px;color:var(--slate-lt);margin-top:4px;">Below 750</div>
+        </div></div>
+        <div class="card" style="text-align:center;border-color:#CD7F32;cursor:default;"><div class="card-inner" style="padding:20px 12px;">
+          <div style="font-size:40px;margin-bottom:10px;">🌸</div>
+          <div class="outfit" style="font-size:13px;font-weight:700;color:#CD7F32;">Beginner</div>
+          <div class="mono" style="font-size:11px;color:var(--slate-lt);margin-top:4px;">750 – 849</div>
+        </div></div>
+        <div class="card" style="text-align:center;border-color:#94a3b8;cursor:default;"><div class="card-inner" style="padding:20px 12px;">
+          <div style="font-size:40px;margin-bottom:10px;">🎋</div>
+          <div class="outfit" style="font-size:13px;font-weight:700;color:var(--slate);">Skilled</div>
+          <div class="mono" style="font-size:11px;color:var(--slate-lt);margin-top:4px;">850 – 949</div>
+        </div></div>
+        <div class="card" style="text-align:center;border-color:var(--gold);cursor:default;"><div class="card-inner" style="padding:20px 12px;">
+          <div style="font-size:40px;margin-bottom:10px;">🐲</div>
+          <div class="outfit" style="font-size:13px;font-weight:700;color:var(--gold-dk);">Expert</div>
+          <div class="mono" style="font-size:11px;color:var(--slate-lt);margin-top:4px;">950 – 1049</div>
+        </div></div>
+        <div class="card" style="text-align:center;border-color:var(--slate);cursor:default;"><div class="card-inner" style="padding:20px 12px;">
+          <div style="font-size:40px;margin-bottom:10px;">🐉</div>
+          <div class="outfit" style="font-size:13px;font-weight:700;color:var(--ink);">Master</div>
+          <div class="mono" style="font-size:11px;color:var(--slate-lt);margin-top:4px;">1050 – 1149</div>
+        </div></div>
+        <div class="card" style="text-align:center;background:var(--midnight);border-color:var(--midnight);cursor:default;"><div class="card-inner" style="padding:20px 12px;">
+          <div style="font-size:40px;margin-bottom:10px;">🐉🐲</div>
+          <div class="outfit" style="font-size:13px;font-weight:700;color:var(--gold);">Grandmaster</div>
+          <div class="mono" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">1150+</div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD PREVIEW -->
+  <section style="background:var(--midnight);padding:5rem 2rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 40% at 80% 50%,rgba(6,95,70,0.05),transparent);pointer-events:none;"></div>
+    <div style="max-width:1080px;margin:0 auto;position:relative;z-index:1;">
+      <div class="section-label" style="color:var(--gold);">RANKINGS</div>
+      <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.6rem);color:#fff;margin-bottom:12px;">Who's on top?</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,0.45);line-height:1.8;max-width:500px;margin-bottom:40px;">Live Season 1 leaderboard, ranked by Elo rating.</p>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-xl);overflow:hidden;backdrop-filter:blur(12px);">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <h3 class="outfit" style="font-size:15px;color:#fff;">Season 1 Leaderboard</h3>
+          <span class="mono tag" style="background:rgba(245,158,11,0.12);color:var(--gold);font-size:10px;letter-spacing:1.5px;">● LIVE</span>
+        </div>
+
+        <div id="leaderboard-rows">
+          <div style="display:flex;align-items:center;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.04);border-left:4px solid var(--gold);">
+            <span class="mono" style="width:40px;font-size:16px;font-weight:700;color:var(--gold);">1</span>
+            <div style="flex:1;"><span style="font-weight:600;color:#fff;font-size:14px;">Dan</span><span style="font-size:12px;color:rgba(255,255,255,0.3);margin-left:8px;">Little Silver</span></div>
+            <span class="tag tag-jade" style="margin-right:16px;">Skilled</span>
+            <span style="color:rgba(255,255,255,0.3);font-size:13px;width:70px;text-align:right;margin-right:20px;">14W – 39L</span>
+            <span class="mono" style="font-size:16px;font-weight:600;color:var(--crimson);width:50px;text-align:right;">867</span>
+          </div>
+          <div style="display:flex;align-items:center;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.04);border-left:4px solid transparent;">
+            <span class="mono" style="width:40px;font-size:16px;font-weight:700;color:#C0C0C0;">2</span>
+            <div style="flex:1;"><span style="font-weight:600;color:#fff;font-size:14px;">Barbara</span><span style="font-size:12px;color:rgba(255,255,255,0.3);margin-left:8px;">Red Bank</span></div>
+            <span class="tag tag-bronze" style="margin-right:16px;">Beginner</span>
+            <span style="color:rgba(255,255,255,0.3);font-size:13px;width:70px;text-align:right;margin-right:20px;">11W – 34L</span>
+            <span class="mono" style="font-size:16px;font-weight:600;color:var(--crimson);width:50px;text-align:right;">841</span>
+          </div>
+          <div style="display:flex;align-items:center;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.04);border-left:4px solid transparent;">
+            <span class="mono" style="width:40px;font-size:16px;font-weight:700;color:#CD7F32;">3</span>
+            <div style="flex:1;"><span style="font-weight:600;color:#fff;font-size:14px;">Linda</span><span style="font-size:12px;color:rgba(255,255,255,0.3);margin-left:8px;">Colts Neck</span></div>
+            <span class="tag tag-bronze" style="margin-right:16px;">Beginner</span>
+            <span style="color:rgba(255,255,255,0.3);font-size:13px;width:70px;text-align:right;margin-right:20px;">9W – 28L</span>
+            <span class="mono" style="font-size:16px;font-weight:600;color:var(--crimson);width:50px;text-align:right;">823</span>
+          </div>
+          <div style="display:flex;align-items:center;padding:16px 24px;border-left:4px solid transparent;">
+            <span class="mono" style="width:40px;font-size:14px;color:rgba(255,255,255,0.25);">4</span>
+            <div style="flex:1;"><span style="font-weight:500;color:rgba(255,255,255,0.7);font-size:14px;">Carol</span><span style="font-size:12px;color:rgba(255,255,255,0.2);margin-left:8px;">Holmdel</span></div>
+            <span class="tag tag-bronze" style="margin-right:16px;">Beginner</span>
+            <span style="color:rgba(255,255,255,0.25);font-size:13px;width:70px;text-align:right;margin-right:20px;">8W – 31L</span>
+            <span class="mono" style="font-size:16px;font-weight:600;color:var(--crimson);width:50px;text-align:right;">811</span>
+          </div>
+        </div>
+
+        <div style="padding:16px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);">
+          <button class="btn-ghost" style="color:var(--gold);font-size:13px;font-weight:600;">View Full Rankings →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="padding:5rem 2rem;text-align:center;background:var(--white);">
+    <div style="max-width:600px;margin:0 auto;">
+      <div class="section-label" style="color:var(--jade);">READY TO PLAY?</div>
+      <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:12px;">Your seat at the table is waiting.</h2>
+      <p class="section-desc" style="margin-bottom:36px;">Join MahjRank today — it's free. Start tracking your games, earning your rating, and connecting with players across Monmouth County.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-crimson" style="padding:16px 40px;border-radius:50px;font-size:15px;">Create Your Free Account</button>
+        <button class="btn btn-outline" style="padding:16px 40px;border-radius:50px;font-size:15px;">Learn About Elo Ratings</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="background:var(--midnight);color:rgba(255,255,255,0.35);padding:2.5rem 2rem;text-align:center;font-size:13px;border-top:1px solid rgba(255,255,255,0.05);">
+    <div style="display:flex;gap:24px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;">
+      <span style="cursor:pointer;transition:color 0.2s;">Rankings</span>
+      <span style="cursor:pointer;">How It Works</span>
+      <span style="cursor:pointer;">Terms of Service</span>
+      <span style="cursor:pointer;">Privacy Policy</span>
+    </div>
+    <p>MahjRank™ · Season 1 · 2025–2026</p>
+    <p style="font-size:11px;color:rgba(255,255,255,0.2);margin-top:6px;">© 2025 MahjRank. All rights reserved.</p>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- VIEW 2: DASHBOARD (Mobile Home)        -->
+<!-- ═══════════════════════════════════════ -->
+<div class="view" id="view-dashboard">
+  <div style="max-width:420px;margin:0 auto;background:var(--cloud);min-height:100vh;position:relative;padding-bottom:80px;">
+
+    <!-- Top bar -->
+    <div style="background:var(--white);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:38px;z-index:100;">
+      <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;color:var(--midnight);display:flex;align-items:center;gap:6px;">
+        <span style="color:var(--jade);">Mahj</span><span style="color:var(--crimson);">Rank</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="position:relative;cursor:pointer;padding:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--crimson);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</div>
+        </div>
+        <div style="font-size:12px;color:var(--slate);border:1px solid var(--border);border-radius:8px;padding:5px 12px;">Sign Out</div>
+      </div>
+    </div>
+    <div style="height:2px;background:linear-gradient(to right,var(--jade),var(--jade-lt),var(--crimson));opacity:0.4;"></div>
+
+    <!-- Content -->
+    <div style="padding:16px;">
+
+      <!-- Welcome card -->
+      <div class="card card-accent" style="margin-bottom:14px;">
+        <div class="card-inner">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+            <div>
+              <div style="font-size:13px;color:var(--slate);">Welcome back,</div>
+              <div class="outfit" style="font-size:24px;font-weight:800;color:var(--midnight);letter-spacing:-0.5px;">Dan</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:28px;margin-bottom:2px;">🎋</div>
+              <span class="tag tag-jade" style="font-size:10px;">Skilled</span>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div style="background:var(--cloud);border-top:3px solid var(--jade-lt);border-radius:12px;padding:14px 10px;text-align:center;border:1px solid var(--border);border-top:3px solid var(--jade-lt);">
+              <div class="mono" style="font-size:26px;font-weight:700;color:var(--jade-lt);line-height:1;">53</div>
+              <div style="font-size:10px;color:var(--slate-lt);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-top:6px;">Games</div>
+            </div>
+            <div style="background:var(--cloud);border-top:3px solid var(--ink);border-radius:12px;padding:14px 10px;text-align:center;border:1px solid var(--border);border-top:3px solid var(--ink);">
+              <div class="mono" style="font-size:26px;font-weight:700;color:var(--ink);line-height:1;">14</div>
+              <div style="font-size:10px;color:var(--slate-lt);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-top:6px;">Wins</div>
+            </div>
+            <div style="background:var(--cloud);border-top:3px solid var(--crimson);border-radius:12px;padding:14px 10px;text-align:center;border:1px solid var(--border);border-top:3px solid var(--crimson);">
+              <div class="mono" style="font-size:26px;font-weight:700;color:var(--crimson);line-height:1;">867</div>
+              <div style="font-size:10px;color:var(--slate-lt);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-top:6px;">Elo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending -->
+      <div style="background:var(--gold-pale);border:1px solid rgba(245,158,11,0.25);border-left:4px solid var(--gold);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:14px;cursor:pointer;">
+        <div style="width:24px;height:24px;border-radius:8px;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">2</div>
+        <div style="flex:1;">
+          <div style="color:var(--gold-dk);font-size:13px;font-weight:600;">games need your review</div>
+          <div style="font-size:11px;color:var(--slate);margin-top:1px;">Tap to review and confirm</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Record Game -->
+      <button class="btn btn-crimson" style="width:100%;border-radius:14px;padding:16px;font-size:16px;margin-bottom:20px;justify-content:center;">
+        <span style="font-size:20px;font-weight:300;">+</span> Record a Game
+      </button>
+
+      <!-- Quick links -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="card card-accent" style="cursor:pointer;border-left-color:var(--gold);">
+          <div class="card-inner" style="padding:18px 16px;">
+            <div style="font-size:24px;margin-bottom:8px;">🏆</div>
+            <div class="outfit" style="font-size:14px;font-weight:700;color:var(--midnight);">Rankings</div>
+            <div style="font-size:11px;color:var(--slate-lt);margin-top:3px;">See where you stand</div>
+          </div>
+        </div>
+        <div class="card card-accent" style="cursor:pointer;">
+          <div class="card-inner" style="padding:18px 16px;">
+            <div style="font-size:24px;margin-bottom:8px;">🏘️</div>
+            <div class="outfit" style="font-size:14px;font-weight:700;color:var(--midnight);">My Clubs</div>
+            <div style="font-size:11px;color:var(--slate-lt);margin-top:3px;">Your groups & games</div>
+          </div>
+        </div>
+        <div class="card card-accent" style="cursor:pointer;border-left-color:var(--jade-lt);">
+          <div class="card-inner" style="padding:18px 16px;">
+            <div style="font-size:24px;margin-bottom:8px;">📖</div>
+            <div class="outfit" style="font-size:14px;font-weight:700;color:var(--midnight);">How It Works</div>
+            <div style="font-size:11px;color:var(--slate-lt);margin-top:3px;">Elo ratings explained</div>
+          </div>
+        </div>
+        <div class="card card-accent" style="cursor:pointer;border-left-color:var(--crimson);">
+          <div class="card-inner" style="padding:18px 16px;">
+            <div style="font-size:24px;margin-bottom:8px;">👥</div>
+            <div class="outfit" style="font-size:14px;font-weight:700;color:var(--midnight);">Players</div>
+            <div style="font-size:11px;color:var(--slate-lt);margin-top:3px;">Browse all players</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--white);border-top:1px solid var(--border);display:flex;padding:8px 0 12px;z-index:100;">
+      <div style="flex:1;text-align:center;cursor:pointer;">
+        <div style="font-size:20px;">🏠</div>
+        <div style="font-size:9px;font-weight:700;color:var(--jade);margin-top:2px;">Home</div>
+      </div>
+      <div style="flex:1;text-align:center;cursor:pointer;">
+        <div style="font-size:20px;">🏆</div>
+        <div style="font-size:9px;color:var(--slate-lt);margin-top:2px;">Rankings</div>
+      </div>
+      <div style="flex:1;text-align:center;cursor:pointer;position:relative;">
+        <div style="width:52px;height:52px;background:var(--crimson);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:-18px auto 0;box-shadow:0 4px 16px rgba(220,38,38,0.3);">
+          <span style="color:#fff;font-size:24px;font-weight:300;">+</span>
+        </div>
+        <div style="font-size:9px;color:var(--crimson);margin-top:4px;font-weight:700;">Record</div>
+      </div>
+      <div style="flex:1;text-align:center;cursor:pointer;">
+        <div style="font-size:20px;">📋</div>
+        <div style="font-size:9px;color:var(--slate-lt);margin-top:2px;">Activity</div>
+      </div>
+      <div style="flex:1;text-align:center;cursor:pointer;">
+        <div style="font-size:20px;">👤</div>
+        <div style="font-size:9px;color:var(--slate-lt);margin-top:2px;">Profile</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- VIEW 3: RANKINGS                       -->
+<!-- ═══════════════════════════════════════ -->
+<div class="view" id="view-rankings">
+  <div style="max-width:900px;margin:0 auto;padding:24px 16px;background:var(--cloud);min-height:100vh;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div>
+        <h2 class="outfit" style="font-size:22px;font-weight:700;">Rankings</h2>
+        <p style="font-size:13px;color:var(--slate);margin-top:2px;">Season 1 · Ranked by Elo</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" style="padding:8px 16px;font-size:12px;background:var(--midnight);color:#fff;border-radius:20px;">Season</button>
+        <button class="btn btn-outline" style="padding:8px 16px;font-size:12px;border-radius:20px;">All-Time</button>
+      </div>
+    </div>
+
+    <div class="card" style="overflow:hidden;">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;padding:14px 20px;background:var(--cloud);border-bottom:1px solid var(--border);font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1px;font-weight:600;">
+        <span style="width:40px;">#</span>
+        <span style="flex:1;">Player</span>
+        <span style="width:80px;text-align:center;">Tier</span>
+        <span style="width:80px;text-align:right;">W – L</span>
+        <span class="mono" style="width:60px;text-align:right;">Elo</span>
+      </div>
+      <!-- Rows -->
+      <div style="display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border-lt);border-left:4px solid var(--gold);background:rgba(245,158,11,0.02);">
+        <span class="mono" style="width:40px;font-size:16px;font-weight:700;color:var(--gold);">1</span>
+        <div style="flex:1;"><span style="font-weight:600;font-size:14px;">Dan</span><span style="font-size:12px;color:var(--slate-lt);margin-left:8px;">Little Silver</span></div>
+        <span style="width:80px;text-align:center;"><span class="tag tag-jade">Skilled</span></span>
+        <span style="width:80px;text-align:right;font-size:13px;color:var(--slate);">14 – 39</span>
+        <span class="mono" style="width:60px;text-align:right;font-size:16px;font-weight:600;color:var(--crimson);">867</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border-lt);border-left:4px solid transparent;">
+        <span class="mono" style="width:40px;font-size:16px;font-weight:700;color:#C0C0C0;">2</span>
+        <div style="flex:1;"><span style="font-weight:600;font-size:14px;">Barbara</span><span style="font-size:12px;color:var(--slate-lt);margin-left:8px;">Red Bank</span></div>
+        <span style="width:80px;text-align:center;"><span class="tag tag-bronze">Beginner</span></span>
+        <span style="width:80px;text-align:right;font-size:13px;color:var(--slate);">11 – 34</span>
+        <span class="mono" style="width:60px;text-align:right;font-size:16px;font-weight:600;color:var(--crimson);">841</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border-lt);border-left:4px solid transparent;">
+        <span class="mono" style="width:40px;font-size:16px;font-weight:700;color:#CD7F32;">3</span>
+        <div style="flex:1;"><span style="font-weight:600;font-size:14px;">Linda</span><span style="font-size:12px;color:var(--slate-lt);margin-left:8px;">Colts Neck</span></div>
+        <span style="width:80px;text-align:center;"><span class="tag tag-bronze">Beginner</span></span>
+        <span style="width:80px;text-align:right;font-size:13px;color:var(--slate);">9 – 28</span>
+        <span class="mono" style="width:60px;text-align:right;font-size:16px;font-weight:600;color:var(--crimson);">823</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border-lt);border-left:4px solid transparent;">
+        <span class="mono" style="width:40px;font-size:14px;color:var(--slate-lt);">4</span>
+        <div style="flex:1;"><span style="font-weight:500;font-size:14px;">Carol</span><span style="font-size:12px;color:var(--slate-lt);margin-left:8px;">Holmdel</span></div>
+        <span style="width:80px;text-align:center;"><span class="tag tag-bronze">Beginner</span></span>
+        <span style="width:80px;text-align:right;font-size:13px;color:var(--slate);">8 – 31</span>
+        <span class="mono" style="width:60px;text-align:right;font-size:16px;font-weight:600;color:var(--crimson);">811</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:16px 20px;border-left:4px solid transparent;">
+        <span class="mono" style="width:40px;font-size:14px;color:var(--slate-lt);">5</span>
+        <div style="flex:1;"><span style="font-weight:500;font-size:14px;">Susan</span><span style="font-size:12px;color:var(--slate-lt);margin-left:8px;">Holmdel</span></div>
+        <span style="width:80px;text-align:center;"><span class="tag tag-bronze">Beginner</span></span>
+        <span style="width:80px;text-align:right;font-size:13px;color:var(--slate);">7 – 29</span>
+        <span class="mono" style="width:60px;text-align:right;font-size:16px;font-weight:600;color:var(--crimson);">798</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- VIEW 4: PROFILE                        -->
+<!-- ═══════════════════════════════════════ -->
+<div class="view" id="view-profile">
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;background:var(--cloud);min-height:100vh;">
+
+    <!-- Profile header -->
+    <div class="card card-accent" style="margin-bottom:16px;">
+      <div class="card-inner">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+          <div>
+            <div class="outfit" style="font-size:24px;font-weight:800;color:var(--midnight);">Dan</div>
+            <div style="font-size:13px;color:var(--slate);margin-top:2px;">Little Silver, NJ · Joined Nov 2025</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:36px;margin-bottom:4px;">🎋</div>
+            <span class="tag tag-jade">Skilled</span>
+          </div>
+        </div>
+
+        <!-- Elo card -->
+        <div style="background:var(--midnight);border-radius:14px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(6,95,70,0.08),transparent);pointer-events:none;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;position:relative;">
+            <div>
+              <div class="mono" style="font-size:11px;color:var(--slate-lt);letter-spacing:1.5px;">ELO RATING</div>
+              <div class="mono" style="font-size:42px;font-weight:700;color:#fff;line-height:1;margin-top:4px;">867</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
+                <span class="mono" style="font-size:13px;color:var(--jade-lt);font-weight:600;">▲ +6.5</span>
+                <span style="font-size:11px;color:var(--slate-lt);">last game</span>
+              </div>
+            </div>
+            <!-- Mini sparkline -->
+            <svg width="140" height="50" viewBox="0 0 140 50" style="opacity:0.6;">
+              <polyline points="0,40 10,38 20,35 30,37 40,32 50,28 60,30 70,25 80,22 90,20 100,18 110,15 120,12 130,10 140,8" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="140" cy="8" r="3" fill="#059669"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+          <div style="background:var(--cloud);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;">
+            <div class="mono" style="font-size:20px;font-weight:700;color:var(--midnight);">53</div>
+            <div style="font-size:9px;color:var(--slate-lt);text-transform:uppercase;letter-spacing:0.8px;margin-top:4px;">Games</div>
+          </div>
+          <div style="background:var(--cloud);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;">
+            <div class="mono" style="font-size:20px;font-weight:700;color:var(--jade);">14</div>
+            <div style="font-size:9px;color:var(--slate-lt);text-transform:uppercase;letter-spacing:0.8px;margin-top:4px;">Wins</div>
+          </div>
+          <div style="background:var(--cloud);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;">
+            <div class="mono" style="font-size:20px;font-weight:700;color:var(--midnight);">26%</div>
+            <div style="font-size:9px;color:var(--slate-lt);text-transform:uppercase;letter-spacing:0.8px;margin-top:4px;">Win Rate</div>
+          </div>
+          <div style="background:var(--cloud);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;">
+            <div class="mono" style="font-size:20px;font-weight:700;color:var(--gold-dk);">3</div>
+            <div style="font-size:9px;color:var(--slate-lt);text-transform:uppercase;letter-spacing:0.8px;margin-top:4px;">Streak</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-inner">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 class="outfit" style="font-size:16px;font-weight:700;">Badges</h3>
+          <span class="mono" style="font-size:12px;color:var(--slate);">7 / 27</span>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-size:11px;color:var(--slate);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Wins</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="background:var(--gold-pale);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;"><span style="font-size:18px;">🀄</span><span style="font-size:12px;font-weight:600;">First Blood</span></div>
+            <div style="background:var(--gold-pale);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;"><span style="font-size:18px;">🔟</span><span style="font-size:12px;font-weight:600;">Double Digits</span></div>
+            <div style="background:var(--cloud);border:1px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;opacity:0.35;"><span style="font-size:18px;">🏅</span><span style="font-size:12px;font-weight:500;">Quarter Century</span></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-size:11px;color:var(--slate);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Streaks</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="background:var(--gold-pale);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;"><span style="font-size:18px;">🔥</span><span style="font-size:12px;font-weight:600;">Hot Hand</span></div>
+            <div style="background:var(--cloud);border:1px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;opacity:0.35;"><span style="font-size:18px;">🔥🔥</span><span style="font-size:12px;font-weight:500;">On Fire</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px;color:var(--slate);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Games Played</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="background:var(--gold-pale);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;"><span style="font-size:18px;">👋</span><span style="font-size:12px;font-weight:600;">Getting Started</span></div>
+            <div style="background:var(--gold-pale);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;"><span style="font-size:18px;">🎖️</span><span style="font-size:12px;font-weight:600;">Veteran</span></div>
+          </div>
+        </div>
+
+        <button class="btn btn-jade" style="width:100%;margin-top:20px;border-radius:10px;justify-content:center;padding:14px;">📤 Share Profile Card</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- VIEW 5: GAME LOGGING                   -->
+<!-- ═══════════════════════════════════════ -->
+<div class="view" id="view-record">
+  <div style="max-width:480px;margin:0 auto;padding:24px 16px;background:var(--cloud);min-height:100vh;">
+    <h2 class="outfit" style="font-size:20px;font-weight:700;margin-bottom:16px;">Record a Game</h2>
+
+    <!-- Progress bar -->
+    <div style="display:flex;gap:4px;margin-bottom:24px;">
+      <div style="flex:1;height:4px;border-radius:2px;background:var(--jade-lt);"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:var(--jade-lt);"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:var(--crimson);"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:var(--border);"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:var(--border);"></div>
+    </div>
+
+    <!-- Step 3: Winner -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-inner">
+        <div class="mono" style="font-size:10px;color:var(--slate);letter-spacing:1.5px;margin-bottom:12px;">STEP 3 — WHO WON?</div>
+
+        <div style="display:grid;gap:8px;">
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:2px solid var(--jade);background:var(--jade-pale);cursor:pointer;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--jade);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">DL</div>
+            <div style="flex:1;font-weight:600;">Dan</div>
+            <div style="background:var(--jade);color:#fff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;">Winner ✓</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);cursor:pointer;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--cloud);border:1px solid var(--border);color:var(--slate);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">BR</div>
+            <div style="flex:1;font-weight:500;color:var(--slate);">Barbara</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);cursor:pointer;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--cloud);border:1px solid var(--border);color:var(--slate);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">LC</div>
+            <div style="flex:1;font-weight:500;color:var(--slate);">Linda</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);cursor:pointer;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--cloud);border:1px solid var(--border);color:var(--slate);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">SM</div>
+            <div style="flex:1;font-weight:500;color:var(--slate);">Susan</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;border-radius:10px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);">
+          <span style="font-size:14px;">🧱</span>
+          <div style="flex:1;font-size:13px;color:var(--gold-dk);font-weight:600;">Wall Game (no winner)</div>
+          <div style="width:20px;height:20px;border-radius:4px;border:1.5px solid var(--border);"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;">
+          <button class="btn btn-outline" style="flex:0;padding:12px 20px;">← Back</button>
+          <button class="btn btn-crimson" style="flex:1;justify-content:center;">Next: Win Details →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badge hint -->
+    <div style="display:inline-flex;align-items:center;gap:6px;background:var(--gold-pale);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--gold-dk);">
+      <span>🏅</span> Win this game to unlock <strong>Quarter Century</strong> (25 wins)!
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- VIEW 6: ACTIVITY FEED                  -->
+<!-- ═══════════════════════════════════════ -->
+<div class="view" id="view-activity">
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;background:var(--cloud);min-height:100vh;">
+    <h2 class="outfit" style="font-size:20px;font-weight:700;margin-bottom:16px;">Activity</h2>
+
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card card-accent" style="border-left-color:var(--jade);">
+        <div class="card-inner" style="display:flex;gap:12px;">
+          <div style="font-size:20px;">🀄</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;"><strong>Dan</strong> won at <strong>Red Bank MJ Club</strong></div>
+            <div style="font-size:12px;color:var(--slate);margin-top:2px;">CR Line 5 · Jokerless · 0 exposures</div>
+            <div style="display:flex;gap:12px;margin-top:6px;">
+              <span class="mono" style="font-size:13px;color:var(--jade);font-weight:600;">Dan +6.5</span>
+              <span class="mono" style="font-size:13px;color:var(--crimson);">Barbara -2.1</span>
+              <span class="mono" style="font-size:13px;color:var(--crimson);">Linda -2.3</span>
+              <span class="mono" style="font-size:13px;color:var(--crimson);">Susan -2.0</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--slate-lt);white-space:nowrap;">2m ago</div>
+        </div>
+      </div>
+
+      <div class="card card-accent" style="border-left-color:var(--gold);">
+        <div class="card-inner" style="display:flex;gap:12px;">
+          <div style="font-size:20px;">🏅</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;"><strong>Dan</strong> earned <strong>Hot Hand</strong></div>
+            <div style="font-size:12px;color:var(--slate);margin-top:2px;">Win 3 games in a row 🔥</div>
+          </div>
+          <div style="font-size:11px;color:var(--slate-lt);white-space:nowrap;">2m ago</div>
+        </div>
+      </div>
+
+      <div class="card card-accent" style="border-left-color:var(--slate-lt);">
+        <div class="card-inner" style="display:flex;gap:12px;">
+          <div style="font-size:20px;">🧱</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;"><strong>Barbara</strong> logged a <strong>wall game</strong></div>
+            <div style="font-size:12px;color:var(--slate);margin-top:2px;">Colts Neck Tiles · No rating changes</div>
+          </div>
+          <div style="font-size:11px;color:var(--slate-lt);white-space:nowrap;">1h ago</div>
+        </div>
+      </div>
+
+      <div class="card card-accent" style="border-left-color:var(--crimson);">
+        <div class="card-inner" style="display:flex;gap:12px;">
+          <div style="font-size:20px;">📈</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;"><strong>Dan</strong> reached <strong>Skilled</strong> tier</div>
+            <div style="font-size:12px;color:var(--slate);margin-top:2px;">Elo crossed 850 · #1 in Monmouth County</div>
+          </div>
+          <div style="font-size:11px;color:var(--slate-lt);white-space:nowrap;">Yesterday</div>
+        </div>
+      </div>
+
+      <div class="card card-accent" style="border-left-color:var(--jade-lt);">
+        <div class="card-inner" style="display:flex;gap:12px;">
+          <div style="font-size:20px;">🎉</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;"><strong>Nancy Park</strong> joined the league!</div>
+            <div style="font-size:12px;color:var(--slate);margin-top:2px;">Red Bank MJ Club · Beginner tier</div>
+          </div>
+          <div style="font-size:11px;color:var(--slate-lt);white-space:nowrap;">2 days ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- VIEW 7: HEADER / NAV                   -->
+<!-- ═══════════════════════════════════════ -->
+<div class="view" id="view-header">
+  <div style="background:var(--cloud);min-height:100vh;">
+
+    <!-- Desktop Header -->
+    <div style="padding:24px 16px;max-width:960px;margin:0 auto;">
+      <div style="font-size:12px;color:var(--slate);font-weight:600;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;">Desktop Header</div>
+
+      <div style="background:var(--white);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md);border:1px solid var(--border);">
+        <div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="outfit" style="font-size:24px;font-weight:800;"><span style="color:var(--jade);">Mahj</span><span style="color:var(--crimson);">Rank</span></div>
+            <span class="mono" style="font-size:10px;color:var(--slate-lt);letter-spacing:1.5px;">SEASON 1</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="position:relative;cursor:pointer;padding:6px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <div style="position:absolute;top:0;right:0;width:14px;height:14px;border-radius:50%;background:var(--crimson);color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</div>
+            </div>
+            <div style="background:var(--cloud);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;">Dan ▾</div>
+          </div>
+        </div>
+        <div style="display:flex;border-top:1px solid var(--border);">
+          <button style="padding:12px 20px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--jade);background:none;border:none;border-bottom:3px solid var(--jade);cursor:pointer;">Rankings</button>
+          <button style="padding:12px 20px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--slate);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;">How It Works</button>
+          <button style="padding:12px 20px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--slate);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;">Activity</button>
+          <button style="padding:12px 20px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--slate);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;">Players</button>
+          <button style="padding:12px 20px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--slate);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;">Clubs</button>
+          <button style="padding:8px 18px;margin:6px 8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:#fff;background:var(--crimson);border:none;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(220,38,38,0.2);">+ Record Game</button>
+        </div>
+        <div style="height:2px;background:linear-gradient(to right,var(--jade),var(--jade-lt),var(--crimson));opacity:0.4;"></div>
+      </div>
+
+      <!-- Auth forms -->
+      <div style="font-size:12px;color:var(--slate);font-weight:600;text-transform:uppercase;letter-spacing:1.5px;margin:40px 0 16px;">Authentication</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+          <div class="card-inner" style="padding:28px;">
+            <h3 class="outfit" style="font-size:18px;font-weight:700;margin-bottom:4px;">Sign Up</h3>
+            <p style="font-size:13px;color:var(--slate);margin-bottom:20px;">Create your free MahjRank account</p>
+            <div style="margin-bottom:14px;">
+              <label style="font-size:11px;color:var(--slate);display:block;margin-bottom:4px;font-weight:600;">Display Name</label>
+              <input placeholder="MahjQueen42" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;" />
+              <div style="font-size:10px;color:var(--crimson);margin-top:4px;">⚠️ This is your public display name. Do NOT use your real name.</div>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="font-size:11px;color:var(--slate);display:block;margin-bottom:4px;font-weight:600;">Email</label>
+              <input type="email" placeholder="you@email.com" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;" />
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="font-size:11px;color:var(--slate);display:block;margin-bottom:4px;font-weight:600;">Password</label>
+              <input type="password" placeholder="••••••••" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;" />
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:20px;">
+              <input type="checkbox" style="margin-top:3px;" />
+              <span style="font-size:12px;color:var(--slate);line-height:1.5;">I agree to the <span style="color:var(--jade);font-weight:600;cursor:pointer;">Terms of Service</span> and <span style="color:var(--jade);font-weight:600;cursor:pointer;">Privacy Policy</span></span>
+            </div>
+            <button class="btn btn-crimson" style="width:100%;justify-content:center;border-radius:10px;">Create Account</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-inner" style="padding:28px;">
+            <h3 class="outfit" style="font-size:18px;font-weight:700;margin-bottom:4px;">Sign In</h3>
+            <p style="font-size:13px;color:var(--slate);margin-bottom:20px;">Welcome back to MahjRank</p>
+            <div style="margin-bottom:14px;">
+              <label style="font-size:11px;color:var(--slate);display:block;margin-bottom:4px;font-weight:600;">Email</label>
+              <input type="email" placeholder="you@email.com" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;" />
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="font-size:11px;color:var(--slate);display:block;margin-bottom:4px;font-weight:600;">Password</label>
+              <input type="password" placeholder="••••••••" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;" />
+            </div>
+            <button class="btn btn-crimson" style="width:100%;justify-content:center;border-radius:10px;margin-bottom:12px;">Sign In</button>
+            <div style="text-align:center;"><span style="font-size:12px;color:var(--jade);cursor:pointer;font-weight:600;">Forgot password?</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.proto-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
