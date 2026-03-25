@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
 import { getTier, TIERS } from '../eloUtils'
 import logoWhite from '../assets/mahjrank/mahjranklogomonowhite1800.png'
+import EloCalculator from './EloCalculator'
 
 const C = {
   jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
@@ -344,6 +345,27 @@ export default function Homepage({ setTab }) {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ===== ELO CALCULATOR ===== */}
+      <section style={{
+        padding: '5rem 2rem', background: C.midnight,
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(6,95,70,0.06), transparent)',
+        }} />
+        <div style={{ maxWidth: 700, margin: '0 auto', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.gold, fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'JetBrains Mono', monospace" }}>Try it</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '1.2rem' }}>
+            See how Elo works
+          </h2>
+          <p style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, maxWidth: 640, margin: '0 auto 2.5rem', fontFamily: "'DM Sans', sans-serif" }}>
+            Drag the sliders to see how your rating would change after a game.
+          </p>
+          <EloCalculator dark />
         </div>
       </section>
 
