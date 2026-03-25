@@ -363,25 +363,25 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
       )}
 
       {/* ── Links ── */}
-      {[
-        { label: 'My Clubs', tab: 'clubs', accent: C.jade },
-        { label: 'How It Works', tab: 'howitworks', accent: C.jadeLt },
-        { label: 'Terms of Service', tab: 'terms', accent: C.slateLt },
-        { label: 'Privacy Policy', tab: 'privacy', accent: C.slateLt },
-      ].map((link, i) => (
-        <button key={i} onClick={() => setTab(link.tab)} style={{
-          width: '100%', background: 'white',
-          borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
-          borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${link.accent}`,
-          borderRadius: 10, padding: '14px 16px', marginBottom: 6,
-          fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.midnight,
-          textAlign: 'left', fontWeight: 600, cursor: 'pointer',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        }}>
-          {link.label}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
-        </button>
-      ))}
+      <button onClick={() => setTab('clubs')} style={{
+        width: '100%', background: 'white',
+        borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
+        borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${C.jade}`,
+        borderRadius: 10, padding: '14px 16px', marginBottom: 6,
+        fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.midnight,
+        textAlign: 'left', fontWeight: 600, cursor: 'pointer',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        My Clubs
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
+      </button>
+
+      {/* ── Legal links (small) ── */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8, marginBottom: 8 }}>
+        <span onClick={() => setTab('terms')} style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}>Terms of Service</span>
+        <span style={{ color: C.border }}>·</span>
+        <span onClick={() => setTab('privacy')} style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}>Privacy Policy</span>
+      </div>
 
       {/* Sign out */}
       <button onClick={onSignOut} style={{
