@@ -331,9 +331,9 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             if (item.center) {
               return (
                 <button key={item.id} onClick={() => setTab(item.id)} style={{
-                  background: C.crimson, border: 'none', width: 52, height: 52, borderRadius: 16,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -20,
-                  boxShadow: '0 4px 20px rgba(220,38,38,0.3)', position: 'relative', cursor: 'pointer',
+                  background: C.crimson, border: 'none', width: 52, height: 52, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -18,
+                  boxShadow: '0 4px 16px rgba(220,38,38,0.3)', position: 'relative', cursor: 'pointer',
                 }}><Icon color="#fff" size={24} /></button>
               )
             }
@@ -343,12 +343,12 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 gap: 2, padding: '4px 12px 8px', position: 'relative', minWidth: 56, cursor: 'pointer',
               }}>
                 <div style={{ position: 'relative' }}>
-                  <Icon color={isActive ? C.midnight : C.slateLt} size={22} />
+                  <Icon color={isActive ? C.jade : C.slateLt} size={22} />
                   {showBadge && (
                     <div style={{ position: 'absolute', top: -4, right: -8, background: C.crimson, color: '#fff', fontSize: 9, fontWeight: 700, minWidth: 16, height: 16, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif" }}>{unreadTotal}</div>
                   )}
                 </div>
-                <span style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 700 : 500, color: isActive ? C.midnight : C.slateLt }}>{item.label}</span>
+                <span style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 700 : 500, color: isActive ? C.jade : C.slateLt }}>{item.label}</span>
               </button>
             )
           })}
