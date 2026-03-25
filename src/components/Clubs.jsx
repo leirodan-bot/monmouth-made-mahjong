@@ -77,6 +77,28 @@ export default function Clubs({ session, player }) {
               </div>
             )}
           </div>
+          {/* Club Stats Header */}
+          {(() => {
+            const clubPlayers = players.filter(p => approved.some(m => m.player_id === p.id))
+            const avgElo = clubPlayers.length > 0 ? Math.round(clubPlayers.reduce((s, p) => s + (p.elo || 800), 0) / clubPlayers.length) : 0
+            const totalGames = clubPlayers.reduce((s, p) => s + (p.games_played || 0), 0)
+            const highest = clubPlayers.length > 0 ? clubPlayers.reduce((best, p) => (p.elo || 0) > (best.elo || 0) ? p : best, clubPlayers[0]) : null
+            return (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 16 }}>
+                {[
+                  { label: 'Members', value: approved.length, color: C.jade },
+                  { label: 'Avg Elo', value: avgElo || '—', color: C.crimson },
+                  { label: 'Total Games', value: totalGames, color: C.midnight },
+                  { label: 'Top Rated', value: highest ? highest.name.split(' ')[0] : '—', color: C.gold },
+                ].map((s, i) => (
+                  <div key={i} style={{ background: C.cloud, border: `1px solid ${C.border}`, borderTop: `3px solid ${s.color}`, borderRadius: 10, padding: '10px 6px', textAlign: 'center' }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: s.color }}>{s.value}</div>
+                    <div style={{ fontSize: 9, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginTop: 3 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
           {session && player && !myMembership(club.id) && <button onClick={() => handleRequestJoin(club.id)} style={{ background: C.crimson, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 8px rgba(220,38,38,0.2)' }}>Request to Join</button>}
           {myMembership(club.id)?.status === 'pending' && <div style={{ background: 'rgba(245,158,11,0.05)', border: `1px solid rgba(245,158,11,0.15)`, borderLeft: `4px solid ${C.gold}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: C.goldDk }}>Your join request is pending approval.</div>}
           {myMembership(club.id)?.status === 'approved' && <div style={{ background: 'rgba(6,95,70,0.04)', border: `1px solid rgba(6,95,70,0.12)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: C.jade }}>✓ You are a member of this club.</div>}

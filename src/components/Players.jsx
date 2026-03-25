@@ -19,10 +19,20 @@ export default function Players({ session, player }) {
   const [badges, setBadges] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const [h2h, setH2h] = useState(null)
+
   useEffect(() => { fetchPlayers() }, [])
   async function fetchPlayers() { const { data } = await supabase.from('players').select('*').order('elo', { ascending: false }); setPlayers(data || []); setLoading(false) }
   async function fetchBadges(playerId) { const { data } = await supabase.from('player_badges').select('badge_id, earned_at').eq('player_id', playerId).order('earned_at', { ascending: false }); setBadges(data || []) }
-  function selectPlayer(p) { setSelected(p); fetchBadges(p.id) }
+  async function fetchH2H(targetId) {
+    if (!player?.id || targetId === player.id) { setH2h(null); return }
+    const { data } = await supabase.rpc('get_head_to_head', { p_player_id: player.id })
+    if (data) {
+      const record = data.find(r => r.opponent_id === targetId)
+      setH2h(record || null)
+    } else { setH2h(null) }
+  }
+  function selectPlayer(p) { setSelected(p); fetchBadges(p.id); fetchH2H(p.id) }
 
   // Follow system — fetch who this player follows
   const [followedIds, setFollowedIds] = useState([])
@@ -81,7 +91,7 @@ export default function Players({ session, player }) {
     const earnedBadges = badges.map(b => ({ ...getBadge(b.badge_id), earned_at: b.earned_at })).filter(b => b.id)
     return (
       <div>
-        <button onClick={() => { setSelected(null); setBadges([]) }} style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: C.midnight, marginBottom: 16, cursor: 'pointer' }}>← Back to players</button>
+        <button onClick={() => { setSelected(null); setBadges([]); setH2h(null) }} style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: C.midnight, marginBottom: 16, cursor: 'pointer' }}>← Back to players</button>
         <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 14, padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
             <div style={{ width: 56, height: 56, borderRadius: 14, background: C.jade, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{selected.name.split(' ').map(n => n[0]).join('')}</div>
@@ -104,6 +114,25 @@ export default function Players({ session, player }) {
             ))}
           </div>
           {(selected.current_streak || 0) > 1 && <div style={{ marginBottom: 16, background: 'rgba(245,158,11,0.05)', border: `1px solid rgba(245,158,11,0.15)`, borderLeft: `4px solid ${C.gold}`, borderRadius: 8, padding: '10px 14px', fontSize: 13, fontFamily: "'DM Sans', sans-serif", color: C.goldDk }}>🔥 Current win streak: {selected.current_streak} games</div>}
+          {h2h && h2h.games_together > 0 && selected.id !== player?.id && (
+            <div style={{ background: 'white', border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.crimson}`, borderRadius: 12, padding: '16px 20px', marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif", marginBottom: 12 }}>You vs. {selected.name}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 24, alignItems: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: C.jade, fontFamily: "'JetBrains Mono', monospace" }}>{h2h.my_wins}</div>
+                  <div style={{ fontSize: 10, color: C.slate, textTransform: 'uppercase', fontFamily: "'DM Sans', sans-serif" }}>Your Wins</div>
+                </div>
+                <div style={{ fontSize: 14, color: C.slateLt, fontWeight: 700 }}>—</div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{h2h.their_wins}</div>
+                  <div style={{ fontSize: 10, color: C.slate, textTransform: 'uppercase', fontFamily: "'DM Sans', sans-serif" }}>Their Wins</div>
+                </div>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 10, fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>
+                {h2h.games_together} games together{h2h.wall_games > 0 ? ` · ${h2h.wall_games} wall` : ''}
+              </div>
+            </div>
+          )}
           <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif" }}>Awards <span style={{ fontSize: 12, fontWeight: 400, color: C.slateLt }}>({earnedBadges.length}/{BADGES.length})</span></div>

@@ -14,6 +14,7 @@ export default function ActivityFeed({ player }) {
   const [filter, setFilter] = useState('all')
   const [followedIds, setFollowedIds] = useState([])
   const [clubMemberIds, setClubMemberIds] = useState([])
+  const [forYouItems, setForYouItems] = useState([])
 
   useEffect(() => { fetchActivity() }, [])
 
@@ -31,6 +32,22 @@ export default function ActivityFeed({ player }) {
         const { data: members } = await supabase.from('club_members').select('player_id').in('club_id', clubIds).eq('status', 'approved')
         setClubMemberIds((members || []).map(m => m.player_id))
       }
+    }
+    // Fetch personal notifications for "For You" tab
+    if (player?.id) {
+      const { data: notifs } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('player_id', player.id)
+        .order('read', { ascending: true })
+        .order('created_at', { ascending: false })
+        .limit(50)
+      setForYouItems((notifs || []).map(n => ({
+        id: `notif-${n.id}`, notifId: n.id, type: 'notification',
+        time: new Date(n.created_at), icon: n.type === 'confirm_match' ? '🀄' : n.type === 'verified' ? '✓' : n.type === 'follow' ? '👤' : '🔔',
+        title: n.message, read: n.read, notifType: n.type,
+        isPending: n.type === 'confirm_match' && !n.read,
+      })))
     }
     const allItems = []
     const { data: matches } = await supabase.from('matches').select('*').order('played_at', { ascending: false }).limit(50)
@@ -73,7 +90,15 @@ export default function ActivityFeed({ player }) {
     return date.toLocaleDateString()
   }
 
-  const filtered = filter === 'all' ? items
+  async function markNotifRead(notifId, itemId) {
+    try {
+      await supabase.rpc('mark_notification_read', { p_notification_id: notifId, p_player_id: player.id })
+      setForYouItems(prev => prev.map(i => i.id === itemId ? { ...i, read: true } : i))
+    } catch (e) { console.error('Mark read failed:', e) }
+  }
+
+  const filtered = filter === 'foryou' ? forYouItems
+    : filter === 'all' ? items
     : filter === 'circle' ? items.filter(i => {
       // Show items involving players you follow
       if (i.eloUpdates) return i.eloUpdates.some(u => followedIds.includes(u.id))
@@ -100,7 +125,7 @@ export default function ActivityFeed({ player }) {
         <p style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>Recent games, badges, and community updates</p>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
-        {[{ key: 'all', label: 'All' }, { key: 'circle', label: 'My Circle' }, { key: 'club', label: 'My Club' }, { key: 'game', label: 'Games' }, { key: 'badge', label: 'Badges' }].map(f => (
+        {[{ key: 'all', label: 'All' }, { key: 'foryou', label: 'For You' }, { key: 'circle', label: 'My Circle' }, { key: 'club', label: 'My Club' }, { key: 'game', label: 'Games' }, { key: 'badge', label: 'Badges' }].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)} style={{
             padding: '5px 14px', borderRadius: 20, fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
             background: filter === f.key ? C.midnight : 'white', color: filter === f.key ? C.cloud : C.slate,
@@ -115,10 +140,14 @@ export default function ActivityFeed({ player }) {
       ) : (
         <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden' }}>
           {filtered.map((item, i) => (
-            <div key={item.id} style={{
+            <div key={item.id} onClick={() => {
+              if (filter === 'foryou' && !item.read && item.notifId) markNotifRead(item.notifId, item.id)
+            }} style={{
               display: 'flex', gap: 12, padding: '14px 16px',
               borderBottom: i < filtered.length - 1 ? `1px solid ${C.border}` : 'none',
               borderLeft: item.type === 'badge' ? `4px solid ${C.gold}` : item.isPending ? `4px solid ${C.goldDk}` : item.status === 'Verified' || item.status === 'Auto-verified' ? `4px solid ${C.jade}` : '4px solid transparent',
+              cursor: filter === 'foryou' && !item.read ? 'pointer' : 'default',
+              background: filter === 'foryou' && !item.read ? 'rgba(6,95,70,0.02)' : 'transparent',
             }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 10, flexShrink: 0,
@@ -128,7 +157,10 @@ export default function ActivityFeed({ player }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: C.midnight, lineHeight: 1.4 }}>{item.title}</div>
-                  <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}>{timeAgo(item.time)}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                    <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>{timeAgo(item.time)}</div>
+                    {filter === 'foryou' && !item.read && <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.crimson, flexShrink: 0 }} />}
+                  </div>
                 </div>
                 {item.detail && <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 3, lineHeight: 1.4 }}>{item.detail}</div>}
                 {item.status && (

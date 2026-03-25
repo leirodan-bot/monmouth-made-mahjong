@@ -73,6 +73,8 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
   const [rivals, setRivals] = useState([])
   const [eloHistory, setEloHistory] = useState([])
   const [loading, setLoading] = useState(true)
+  const [suggestions, setSuggestions] = useState([])
+  const [followedIds, setFollowedIdsLocal] = useState([])
 
   useEffect(() => {
     if (!player?.id) return
@@ -109,6 +111,24 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
       .limit(30)
 
     if (history) setEloHistory(history)
+
+    // Fetch "People you play with" suggestions — players with 3+ shared games not yet followed
+    const { data: followData } = await supabase.from('follows').select('following_id').eq('follower_id', player.id)
+    const followIds = (followData || []).map(f => f.following_id)
+    setFollowedIdsLocal(followIds)
+
+    if (h2h) {
+      const unfollowed = h2h
+        .filter(r => r.games_together >= 3 && !followIds.includes(r.opponent_id))
+        .sort((a, b) => b.games_together - a.games_together)
+        .slice(0, 5)
+      if (unfollowed.length > 0) {
+        const ids = unfollowed.map(r => r.opponent_id)
+        const { data: pData } = await supabase.from('players').select('id, name, elo').in('id', ids)
+        setSuggestions(unfollowed.map(r => ({ ...r, ...(pData?.find(p => p.id === r.opponent_id) || {}) })))
+      }
+    }
+
     setLoading(false)
   }
 
@@ -256,10 +276,20 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
       {rivals.length > 0 && (
         <div style={{ background: 'white', border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.crimson}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
           <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>My Rivals</div>
-          {rivals.slice(0, 5).map(r => (
+          {rivals.slice(0, 5).map(r => {
+            const nonWallGames = r.games_together - (r.wall_games || 0)
+            const theirWinPct = nonWallGames >= 5 ? r.their_wins / nonWallGames : 0
+            const myWinPct = nonWallGames >= 5 ? r.my_wins / nonWallGames : 0
+            const label = nonWallGames >= 5 && theirWinPct > 0.6 ? { text: 'Your Nemesis', emoji: '😈', color: C.crimson }
+              : nonWallGames >= 5 && myWinPct > 0.6 ? { text: 'Your Pigeon', emoji: '🕊️', color: C.jade }
+              : null
+            return (
             <div key={r.opponent_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{r.name || 'Unknown'}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{r.name || 'Unknown'}</div>
+                  {label && <span style={{ fontSize: 10, fontWeight: 700, color: label.color, fontFamily: "'DM Sans', sans-serif" }}>{label.emoji} {label.text}</span>}
+                </div>
                 <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{r.games_together} games together</div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -273,6 +303,31 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
                   <div style={{ fontSize: 9, color: C.slate, textTransform: 'uppercase' }}>L</div>
                 </div>
               </div>
+            </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── People You Play With ── */}
+      {suggestions.length > 0 && (
+        <div style={{ background: 'white', border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.jadeLt}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>People You Play With</div>
+          <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 12 }}>Players you've shared 3+ games with</div>
+          {suggestions.map(s => (
+            <div key={s.opponent_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{s.name || 'Unknown'}</div>
+                <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{s.games_together} games together</div>
+              </div>
+              <button onClick={async () => {
+                await supabase.from('follows').insert({ follower_id: player.id, following_id: s.opponent_id })
+                setSuggestions(prev => prev.filter(p => p.opponent_id !== s.opponent_id))
+              }} style={{
+                padding: '5px 14px', borderRadius: 20, fontSize: 11,
+                fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
+                background: 'white', color: C.jade, border: `1px solid ${C.jade}`,
+              }}>Follow</button>
             </div>
           ))}
         </div>

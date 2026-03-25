@@ -33,7 +33,25 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
       fetchNotifications()
     }
     const interval = setInterval(() => { if (player?.id) fetchNotifications() }, 30000)
-    return () => clearInterval(interval)
+
+    // Realtime subscription for instant notification delivery
+    let channel = null
+    if (player?.id) {
+      channel = supabase
+        .channel('notifications-' + player.id)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `player_id=eq.${player.id}`
+        }, () => fetchNotifications())
+        .subscribe()
+    }
+
+    return () => {
+      clearInterval(interval)
+      if (channel) supabase.removeChannel(channel)
+    }
   }, [player?.id])
 
   useEffect(() => {
