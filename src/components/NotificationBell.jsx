@@ -51,6 +51,7 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
       .from('notifications')
       .select('*')
       .eq('player_id', player.id)
+      .eq('read', false)
       .order('created_at', { ascending: false })
       .limit(20)
     
@@ -86,6 +87,7 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
             .from('notifications')
             .select('*')
             .eq('player_id', player.id)
+      .eq('read', false)
             .order('created_at', { ascending: false })
             .limit(20)
           setNotifications(freshData || [])
