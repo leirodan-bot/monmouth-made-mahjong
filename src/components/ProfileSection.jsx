@@ -250,7 +250,9 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
             })}
           </>
         )}
-{/* My Rivals */}
+      </div>
+
+      {/* ── My Rivals ── */}
       {rivals.length > 0 && (
         <div style={{ background: 'white', border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.crimson}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
           <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>My Rivals</div>
@@ -274,8 +276,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
             </div>
           ))}
         </div>
-
-      </div>
+      )}
 
       {/* ── Links ── */}
       {[
@@ -306,7 +307,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
         borderRadius: 10, padding: '14px 16px', marginTop: 8,
         fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.crimson,
         textAlign: 'center', fontWeight: 600, cursor: 'pointer',
-      }}>Sign Out</button>      )}
+      }}>Sign Out</button>
 
 
     </div>
