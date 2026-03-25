@@ -250,6 +250,31 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
             })}
           </>
         )}
+{/* My Rivals */}
+      {rivals.length > 0 && (
+        <div style={{ background: 'white', border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.crimson}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>My Rivals</div>
+          {rivals.slice(0, 5).map(r => (
+            <div key={r.opponent_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{r.name || 'Unknown'}</div>
+                <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{r.games_together} games together</div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: C.jade, fontFamily: "'JetBrains Mono', monospace" }}>{r.my_wins}</div>
+                  <div style={{ fontSize: 9, color: C.slate, textTransform: 'uppercase' }}>W</div>
+                </div>
+                <div style={{ fontSize: 12, color: C.slateLt }}>—</div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{r.their_wins}</div>
+                  <div style={{ fontSize: 9, color: C.slate, textTransform: 'uppercase' }}>L</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
 
       {/* ── Links ── */}
@@ -281,32 +306,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
         borderRadius: 10, padding: '14px 16px', marginTop: 8,
         fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.crimson,
         textAlign: 'center', fontWeight: 600, cursor: 'pointer',
-      }}>Sign Out</button>
-      {/* My Rivals */}
-      {rivals.length > 0 && (
-        <div style={{ background: 'white', border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.crimson}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>My Rivals</div>
-          {rivals.slice(0, 5).map(r => (
-            <div key={r.opponent_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{r.name || 'Unknown'}</div>
-                <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{r.games_together} games together</div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: C.jade, fontFamily: "'JetBrains Mono', monospace" }}>{r.my_wins}</div>
-                  <div style={{ fontSize: 9, color: C.slate, textTransform: 'uppercase' }}>W</div>
-                </div>
-                <div style={{ fontSize: 12, color: C.slateLt }}>—</div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{r.their_wins}</div>
-                  <div style={{ fontSize: 9, color: C.slate, textTransform: 'uppercase' }}>L</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      }}>Sign Out</button>      )}
 
 
     </div>
