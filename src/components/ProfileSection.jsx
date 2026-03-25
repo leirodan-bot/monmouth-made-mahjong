@@ -5,10 +5,13 @@ import { BADGES, BADGE_CATEGORIES } from '../badgeUtils'
 import { usePushNotifications } from './PushNotifications'
 
 const C = {
-  jade: '#065F46', jadeLt: '#059669', crimson: '#DC2626',
-  gold: '#F59E0B', goldDk: '#D97706', midnight: '#0F172A',
-  ink: '#1E293B', cloud: '#EDF0F4', slate: '#64748B',
-  slateLt: '#94A3B8', border: '#E2E8F0', cloudLt: '#FFFFFF',
+  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
+  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
+  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
+  midnight: '#0F172A', ink: '#1E293B',
+  cloud: '#F8FAFC', white: '#FFFFFF',
+  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
+  border: '#E2E8F0', borderLt: '#F1F5F9',
 }
 
 import noviceBadge from '../assets/badges/novice.png'
@@ -234,7 +237,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
             { label: 'Win %', value: `${winRate}%`, color: C.gold },
           ].map((s, i) => (
             <div key={i} style={{
-              background: C.cloudLt,
+              background: C.white,
               borderTop: `3px solid ${s.color}`,
               borderRight: `1px solid ${C.border}`,
               borderBottom: `1px solid ${C.border}`,
@@ -305,7 +308,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
                     })}
                     {locked.map(b => (
                       <div key={b.id} title={b.desc} style={{
-                        background: C.cloudLt, border: `1px solid ${C.border}`,
+                        background: C.white, border: `1px solid ${C.border}`,
                         borderRadius: 10, padding: '6px 10px',
                         display: 'flex', alignItems: 'center', gap: 6, opacity: 0.45,
                       }}>
