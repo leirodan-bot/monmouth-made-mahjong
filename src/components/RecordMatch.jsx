@@ -29,12 +29,12 @@ const C = {
 function BadgeHint({ text }) {
   return (
     <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6,
-      background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)',
-      borderRadius: 6, padding: '3px 8px', fontSize: 10, fontWeight: 600,
+      display: 'flex', alignItems: 'center', gap: 6, marginTop: 8,
+      background: C.goldPale, border: '1px solid rgba(245,158,11,0.2)',
+      borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600,
       color: C.goldDk, letterSpacing: 0.2,
     }}>
-      <span style={{ fontSize: 11 }}>🏅</span>{text}
+      <span style={{ fontSize: 14 }}>🏅</span>{text}
     </div>
   )
 }
@@ -318,28 +318,44 @@ export default function RecordMatch({ session, player }) {
           {step === 3 && (
             <div style={{ background: 'white', border: `0.5px solid ${C.border}`, borderRadius: 12, padding: 24 }}>
               <label style={stepLabel}>STEP 3 — WHO WON?</label>
-              <div style={{ marginBottom: 10 }}>
+              <div style={{ marginBottom: 12 }}>
                 <button type="button" onClick={() => { setIsWallGame(!isWallGame); if (!isWallGame) setWinner('') }} style={{
-                  padding: '8px 14px', borderRadius: 8, fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600,
-                  background: isWallGame ? C.midnight : 'white', color: isWallGame ? C.cloud : C.midnight,
-                  border: isWallGame ? 'none' : `0.5px solid ${C.border}`, cursor: 'pointer'
+                  width: '100%', padding: '12px 16px', borderRadius: 10, fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 600,
+                  background: isWallGame ? C.goldPale : 'white', color: isWallGame ? C.goldDk : C.midnight,
+                  border: isWallGame ? `1.5px solid ${C.gold}` : `1.5px solid ${C.border}`, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 }}>
-                  {isWallGame ? '🧱 Wall Game (No Winner)' : 'Wall Game?'}
+                  <span>🧱 {isWallGame ? 'Wall Game (No Winner)' : 'Wall Game?'}</span>
+                  <div style={{
+                    width: 18, height: 18, borderRadius: 4, border: isWallGame ? `2px solid ${C.gold}` : `2px solid ${C.border}`,
+                    background: isWallGame ? C.gold : 'white',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: 'white',
+                  }}>{isWallGame ? '✓' : ''}</div>
                 </button>
               </div>
               {!isWallGame && (
-                <div style={{ display: 'grid', gridTemplateColumns: selectedPlayers.length <= 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 6, marginBottom: 16 }}>
+                <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
                   {selectedPlayers.map(id => {
                     const p = players.find(pl => pl.id === id)
                     const isSelected = winner === id
+                    const initials = p?.name ? p.name.split(' ').map(n => n[0]).join('') : '?'
                     return (
                       <button key={id} type="button" onClick={() => setWinner(id)} style={{
-                        padding: '12px 8px', borderRadius: 8, fontSize: 13, fontFamily: "'DM Sans', sans-serif",
-                        textAlign: 'center', cursor: 'pointer', fontWeight: isSelected ? 700 : 400,
-                        background: isSelected ? '#FFFBEB' : 'white',
-                        border: isSelected ? `2px solid ${C.gold}` : `0.5px solid ${C.border}`, color: C.midnight
+                        padding: '12px 14px', borderRadius: 10, fontFamily: "'DM Sans', sans-serif",
+                        textAlign: 'left', cursor: 'pointer',
+                        background: isSelected ? C.jadePale : 'white',
+                        border: isSelected ? `2px solid ${C.jade}` : `1.5px solid ${C.border}`, color: C.midnight,
+                        display: 'flex', alignItems: 'center', gap: 10,
                       }}>
-                        {isSelected && '🏆 '}{p?.name}
+                        <div style={{
+                          width: 36, height: 36, borderRadius: '50%',
+                          background: isSelected ? C.jade : C.cloud,
+                          color: isSelected ? 'white' : C.slateLt,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: p?.avatar ? 16 : 13, fontWeight: 700, fontFamily: "'Outfit', sans-serif", flexShrink: 0,
+                        }}>{p?.avatar || initials}</div>
+                        <span style={{ flex: 1, fontSize: 14, fontWeight: isSelected ? 700 : 500 }}>{p?.name}</span>
+                        {isSelected && <span style={{ fontSize: 12, fontWeight: 700, color: C.jade }}>Winner ✓</span>}
                       </button>
                     )
                   })}
