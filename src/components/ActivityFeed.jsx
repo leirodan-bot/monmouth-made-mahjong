@@ -150,20 +150,24 @@ export default function ActivityFeed({ player }) {
             }} style={{
               display: 'flex', gap: 12, padding: '14px 16px',
               borderBottom: i < filtered.length - 1 ? `1px solid ${C.border}` : 'none',
-              borderLeft: item.type === 'badge' ? `4px solid ${C.gold}` : item.isPending ? `4px solid ${C.goldDk}` : item.status === 'Verified' || item.status === 'Auto-verified' ? `4px solid ${C.jade}` : '4px solid transparent',
+              borderLeft: item.type === 'badge' ? `4px solid ${C.gold}`
+                : item.icon === '🧱' ? `4px solid ${C.slateLt}`
+                : item.isPending ? `4px solid ${C.goldDk}`
+                : item.status === 'Verified' || item.status === 'Auto-verified' ? `4px solid ${C.jade}`
+                : '4px solid transparent',
               cursor: filter === 'foryou' && !item.read ? 'pointer' : 'default',
               background: filter === 'foryou' && !item.read ? 'rgba(6,95,70,0.02)' : 'transparent',
             }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 10, flexShrink: 0,
                 background: item.type === 'badge' ? 'rgba(245,158,11,0.08)' : item.isPending ? 'rgba(245,158,11,0.06)' : 'rgba(6,95,70,0.06)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
               }}>{item.icon}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: C.midnight, lineHeight: 1.4 }}>{item.title}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                    <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>{timeAgo(item.time)}</div>
+                    <div style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>{timeAgo(item.time)}</div>
                     {filter === 'foryou' && !item.read && <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.crimson, flexShrink: 0 }} />}
                   </div>
                 </div>
@@ -176,7 +180,7 @@ export default function ActivityFeed({ player }) {
                 {item.eloUpdates && (item.status === 'Verified' || item.status === 'Auto-verified') && (
                   <div style={{ marginTop: 6, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {item.eloUpdates.map(u => (
-                      <span key={u.id} style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: u.delta > 0 ? C.jade : u.delta < 0 ? C.crimson : C.slateLt }}>
+                      <span key={u.id} style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: u.delta > 0 ? C.jade : u.delta < 0 ? C.crimson : C.slateLt }}>
                         {getName(u.id)} {u.delta > 0 ? '+' : ''}{u.delta.toFixed(1)}
                       </span>
                     ))}
