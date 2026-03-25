@@ -300,7 +300,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
 
           {/* ═══════ PROFILE TAB ═══════ */}
           {tab === 'profile' && session && (
-            <ProfileSection session={session} player={player} onSignOut={onSignOut} setTab={setTab} />
+            <ProfileSection session={session} player={player} onSignOut={onSignOut} setTab={setTab} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('players') }} />
           )}
 
           {tab === 'rankings' && <Rankings session={session} player={player} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('players') }} />}

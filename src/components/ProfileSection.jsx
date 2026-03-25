@@ -68,7 +68,7 @@ function EloSparkline({ history }) {
   )
 }
 
-export default function ProfileSection({ session, player, onSignOut, setTab }) {
+export default function ProfileSection({ session, player, onSignOut, setTab, onPlayerClick }) {
   const [earnedBadges, setEarnedBadges] = useState([])
   const [rivals, setRivals] = useState([])
   const [eloHistory, setEloHistory] = useState([])
@@ -287,7 +287,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
             <div key={r.opponent_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{r.name || 'Unknown'}</div>
+                  <div onClick={() => onPlayerClick && onPlayerClick(r.opponent_id)} style={{ fontSize: 14, fontWeight: 600, color: onPlayerClick ? C.jade : C.midnight, fontFamily: "'DM Sans', sans-serif", cursor: onPlayerClick ? 'pointer' : 'default' }}>{r.name || 'Unknown'}</div>
                   {label && <span style={{ fontSize: 10, fontWeight: 700, color: label.color, fontFamily: "'DM Sans', sans-serif" }}>{label.emoji} {label.text}</span>}
                 </div>
                 <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{r.games_together} games together</div>
@@ -317,7 +317,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab }) {
           {suggestions.map(s => (
             <div key={s.opponent_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{s.name || 'Unknown'}</div>
+                <div onClick={() => onPlayerClick && onPlayerClick(s.opponent_id)} style={{ fontSize: 14, fontWeight: 600, color: onPlayerClick ? C.jade : C.midnight, fontFamily: "'DM Sans', sans-serif", cursor: onPlayerClick ? 'pointer' : 'default' }}>{s.name || 'Unknown'}</div>
                 <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{s.games_together} games together</div>
               </div>
               <button onClick={async () => {
