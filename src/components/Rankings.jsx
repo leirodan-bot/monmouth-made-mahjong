@@ -39,7 +39,7 @@ function PlayerCard({ player, rank, inactive, onPlayerClick }) {
       opacity: inactive ? 0.45 : 1,
       cursor: onPlayerClick ? 'pointer' : 'default',
     }} onClick={() => onPlayerClick && onPlayerClick(player.id)}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{
           width: 28, height: 28, borderRadius: 8,
           background: rank <= 3 ? C.jade : C.cloud,
@@ -50,15 +50,22 @@ function PlayerCard({ player, rank, inactive, onPlayerClick }) {
         }}>
           {rank}
         </div>
+        <div style={{
+          width: 32, height: 32, borderRadius: 8, background: C.jade, flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#fff', fontSize: player.avatar ? 16 : 10, fontWeight: 700, fontFamily: "'Outfit', sans-serif",
+        }}>
+          {player.avatar || player.name.split(' ').map(n => n[0]).join('')}
+        </div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: onPlayerClick ? C.jade : C.midnight, fontFamily: "'Outfit', sans-serif" }}>
-            {player.name}
-            {inactive && <span style={{ fontSize: 9, color: C.slateLt, marginLeft: 6, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5 }}>INACTIVE</span>}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-            <span style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{player.town || '—'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: onPlayerClick ? C.jade : C.midnight, fontFamily: "'Outfit', sans-serif" }}>
+              {player.name}
+            </span>
             <RankBadge elo={player.elo} />
+            {inactive && <span style={{ fontSize: 9, color: C.slateLt, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5 }}>INACTIVE</span>}
           </div>
+          <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 2 }}>{player.town || '—'}</div>
         </div>
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
