@@ -29,7 +29,7 @@ function RankBadge({ elo }) {
   )
 }
 
-function PlayerCard({ player, rank, inactive }) {
+function PlayerCard({ player, rank, inactive, onPlayerClick }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -37,7 +37,8 @@ function PlayerCard({ player, rank, inactive }) {
       background: rank <= 3 && !inactive ? 'rgba(245,158,11,0.04)' : 'white',
       borderBottom: `1px solid ${C.border}`,
       opacity: inactive ? 0.45 : 1,
-    }}>
+      cursor: onPlayerClick ? 'pointer' : 'default',
+    }} onClick={() => onPlayerClick && onPlayerClick(player.id)}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{
           width: 28, height: 28, borderRadius: 8,
@@ -50,7 +51,7 @@ function PlayerCard({ player, rank, inactive }) {
           {rank}
         </div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: onPlayerClick ? C.jade : C.midnight, fontFamily: "'Outfit', sans-serif" }}>
             {player.name}
             {inactive && <span style={{ fontSize: 9, color: C.slateLt, marginLeft: 6, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5 }}>INACTIVE</span>}
           </div>
@@ -73,7 +74,7 @@ function PlayerCard({ player, rank, inactive }) {
   )
 }
 
-export default function Rankings({ session, player }) {
+export default function Rankings({ session, player, onPlayerClick }) {
   const [players, setPlayers] = useState([])
   const [view, setView] = useState('global') // 'global', 'circle', 'club'
   const [followedIds, setFollowedIds] = useState([])
@@ -192,14 +193,15 @@ export default function Rankings({ session, player }) {
             const medals = ['🥇', '🥈', '🥉']
             const isGold = idx === 0
             return (
-              <div key={p.id} style={{
+              <div key={p.id} onClick={() => session && onPlayerClick && onPlayerClick(p.id)} style={{
                 background: isGold ? 'rgba(245,158,11,0.04)' : 'white',
                 border: isGold ? `1.5px solid ${C.gold}` : `1px solid ${C.border}`,
                 borderRadius: 12, padding: '12px 8px', textAlign: 'center',
-                order: idx === 0 ? 2 : idx === 1 ? 1 : 3
+                order: idx === 0 ? 2 : idx === 1 ? 1 : 3,
+                cursor: session ? 'pointer' : 'default',
               }}>
                 <div style={{ fontSize: 22 }}>{medals[idx]}</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif", marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: session ? C.jade : C.midnight, fontFamily: "'Outfit', sans-serif", marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
                 <div style={{ fontSize: 9, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.town}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace", margin: '4px 0' }}>{Math.round(p.elo)}</div>
                 <RankBadge elo={p.elo} />
@@ -219,6 +221,7 @@ export default function Rankings({ session, player }) {
               player={p}
               rank={i + 1}
               inactive={isInactive(p.last_game_date)}
+              onPlayerClick={session ? onPlayerClick : undefined}
             />
           ))}
         </div>
@@ -232,12 +235,13 @@ export default function Rankings({ session, player }) {
           </div>
           <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden' }}>
             {provisionalPlayers.map(p => (
-              <div key={p.id} style={{
+              <div key={p.id} onClick={() => session && onPlayerClick && onPlayerClick(p.id)} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '10px 14px', borderBottom: `1px solid ${C.border}`,
+                cursor: session ? 'pointer' : 'default',
               }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: C.midnight, fontFamily: "'Outfit', sans-serif" }}>{p.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: session ? C.jade : C.midnight, fontFamily: "'Outfit', sans-serif" }}>{p.name}</div>
                   <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>{p.town || '—'}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>

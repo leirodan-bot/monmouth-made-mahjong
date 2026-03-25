@@ -44,6 +44,7 @@ function App() {
   const [session, setSession] = useState(null)
   const [player, setPlayer] = useState(null)
   const [tab, setTab] = useState('home')
+  const [selectedPlayerId, setSelectedPlayerId] = useState(null)
   const [loading, setLoading] = useState(true)
   const isMobile = useIsMobile()
   window.__mmjSetTab = setTab
@@ -144,9 +145,9 @@ function App() {
     <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
       <Header session={session} player={player} tab={tab} setTab={setTab} refreshPlayer={refreshPlayer} />
       <main style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px' }}>
-        {tab === 'rankings' && <Rankings session={session} player={player} />}
+        {tab === 'rankings' && <Rankings session={session} player={player} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('players') }} />}
         {tab === 'towns' && <Towns />}
-        {tab === 'players' && session && <Players session={session} player={player} />}
+        {tab === 'players' && session && <Players session={session} player={player} initialPlayerId={selectedPlayerId} onClearInitial={() => setSelectedPlayerId(null)} />}
         {tab === 'clubs' && session && <Clubs session={session} player={player} />}
         {tab === 'record' && session && <RecordMatch session={session} player={player} refreshPlayer={refreshPlayer} />}
         {tab === 'howitworks' && <HowItWorks />}

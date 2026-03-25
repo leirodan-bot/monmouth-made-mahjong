@@ -13,7 +13,7 @@ function RankBadge({ elo }) {
   return <span style={{ display: 'inline-block', fontSize: 10, padding: '2px 8px', borderRadius: 20, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, background: tier.bg, color: tier.textColor }}>{tier.name}</span>
 }
 
-export default function Players({ session, player }) {
+export default function Players({ session, player, initialPlayerId, onClearInitial }) {
   const [players, setPlayers] = useState([])
   const [selected, setSelected] = useState(null)
   const [badges, setBadges] = useState([])
@@ -22,6 +22,12 @@ export default function Players({ session, player }) {
   const [h2h, setH2h] = useState(null)
 
   useEffect(() => { fetchPlayers() }, [])
+  useEffect(() => {
+    if (initialPlayerId && players.length > 0 && !selected) {
+      const p = players.find(pl => pl.id === initialPlayerId)
+      if (p) { selectPlayer(p); if (onClearInitial) onClearInitial() }
+    }
+  }, [initialPlayerId, players])
   async function fetchPlayers() { const { data } = await supabase.from('players').select('*').order('elo', { ascending: false }); setPlayers(data || []); setLoading(false) }
   async function fetchBadges(playerId) { const { data } = await supabase.from('player_badges').select('badge_id, earned_at').eq('player_id', playerId).order('earned_at', { ascending: false }); setBadges(data || []) }
   async function fetchH2H(targetId) {

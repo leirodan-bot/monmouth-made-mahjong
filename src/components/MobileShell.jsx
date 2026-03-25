@@ -110,6 +110,7 @@ function Chevron() {
 
 export default function MobileShell({ session, player, onSignOut, refreshPlayer }) {
   const [tab, setTab] = useState(session ? 'home' : 'landing')
+  const [selectedPlayerId, setSelectedPlayerId] = useState(null)
   const [pendingCount, setPendingCount] = useState(0)
   const [unreadTotal, setUnreadTotal] = useState(0)
   const [awaitingCount, setAwaitingCount] = useState(0)
@@ -302,9 +303,9 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             <ProfileSection session={session} player={player} onSignOut={onSignOut} setTab={setTab} />
           )}
 
-          {tab === 'rankings' && <Rankings session={session} player={player} />}
+          {tab === 'rankings' && <Rankings session={session} player={player} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('players') }} />}
           {tab === 'towns' && <Towns />}
-          {tab === 'players' && session && <Players session={session} player={player} />}
+          {tab === 'players' && session && <Players session={session} player={player} initialPlayerId={selectedPlayerId} onClearInitial={() => setSelectedPlayerId(null)} />}
           {tab === 'clubs' && session && <Clubs session={session} player={player} />}
           {tab === 'record' && session && <RecordMatch session={session} player={player} refreshPlayer={refreshPlayer} />}
           {tab === 'howitworks' && <HowItWorks />}
