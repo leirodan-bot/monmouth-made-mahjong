@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MahjRank — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0F172A;
+      color: #fff;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 24px;
+    }
+    .container { max-width: 360px; }
+    .logo {
+      width: 80px; height: 80px;
+      border-radius: 18px;
+      margin: 0 auto 32px;
+    }
+    .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 24px;
+    }
+    .brand .mahj { color: #065F46; }
+    .brand .rank { color: #DC2626; }
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .retry {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 10px;
+      background: #065F46;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
+    .retry:active { background: #059669; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="/mahjrankicon192.png" alt="MahjRank" class="logo">
+    <div class="brand"><span class="mahj">Mahj</span><span class="rank">Rank</span></div>
+    <h1>You're offline</h1>
+    <p>No internet connection detected. Your data will sync automatically when you're back online.</p>
+    <button class="retry" onclick="window.location.reload()">Try Again</button>
+  </div>
+</body>
+</html>

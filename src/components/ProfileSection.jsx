@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { getTier } from '../eloUtils'
 import { BADGES, BADGE_CATEGORIES } from '../badgeUtils'
+import { usePushNotifications } from './PushNotifications'
 
 const C = {
   jade: '#065F46', jadeLt: '#059669', crimson: '#DC2626',
@@ -69,6 +70,7 @@ function EloSparkline({ history }) {
 }
 
 export default function ProfileSection({ session, player, onSignOut, setTab, onPlayerClick }) {
+  const push = usePushNotifications(player)
   const [earnedBadges, setEarnedBadges] = useState([])
   const [rivals, setRivals] = useState([])
   const [eloHistory, setEloHistory] = useState([])
@@ -331,6 +333,33 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
             </div>
           ))}
         </div>
+      )}
+
+      {/* ── Push Notifications Toggle ── */}
+      {push.supported && push.permission !== 'denied' && (
+        <button onClick={() => push.subscribed ? push.unsubscribe() : push.subscribe()} disabled={push.loading} style={{
+          width: '100%', background: 'white',
+          borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
+          borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${push.subscribed ? C.jade : C.slateLt}`,
+          borderRadius: 10, padding: '14px 16px', marginBottom: 6,
+          fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.midnight,
+          textAlign: 'left', fontWeight: 600, cursor: 'pointer',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <span>{push.loading ? 'Updating...' : push.subscribed ? 'Push Notifications On' : 'Enable Push Notifications'}</span>
+          <div style={{
+            width: 40, height: 22, borderRadius: 11,
+            background: push.subscribed ? C.jade : C.border,
+            position: 'relative', transition: 'background 0.2s',
+          }}>
+            <div style={{
+              width: 18, height: 18, borderRadius: 9,
+              background: 'white', position: 'absolute', top: 2,
+              left: push.subscribed ? 20 : 2,
+              transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+            }} />
+          </div>
+        </button>
       )}
 
       {/* ── Links ── */}

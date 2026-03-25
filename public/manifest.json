@@ -3,10 +3,13 @@
   "short_name": "MahjRank",
   "description": "Competitive Mahjong Ratings",
   "start_url": "/",
+  "id": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0F172A",
   "theme_color": "#0F172A",
   "orientation": "portrait",
+  "categories": ["games", "sports"],
   "icons": [
     {
       "src": "/mahjrankicon192.png",
@@ -18,5 +21,20 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Record a Game",
+      "short_name": "Record",
+      "url": "/?tab=record",
+      "icons": [{ "src": "/mahjrankicon192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Rankings",
+      "short_name": "Rankings",
+      "url": "/?tab=rankings",
+      "icons": [{ "src": "/mahjrankicon192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
 }
