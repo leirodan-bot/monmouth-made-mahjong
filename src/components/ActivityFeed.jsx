@@ -93,7 +93,10 @@ export default function ActivityFeed({ player }) {
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: C.midnight }}>Activity Feed</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: C.midnight }}>Activity Feed</h2>
+            <button onClick={async () => { try { await supabase.rpc("mark_notifications_read", { p_player_id: player.id }); } catch(e) {} }} style={{ background: "none", border: "none", fontSize: 12, color: C.crimson, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>Mark all read</button>
+          </div>
         <p style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>Recent games, badges, and community updates</p>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
