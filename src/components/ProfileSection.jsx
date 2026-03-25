@@ -15,7 +15,7 @@ const C = {
   border: '#E2E8F0', borderLt: '#F1F5F9',
 }
 
-const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉' }
+const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉🐲' }
 
 function TierBadge({ elo }) {
   const tier = getTier(elo)

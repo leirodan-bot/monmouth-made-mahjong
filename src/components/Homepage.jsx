@@ -3,7 +3,7 @@ import { supabase } from '../supabase'
 import { getTier, TIERS } from '../eloUtils'
 import logoWhite from '../assets/mahjrank/mahjranklogomonowhite1800.png'
 import EloCalculator from './EloCalculator'
-const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉' }
+const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉🐲' }
 
 const C = {
   jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',

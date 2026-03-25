@@ -71,7 +71,7 @@ const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: ProfileIcon },
 ]
 
-const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉' }
+const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉🐲' }
 
 function TierBadge({ elo }) {
   let tier, color, bg
