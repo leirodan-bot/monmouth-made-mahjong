@@ -3,6 +3,7 @@ import { supabase } from '../supabase'
 import { getTier } from '../eloUtils'
 import { BADGES, BADGE_CATEGORIES } from '../badgeUtils'
 import { usePushNotifications } from './PushNotifications'
+import AnimatedElo from './AnimatedElo'
 
 const C = {
   jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
@@ -245,7 +246,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
               }} />
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.slateLt, letterSpacing: '1.5px', marginBottom: 4 }}>ELO RATING</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 42, fontWeight: 700, color: C.white, lineHeight: 1 }}>{Math.round(player?.elo || 800)}</div>
+                <AnimatedElo value={Math.round(player?.elo || 800)} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 42, fontWeight: 700, color: C.white, lineHeight: 1, display: 'block' }} />
                 {lastChange !== 0 && (
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: deltaColor, marginTop: 6 }}>
                     {deltaSymbol} {lastChange > 0 ? '+' : ''}{lastChange.toFixed(1)}

@@ -17,6 +17,7 @@ import Auth from './Auth'
 import InstallPrompt from './InstallPrompt'
 
 import ProfileSection from "./ProfileSection"
+import AnimatedElo from './AnimatedElo'
 const C = {
   jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
   crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
@@ -217,7 +218,11 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                       borderLeft: `1px solid ${C.border}`,
                       borderRadius: 12, padding: '14px 10px', textAlign: 'center',
                     }}>
-                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                      {s.label === 'Elo' ? (
+                        <AnimatedElo value={s.value} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 700, color: s.color, lineHeight: 1 }} />
+                      ) : (
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                      )}
                       <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", marginTop: 6, fontWeight: 600 }}>{s.label}</div>
                     </div>
                   ))}
