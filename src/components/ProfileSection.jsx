@@ -15,21 +15,14 @@ const C = {
   border: '#E2E8F0', borderLt: '#F1F5F9',
 }
 
-import noviceBadge from '../assets/badges/novice.png'
-import beginnerBadge from '../assets/badges/beginner.png'
-import skilledBadge from '../assets/badges/skilled.png'
-import expertBadge from '../assets/badges/expert.png'
-import masterBadge from '../assets/badges/master.png'
-import grandmasterBadge from '../assets/badges/grandmaster.png'
-
-const TIER_IMAGES = { Novice: noviceBadge, Beginner: beginnerBadge, Skilled: skilledBadge, Expert: expertBadge, Master: masterBadge, Grandmaster: grandmasterBadge }
+const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉🐲' }
 
 function TierBadge({ elo }) {
   const tier = getTier(elo)
-  const img = TIER_IMAGES[tier.name]
+  const emoji = TIER_EMOJIS[tier.name]
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      {img && <img src={img} alt={tier.name} style={{ width: 36, height: 48, borderRadius: 4 }} />}
+      <span style={{ fontSize: '2rem' }}>{emoji}</span>
       <span style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
         background: tier.bg, color: tier.textColor,
