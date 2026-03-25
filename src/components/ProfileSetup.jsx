@@ -14,8 +14,8 @@ const C = {
 // ProfileSetup is shown after Google OAuth sign-in when no players row exists yet.
 // It's gated in App.jsx: session exists but fetchPlayer() returns null → show this form.
 // Also shown if a player row exists but name is still the default "player".
-export default function ProfileSetup({ session, onComplete }) {
-  const [name, setName] = useState('')
+export default function ProfileSetup({ session, player, onComplete }) {
+  const [name, setName] = useState(player?.name || session?.user?.user_metadata?.full_name || '')
   const [town, setTown] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -55,12 +55,12 @@ export default function ProfileSetup({ session, onComplete }) {
             <label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Town (optional)</label>
             <input value={town} onChange={e => setTown(e.target.value)} placeholder="e.g. Red Bank, NJ" style={{ width: '100%', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }} />
           </div>
-          <p style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", color: C.slate, lineHeight: 1.5, marginBottom: 16, textAlign: 'center' }}>
-            By continuing, you agree to our{' '}
-            <a href="#" onClick={e => { e.preventDefault(); window.__mmjSetTab?.('terms') }} style={{ color: C.midnight, fontWeight: 600, textDecoration: 'underline' }}>Terms of Service</a>
-            {' '}and{' '}
-            <a href="#" onClick={e => { e.preventDefault(); window.__mmjSetTab?.('privacy') }} style={{ color: C.midnight, fontWeight: 600, textDecoration: 'underline' }}>Privacy Policy</a>.
-          </p>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 20 }}>
+            <input type="checkbox" required style={{ marginTop: 3 }} />
+            <span style={{ fontSize: 12, color: C.slate, lineHeight: 1.5, fontFamily: "'DM Sans', sans-serif" }}>
+              I agree to the <span onClick={() => window.__mmjSetTab?.('terms')} style={{ color: C.jade, fontWeight: 600, cursor: 'pointer' }}>Terms of Service</span> and <span onClick={() => window.__mmjSetTab?.('privacy')} style={{ color: C.jade, fontWeight: 600, cursor: 'pointer' }}>Privacy Policy</span>
+            </span>
+          </label>
           <button type="submit" disabled={loading} style={{ width: '100%', background: C.crimson, color: '#fff', border: 'none', borderRadius: 8, padding: '11px', fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(220,38,38,0.2)' }}>
             {loading ? 'Please wait...' : 'Join MahjRank'}
           </button>

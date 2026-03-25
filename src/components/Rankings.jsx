@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { getTier, isProvisional, isInactive } from '../eloUtils'
+import { RankingSkeleton } from './Skeleton'
 
 const C = {
   jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
@@ -119,7 +120,7 @@ export default function Rankings({ session, player, onPlayerClick }) {
     setLoading(false)
   }
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: "'DM Sans', sans-serif", color: C.slate }}>Loading rankings...</div>
+  if (loading) return <RankingSkeleton />
 
   if (players.length === 0) return (
     <div>

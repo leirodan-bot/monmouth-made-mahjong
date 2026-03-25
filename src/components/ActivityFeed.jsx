@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { getBadge } from '../badgeUtils'
+import { ActivitySkeleton } from './Skeleton'
 
 const C = {
   jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
@@ -118,7 +119,7 @@ export default function ActivityFeed({ player }) {
     })
     : items.filter(i => i.type === filter)
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: "'DM Sans', sans-serif", color: C.slate }}>Loading activity...</div>
+  if (loading) return <ActivitySkeleton />
 
   return (
     <div>
