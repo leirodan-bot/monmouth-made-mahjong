@@ -71,14 +71,7 @@ const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: ProfileIcon },
 ]
 
-import noviceBadge from '../assets/badges/novice.png'
-import beginnerBadge from '../assets/badges/beginner.png'
-import skilledBadge from '../assets/badges/skilled.png'
-import expertBadge from '../assets/badges/expert.png'
-import masterBadge from '../assets/badges/master.png'
-import grandmasterBadge from '../assets/badges/grandmaster.png'
-
-const TIER_IMAGES = { Novice: noviceBadge, Beginner: beginnerBadge, Skilled: skilledBadge, Expert: expertBadge, Master: masterBadge, Grandmaster: grandmasterBadge }
+const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉' }
 
 function TierBadge({ elo }) {
   let tier, color, bg
@@ -88,10 +81,10 @@ function TierBadge({ elo }) {
   else if (elo >= 850) { tier = 'Skilled'; color = C.slateLt; bg = 'rgba(148,163,184,0.12)' }
   else if (elo >= 750) { tier = 'Beginner'; color = '#B45309'; bg = 'rgba(180,83,9,0.10)' }
   else { tier = 'Novice'; color = C.slate; bg = 'rgba(100,116,139,0.10)' }
-  const img = TIER_IMAGES[tier]
+  const emoji = TIER_EMOJIS[tier]
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      {img && <img src={img} alt={tier} style={{ width: 36, height: 48, objectFit: 'contain' }} />}
+      <span style={{ fontSize: '2rem' }}>{emoji}</span>
       <span style={{
         fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase',
         color, background: bg, border: `1px solid ${color}33`,
