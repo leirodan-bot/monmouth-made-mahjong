@@ -1,19 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
+import { getTier, TIERS } from '../eloUtils'
 import logoWhite from '../assets/mahjrank/mahjranklogomonowhite1800.png'
 
 const C = {
-  jade: '#065F46',
-  jadeLt: '#059669',
-  crimson: '#DC2626',
-  gold: '#F59E0B',
-  goldDk: '#D97706',
-  midnight: '#0F172A',
-  ink: '#1E293B',
-  cloud: '#F8FAFC',
-  slate: '#64748B',
-  slateLt: '#94A3B8',
-  border: '#E2E8F0',
+  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
+  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
+  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
+  midnight: '#0F172A', ink: '#1E293B',
+  cloud: '#F8FAFC', white: '#FFFFFF',
+  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
+  border: '#E2E8F0', borderLt: '#F1F5F9',
 }
 
 export default function Homepage({ setTab }) {
@@ -87,16 +84,40 @@ export default function Homepage({ setTab }) {
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(6,95,70,0.08) 0%, transparent 70%)',
         }} />
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+          opacity: 0.02,
+        }} />
 
-        <img
-          src={logoWhite}
-          alt="MahjRank"
-          style={{
-            width: 'min(480px, 75vw)',
-            marginBottom: '2.5rem',
-            animation: 'mr-fadeUp 1s ease-out 0.2s both',
-          }}
-        />
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          background: 'rgba(6,95,70,0.12)', border: '1px solid rgba(6,95,70,0.2)',
+          borderRadius: 24, padding: '6px 16px',
+          marginBottom: '2rem',
+          animation: 'mr-fadeUp 1s ease-out 0.1s both',
+        }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.jadeLt, display: 'inline-block' }} />
+          <span style={{ fontSize: '0.8rem', color: C.jadeLt, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>Season 1 is live</span>
+        </div>
+
+        <h1 style={{
+          fontFamily: "'Outfit', sans-serif",
+          fontSize: 'clamp(2.8rem, 7vw, 4.5rem)',
+          fontWeight: 800,
+          lineHeight: 1.05,
+          marginBottom: '1.5rem',
+          animation: 'mr-fadeUp 1s ease-out 0.2s both',
+        }}>
+          <span style={{ color: '#fff', display: 'block' }}>Your skill.</span>
+          <span style={{
+            display: 'block',
+            background: 'linear-gradient(135deg, #059669, #F59E0B)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>Measured.</span>
+        </h1>
 
         <p style={{
           fontFamily: "'Outfit', sans-serif",
@@ -207,42 +228,32 @@ export default function Homepage({ setTab }) {
           </p>
 
           <div ref={addRevealRef} style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '4rem', alignItems: 'center', marginTop: '3rem',
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '1.5rem', marginTop: '3rem',
             opacity: 0, transform: 'translateY(30px)', transition: 'all 0.8s ease',
           }}>
-            <div style={{
-              background: C.midnight, borderRadius: 20, padding: '3rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 280,
-            }}>
-              <img src={logoWhite} alt="MahjRank" style={{ width: '80%' }} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.8rem' }}>
-              {[
-                { icon: '📊', title: 'Elo-Rated Rankings', desc: 'The same rating system used in chess, adapted for 4-player Mahjong. Every game counts toward your rating.', accent: C.jade },
-                { icon: '🏅', title: 'Badges & Achievements', desc: 'Earn recognition for milestones — first win, win streaks, climbing the leaderboard, and more.', accent: C.gold },
-                { icon: '🏠', title: 'Club Management', desc: 'Organize your group, track club stats, and run seasonal leagues all in one place.', accent: C.jadeLt },
-                { icon: '📱', title: 'Works Like an App', desc: 'Install it right from your browser — no app store needed. Log games on your phone at the table.', accent: C.crimson },
-              ].map((f, i) => (
-                <div key={i} style={{
-                  display: 'flex', gap: '1rem', alignItems: 'flex-start',
-                  background: 'white', borderRadius: 14, padding: '1.2rem 1.4rem',
-                  border: `1px solid ${C.border}`,
-                  borderLeft: `4px solid ${f.accent}`,
-                }}>
-                  <div style={{
-                    width: 44, height: 44, background: C.cloud, borderRadius: 12,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem',
-                    border: `1px solid ${C.border}`,
-                  }}>{f.icon}</div>
-                  <div>
-                    <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.05rem', color: C.midnight, marginBottom: '0.3rem' }}>{f.title}</h4>
-                    <p style={{ fontSize: '0.9rem', color: C.slate, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif" }}>{f.desc}</p>
-                  </div>
+            {[
+              { icon: '📊', title: 'Elo-Rated Rankings', desc: 'The same rating system used in chess, adapted for 4-player Mahjong. Every game counts toward your rating.', accent: C.jade, paleBg: C.jadePale },
+              { icon: '🏅', title: 'Badges & Achievements', desc: 'Earn recognition for milestones — first win, win streaks, climbing the leaderboard, and more.', accent: C.gold, paleBg: C.goldPale },
+              { icon: '🏠', title: 'Club Management', desc: 'Organize your group, track club stats, and run seasonal leagues all in one place.', accent: C.jadeLt, paleBg: C.jadePale },
+              { icon: '📱', title: 'Works Like an App', desc: 'Install it right from your browser — no app store needed. Log games on your phone at the table.', accent: C.crimson, paleBg: C.crimsonPale },
+            ].map((f, i) => (
+              <div key={i} style={{
+                display: 'flex', gap: '1rem', alignItems: 'flex-start',
+                background: 'white', borderRadius: 14, padding: '1.2rem 1.4rem',
+                border: `1px solid ${C.border}`,
+                borderLeft: `4px solid ${f.accent}`,
+              }}>
+                <div style={{
+                  width: 48, height: 48, background: f.paleBg, borderRadius: 12,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem',
+                }}>{f.icon}</div>
+                <div>
+                  <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.05rem', color: C.midnight, marginBottom: '0.3rem' }}>{f.title}</h4>
+                  <p style={{ fontSize: '0.9rem', color: C.slate, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif" }}>{f.desc}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -298,6 +309,44 @@ export default function Homepage({ setTab }) {
         </div>
       </section>
 
+      {/* ===== TIER SHOWCASE ===== */}
+      <section style={{ padding: '5rem 2rem', background: C.cloud }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.jade, fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'JetBrains Mono', monospace" }}>Earn your rank</div>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 700, color: C.midnight, lineHeight: 1.2, marginBottom: '0.8rem' }}>
+            Six tiers. One goal.
+          </h2>
+          <p style={{ fontSize: '1.05rem', color: C.slate, lineHeight: 1.8, maxWidth: 640, margin: '0 auto 3rem', fontFamily: "'DM Sans', sans-serif" }}>
+            Win consistently, climb the ranks, and earn your place among the best.
+          </p>
+
+          <div ref={addRevealRef} style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '1rem',
+            opacity: 0, transform: 'translateY(30px)', transition: 'all 0.8s ease',
+          }}>
+            {[
+              { emoji: '🀆', name: 'Novice', range: '0 – 749', color: '#6b7280', bg: C.white },
+              { emoji: '🌸', name: 'Beginner', range: '750 – 849', color: '#CD7F32', bg: C.white },
+              { emoji: '🎋', name: 'Skilled', range: '850 – 949', color: '#94a3b8', bg: C.white },
+              { emoji: '🐲', name: 'Expert', range: '950 – 1049', color: C.gold, bg: C.white },
+              { emoji: '🐉', name: 'Master', range: '1050 – 1149', color: C.slate, bg: C.white },
+              { emoji: '🐉🐲', name: 'Grandmaster', range: '1150+', color: C.gold, bg: C.midnight },
+            ].map((t, i) => (
+              <div key={i} style={{
+                background: t.bg, borderRadius: 16, padding: '1.5rem 1rem',
+                border: t.bg === C.midnight ? 'none' : `1px solid ${C.border}`,
+                textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '2rem', marginBottom: '0.6rem' }}>{t.emoji}</div>
+                <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: '0.95rem', color: t.color, marginBottom: '0.3rem' }}>{t.name}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: t.bg === C.midnight ? 'rgba(255,255,255,0.5)' : C.slateLt }}>{t.range}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== LEADERBOARD PREVIEW ===== */}
       <section style={{
         background: C.midnight, color: '#fff', padding: '5rem 2rem',
@@ -346,7 +395,17 @@ export default function Homepage({ setTab }) {
                   width: 50, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
                   fontSize: '1.1rem', color: rankColors[i] || 'rgba(255,255,255,0.3)',
                 }}>{i + 1}</span>
-                <span style={{ flex: 1, fontWeight: 500, color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem' }}>{p.name}</span>
+                <span style={{ flex: 1, fontWeight: 500, color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {p.name}
+                  {p.town && <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', fontWeight: 400 }}>{p.town}</span>}
+                  {p.elo && (() => { const tier = getTier(p.elo); return (
+                    <span style={{
+                      display: 'inline-flex', padding: '3px 10px', borderRadius: 20,
+                      fontSize: 11, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                      background: `${tier.color}22`, color: tier.color,
+                    }}>{tier.name}</span>
+                  ) })()}
+                </span>
                 <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.85rem', fontFamily: "'DM Sans', sans-serif", width: 100, textAlign: 'right', marginRight: 24 }}>
                   {p.wins || 0}W – {p.losses || 0}L
                 </span>

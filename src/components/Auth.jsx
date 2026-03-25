@@ -2,8 +2,13 @@ import { useState } from 'react'
 import { supabase } from '../supabase'
 
 const C = {
-  jade: '#065F46', jadeLt: '#059669', crimson: '#DC2626', gold: '#F59E0B', goldDk: '#D97706',
-  midnight: '#0F172A', ink: '#1E293B', cloud: '#F8FAFC', slate: '#64748B', slateLt: '#94A3B8', border: '#E2E8F0',
+  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
+  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
+  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
+  midnight: '#0F172A', ink: '#1E293B',
+  cloud: '#F8FAFC', white: '#FFFFFF',
+  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
+  border: '#E2E8F0', borderLt: '#F1F5F9',
 }
 
 export default function Auth() {
@@ -117,12 +122,12 @@ export default function Auth() {
             </div>
           )}
           {mode === 'signup' && (
-            <p style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", color: C.slate, lineHeight: 1.5, marginBottom: 16, textAlign: 'center' }}>
-              By creating an account, you agree to our{' '}
-              <a href="#" onClick={e => { e.preventDefault(); window.__mmjSetTab?.('terms') }} style={{ color: C.midnight, fontWeight: 600, textDecoration: 'underline' }}>Terms of Service</a>
-              {' '}and{' '}
-              <a href="#" onClick={e => { e.preventDefault(); window.__mmjSetTab?.('privacy') }} style={{ color: C.midnight, fontWeight: 600, textDecoration: 'underline' }}>Privacy Policy</a>.
-            </p>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 20 }}>
+              <input type="checkbox" required style={{ marginTop: 3 }} />
+              <span style={{ fontSize: 12, color: C.slate, lineHeight: 1.5, fontFamily: "'DM Sans', sans-serif" }}>
+                I agree to the <span onClick={() => window.__mmjSetTab?.('terms')} style={{ color: C.jade, fontWeight: 600, cursor: 'pointer' }}>Terms of Service</span> and <span onClick={() => window.__mmjSetTab?.('privacy')} style={{ color: C.jade, fontWeight: 600, cursor: 'pointer' }}>Privacy Policy</span>
+              </span>
+            </label>
           )}
           <button type="submit" disabled={loading} style={{
             width: '100%', background: C.crimson, color: '#ffffff', border: 'none', borderRadius: 8, padding: '11px',

@@ -5,10 +5,13 @@ import { BADGES, BADGE_CATEGORIES } from '../badgeUtils'
 import { usePushNotifications } from './PushNotifications'
 
 const C = {
-  jade: '#065F46', jadeLt: '#059669', crimson: '#DC2626',
-  gold: '#F59E0B', goldDk: '#D97706', midnight: '#0F172A',
-  ink: '#1E293B', cloud: '#EDF0F4', slate: '#64748B',
-  slateLt: '#94A3B8', border: '#E2E8F0', cloudLt: '#FFFFFF',
+  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
+  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
+  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
+  midnight: '#0F172A', ink: '#1E293B',
+  cloud: '#F8FAFC', white: '#FFFFFF',
+  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
+  border: '#E2E8F0', borderLt: '#F1F5F9',
 }
 
 import noviceBadge from '../assets/badges/novice.png'
@@ -225,16 +228,46 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
           </div>
         </div>
 
+        {/* Dark Elo Card */}
+        {(() => {
+          const lastChange = eloHistory.length > 0 ? eloHistory[eloHistory.length - 1].rating_change : 0
+          const deltaColor = lastChange >= 0 ? C.jadeLt : C.crimson
+          const deltaSymbol = lastChange >= 0 ? '▲' : '▼'
+          return (
+            <div style={{
+              background: C.midnight, borderRadius: 14, padding: '20px',
+              marginTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{
+                position: 'absolute', inset: 0, pointerEvents: 'none',
+                background: 'radial-gradient(ellipse 60% 80% at 80% 50%, rgba(6,95,70,0.08), transparent)',
+              }} />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.slateLt, letterSpacing: '1.5px', marginBottom: 4 }}>ELO RATING</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 42, fontWeight: 700, color: C.white, lineHeight: 1 }}>{Math.round(player?.elo || 800)}</div>
+                {lastChange !== 0 && (
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: deltaColor, marginTop: 6 }}>
+                    {deltaSymbol} {lastChange > 0 ? '+' : ''}{lastChange.toFixed(1)}
+                  </div>
+                )}
+              </div>
+              <div style={{ position: 'relative', zIndex: 1, width: 140 }}>
+                <EloSparkline history={eloHistory} />
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 12 }}>
           {[
-            { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
             { label: 'Wins', value: player?.wins || 0, color: C.jade },
             { label: 'Losses', value: player?.losses || 0, color: C.ink },
             { label: 'Win %', value: `${winRate}%`, color: C.gold },
           ].map((s, i) => (
             <div key={i} style={{
-              background: C.cloudLt,
+              background: C.white,
               borderTop: `3px solid ${s.color}`,
               borderRight: `1px solid ${C.border}`,
               borderBottom: `1px solid ${C.border}`,
@@ -247,11 +280,8 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
           ))}
         </div>
 
-        {/* Elo Sparkline */}
-        <EloSparkline history={eloHistory} />
-        <button onClick={() => generateShareCard(player, earnedBadges)} style={{ marginTop: 16, width: "100%", padding: "12px", borderRadius: 10, background: C.midnight, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-          Share My Card
+        <button onClick={() => generateShareCard(player, earnedBadges)} style={{ marginTop: 16, width: "100%", padding: "14px", borderRadius: 10, background: C.jade, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          📤 Share My Card
         </button>
       </div>
 
@@ -282,16 +312,15 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
 
               return (
                 <div key={cat} style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: C.slateLt, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '1px', marginBottom: 6 }}>
-                    {cat.toUpperCase()}
+                  <div style={{ fontSize: 11, fontWeight: 600, color: C.slate, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '1px', marginBottom: 6, textTransform: 'uppercase' }}>
+                    {cat}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {earned.map(b => {
                       const eb = earnedBadges.find(e => e.badge_id === b.id)
                       return (
                         <div key={b.id} title={`${b.name}: ${b.desc}\nEarned ${eb ? new Date(eb.earned_at).toLocaleDateString() : ''}`} style={{
-                          background: 'white', border: `1px solid ${C.border}`,
-                          borderLeft: `3px solid ${C.gold}`,
+                          background: C.goldPale, border: `1px solid rgba(245,158,11,0.2)`,
                           borderRadius: 10, padding: '6px 10px',
                           display: 'flex', alignItems: 'center', gap: 6,
                         }}>
@@ -305,9 +334,9 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
                     })}
                     {locked.map(b => (
                       <div key={b.id} title={b.desc} style={{
-                        background: C.cloudLt, border: `1px solid ${C.border}`,
+                        background: C.cloud, border: `1px solid ${C.border}`,
                         borderRadius: 10, padding: '6px 10px',
-                        display: 'flex', alignItems: 'center', gap: 6, opacity: 0.45,
+                        display: 'flex', alignItems: 'center', gap: 6, opacity: 0.35,
                       }}>
                         <span style={{ fontSize: 18, filter: 'grayscale(1)' }}>{b.emoji}</span>
                         <div>

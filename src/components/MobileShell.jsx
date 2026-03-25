@@ -18,17 +18,13 @@ import InstallPrompt from './InstallPrompt'
 
 import ProfileSection from "./ProfileSection"
 const C = {
-  jade: '#065F46',
-  jadeLt: '#059669',
-  crimson: '#DC2626',
-  gold: '#F59E0B',
-  goldDk: '#D97706',
-  midnight: '#0F172A',
-  ink: '#1E293B',
-  cloud: '#EDF0F4',
-  slate: '#64748B',
-  slateLt: '#94A3B8',
-  border: '#E2E8F0', cloudLt: '#FFFFFF',
+  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
+  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
+  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
+  midnight: '#0F172A', ink: '#1E293B',
+  cloud: '#F8FAFC', white: '#FFFFFF',
+  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
+  border: '#E2E8F0', borderLt: '#F1F5F9',
 }
 
 // Helper: makes a style with a colored left accent border
@@ -214,7 +210,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
                   ].map((s, i) => (
                     <div key={i} style={{
-                      background: C.cloudLt,
+                      background: C.white,
                       borderTop: `3px solid ${s.color}`,
                       borderRight: `1px solid ${C.border}`,
                       borderBottom: `1px solid ${C.border}`,
@@ -335,9 +331,9 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             if (item.center) {
               return (
                 <button key={item.id} onClick={() => setTab(item.id)} style={{
-                  background: C.crimson, border: 'none', width: 52, height: 52, borderRadius: 16,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -20,
-                  boxShadow: '0 4px 20px rgba(220,38,38,0.3)', position: 'relative', cursor: 'pointer',
+                  background: C.crimson, border: 'none', width: 52, height: 52, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -18,
+                  boxShadow: '0 4px 16px rgba(220,38,38,0.3)', position: 'relative', cursor: 'pointer',
                 }}><Icon color="#fff" size={24} /></button>
               )
             }
@@ -347,12 +343,12 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 gap: 2, padding: '4px 12px 8px', position: 'relative', minWidth: 56, cursor: 'pointer',
               }}>
                 <div style={{ position: 'relative' }}>
-                  <Icon color={isActive ? C.midnight : C.slateLt} size={22} />
+                  <Icon color={isActive ? C.jade : C.slateLt} size={22} />
                   {showBadge && (
                     <div style={{ position: 'absolute', top: -4, right: -8, background: C.crimson, color: '#fff', fontSize: 9, fontWeight: 700, minWidth: 16, height: 16, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif" }}>{unreadTotal}</div>
                   )}
                 </div>
-                <span style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 700 : 500, color: isActive ? C.midnight : C.slateLt }}>{item.label}</span>
+                <span style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 700 : 500, color: isActive ? C.jade : C.slateLt }}>{item.label}</span>
               </button>
             )
           })}
