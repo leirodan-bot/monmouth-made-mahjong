@@ -100,7 +100,7 @@ export default function Players({ session, player, initialPlayerId, onClearIniti
         <button onClick={() => { setSelected(null); setBadges([]); setH2h(null) }} style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: C.midnight, marginBottom: 16, cursor: 'pointer' }}>← Back to players</button>
         <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 14, padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 14, background: C.jade, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{selected.name.split(' ').map(n => n[0]).join('')}</div>
+            <div style={{ width: 56, height: 56, borderRadius: 14, background: C.jade, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: selected.avatar ? 26 : 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{selected.avatar || selected.name.split(' ').map(n => n[0]).join('')}</div>
             <div>
               <div style={{ fontSize: 20, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif" }}>{selected.name}</div>
               <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 2 }}>{selected.town || 'No town set'}</div>
@@ -215,7 +215,7 @@ export default function Players({ session, player, initialPlayerId, onClearIniti
         {players.map((p, i) => (
           <div key={p.id} onClick={() => selectPlayer(p)} style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: C.slateLt, minWidth: 24, fontFamily: "'JetBrains Mono', monospace" }}>{i + 1}</div>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: C.jade, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0, fontFamily: "'Outfit', sans-serif" }}>{p.name.split(' ').map(n => n[0]).join('')}</div>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: C.jade, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: p.avatar ? 18 : 11, fontWeight: 700, flexShrink: 0, fontFamily: "'Outfit', sans-serif" }}>{p.avatar || p.name.split(' ').map(n => n[0]).join('')}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif" }}>{p.name} {p.id === player?.id && <span style={{ fontSize: 10, background: 'rgba(6,95,70,0.06)', color: C.jade, padding: '1px 6px', borderRadius: 6, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>You</span>}</div>
               <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>{p.town || '—'}</div>

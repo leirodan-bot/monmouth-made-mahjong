@@ -77,6 +77,8 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
   const [loading, setLoading] = useState(true)
   const [suggestions, setSuggestions] = useState([])
   const [followedIds, setFollowedIdsLocal] = useState([])
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const [customText, setCustomText] = useState('')
 
   useEffect(() => {
     if (!player?.id) return
@@ -147,6 +149,16 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
   const gamesPlayed = player?.games_played || 0
   const winRate = gamesPlayed > 0 ? Math.round(((player?.wins || 0) / gamesPlayed) * 100) : 0
 
+  const AVATAR_ICONS = ['🀄', '🧱', '🐉', '🎋', '🔴', '🌸', '🎴', '🏮', '🌙', '🍀', '🦅', '🎲', '🎯', '🌊', '💎', '🔥', '🌺', '🐦', '⭐', '🏆']
+  const initials = player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'
+
+  async function saveAvatar(value) {
+    await supabase.from('players').update({ avatar: value || null }).eq('id', player.id)
+    player.avatar = value || null
+    setShowAvatarPicker(false)
+    setCustomText('')
+  }
+
   return (
     <div>
       {/* ── Header Card ── */}
@@ -156,10 +168,48 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
         borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${C.jade}`,
         borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 16,
       }}>
-        <div style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, fontFamily: "'Outfit', sans-serif", margin: '0 auto 12px' }}>
-          {player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'}
+        <div onClick={() => setShowAvatarPicker(true)} style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: player?.avatar ? 28 : 22, fontWeight: 700, fontFamily: "'Outfit', sans-serif", margin: '0 auto 12px', cursor: 'pointer', position: 'relative' }}>
+          {player?.avatar || initials}
+          <div style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: '50%', background: 'white', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>✏️</div>
         </div>
         <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
+
+        {/* Avatar Picker Popup */}
+        {showAvatarPicker && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowAvatarPicker(false)}>
+            <div onClick={(e) => e.stopPropagation()} style={{ background: 'white', borderRadius: 16, padding: 24, maxWidth: 340, width: '100%', boxShadow: '0 8px 30px rgba(0,0,0,0.15)' }}>
+              <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 16, textAlign: 'center' }}>Choose Your Avatar</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
+                {AVATAR_ICONS.map(icon => (
+                  <button key={icon} onClick={() => saveAvatar(icon)} style={{
+                    width: '100%', aspectRatio: '1', borderRadius: 12, fontSize: 24,
+                    border: player?.avatar === icon ? `2px solid ${C.jade}` : `1px solid ${C.border}`,
+                    background: player?.avatar === icon ? 'rgba(6,95,70,0.06)' : 'white',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>{icon}</button>
+                ))}
+              </div>
+              <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 8, textAlign: 'center' }}>Or type custom text (1–2 characters)</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={customText} onChange={(e) => setCustomText(e.target.value.slice(0, 2))} placeholder="AB" maxLength={2} style={{
+                  flex: 1, padding: '10px 14px', borderRadius: 10, border: `1px solid ${C.border}`,
+                  fontSize: 16, fontFamily: "'Outfit', sans-serif", fontWeight: 700, textAlign: 'center',
+                  outline: 'none',
+                }} />
+                <button onClick={() => customText.trim() && saveAvatar(customText.trim())} disabled={!customText.trim()} style={{
+                  padding: '10px 20px', borderRadius: 10, background: customText.trim() ? C.jade : C.border,
+                  color: 'white', border: 'none', fontSize: 13, fontWeight: 700,
+                  fontFamily: "'DM Sans', sans-serif", cursor: customText.trim() ? 'pointer' : 'default',
+                }}>Save</button>
+              </div>
+              <button onClick={() => saveAvatar(null)} style={{
+                width: '100%', marginTop: 12, padding: '8px', borderRadius: 8,
+                background: 'none', border: 'none', fontSize: 12, color: C.slateLt,
+                fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+              }}>Reset to initials</button>
+            </div>
+          </div>
+        )}
         <div style={{ marginTop: 8 }}><TierBadge elo={player?.elo || 800} /></div>
 
         {/* Follow counts */}
@@ -441,16 +491,16 @@ async function generateShareCard(player, earnedBadges) {
   ctx.fillText('Rank', logoX + mahjW, 40)
 
   // ── Player initials circle ──
-  const initials = player.name ? player.name.split(' ').map(n => n[0]).join('') : '?'
+  const avatarText = player.avatar || (player.name ? player.name.split(' ').map(n => n[0]).join('') : '?')
   ctx.fillStyle = '#065F46'
   ctx.beginPath()
   ctx.roundRect(W/2 - 44, 120, 88, 88, 22)
   ctx.fill()
   ctx.fillStyle = '#FFFFFF'
-  ctx.font = '700 36px Outfit, sans-serif'
+  ctx.font = player.avatar ? '48px serif' : '700 36px Outfit, sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(initials, W/2, 164)
+  ctx.fillText(avatarText, W/2, 164)
 
   // ── Player name ──
   ctx.textBaseline = 'top'
