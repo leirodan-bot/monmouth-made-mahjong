@@ -109,6 +109,15 @@ export default function Players({ session, player, initialPlayerId, onClearIniti
             <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
               <div style={{ fontSize: 32, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(selected.elo || 800)}</div>
               <div style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>Elo Rating</div>
+              {player && selected.id !== player.id && (
+                <button onClick={(e) => toggleFollow(e, selected.id)} style={{
+                  marginTop: 8, padding: '6px 18px', borderRadius: 20, fontSize: 12,
+                  fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
+                  background: followedIds.includes(selected.id) ? C.jade : 'white',
+                  color: followedIds.includes(selected.id) ? 'white' : C.jade,
+                  border: followedIds.includes(selected.id) ? 'none' : `1px solid ${C.jade}`,
+                }}>{followedIds.includes(selected.id) ? 'Following' : 'Follow'}</button>
+              )}
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
