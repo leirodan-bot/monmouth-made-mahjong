@@ -1,15 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+import { C, fonts, shadows } from '../theme'
 
 export default function Towns() {
   const [players, setPlayers] = useState([])

@@ -18,50 +18,7 @@ import InstallPrompt from './InstallPrompt'
 
 import ProfileSection from "./ProfileSection"
 import AnimatedElo from './AnimatedElo'
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
-
-// Helper: makes a style with a colored left accent border
-function accentCard(accent, extra = {}) {
-  return {
-    background: 'white',
-    borderTop: `1px solid ${C.border}`,
-    borderRight: `1px solid ${C.border}`,
-    borderBottom: `1px solid ${C.border}`,
-    borderLeft: `4px solid ${accent}`,
-    borderRadius: 16,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-    ...extra,
-  }
-}
-
-function accentLink(accent) {
-  return {
-    width: '100%',
-    background: 'white',
-    borderTop: `1px solid ${C.border}`,
-    borderRight: `1px solid ${C.border}`,
-    borderBottom: `1px solid ${C.border}`,
-    borderLeft: `4px solid ${accent}`,
-    borderRadius: 10,
-    padding: '14px 16px',
-    marginBottom: 8,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 14,
-    color: C.midnight,
-    cursor: 'pointer',
-  }
-}
+import { C, fonts, shadows, card, cardLg, statusCard } from '../theme'
 
 const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: HomeIcon },
@@ -71,28 +28,7 @@ const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: ProfileIcon },
 ]
 
-const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉🐲' }
-
-function TierBadge({ elo }) {
-  let tier, color, bg
-  if (elo >= 1150) { tier = 'Grandmaster'; color = '#7C3AED'; bg = 'rgba(124,58,237,0.12)' }
-  else if (elo >= 1050) { tier = 'Master'; color = '#6366F1'; bg = 'rgba(99,102,241,0.12)' }
-  else if (elo >= 950) { tier = 'Expert'; color = C.goldDk; bg = 'rgba(245,158,11,0.12)' }
-  else if (elo >= 850) { tier = 'Skilled'; color = C.slateLt; bg = 'rgba(148,163,184,0.12)' }
-  else if (elo >= 750) { tier = 'Beginner'; color = '#B45309'; bg = 'rgba(180,83,9,0.10)' }
-  else { tier = 'Novice'; color = C.slate; bg = 'rgba(100,116,139,0.10)' }
-  const emoji = TIER_EMOJIS[tier]
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <span style={{ fontSize: '2rem' }}>{emoji}</span>
-      <span style={{
-        fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase',
-        color, background: bg, border: `1px solid ${color}33`,
-        padding: '3px 10px', borderRadius: 6,
-      }}>{tier}</span>
-    </div>
-  )
-}
+import TierBadge from './TierBadge'
 
 function Chevron() {
   return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
@@ -187,7 +123,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           {tab === 'home' && session && (
             <div>
               {/* Welcome card */}
-              <div style={accentCard(C.jade, { padding: '20px', marginBottom: 14 })}>
+              <div style={cardLg({ padding: '20px', marginBottom: 14 })}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                   <div>
                     <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Welcome back,</div>
@@ -262,7 +198,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 width: '100%', background: C.crimson, border: 'none', borderRadius: 14, padding: '16px', color: '#fff',
                 fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 20,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                boxShadow: '0 4px 20px rgba(220,38,38,0.25)', letterSpacing: -0.3,
+                boxShadow: '0 4px 20px rgba(225,29,72,0.25)', letterSpacing: -0.3,
               }}>
                 <span style={{ fontSize: 20, fontWeight: 300 }}>+</span> Record a Game
               </button>
@@ -270,18 +206,17 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               {/* Quick links */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[
-                  { label: 'Rankings', icon: '🏆', sub: 'See where you stand', tab: 'rankings', accent: C.gold },
-                  { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs', accent: C.jade },
-                  { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks', accent: C.jadeLt },
-                  { label: 'Players', icon: '👥', sub: 'Browse all players', tab: 'players', accent: C.crimson },
+                  { label: 'Rankings', icon: '🏆', sub: 'See where you stand', tab: 'rankings' },
+                  { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs' },
+                  { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks' },
+                  { label: 'Players', icon: '👥', sub: 'Browse all players', tab: 'players' },
                 ].map((link, i) => (
                   <button key={i} onClick={() => setTab(link.tab)} style={{
                     background: 'white',
-                    borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
-                    borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${link.accent}`,
+                    border: `1px solid ${C.border}`,
                     borderRadius: 14, padding: '18px 16px', textAlign: 'left',
                     fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+                    boxShadow: shadows.sm,
                   }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>{link.icon}</div>
                     <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>{link.label}</div>

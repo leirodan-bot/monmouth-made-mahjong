@@ -1,15 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+import { C, fonts, shadows } from '../theme'
 
 export default function NotificationBell({ player, onNavigate, refreshPlayer, onCountChange }) {
   const [notifications, setNotifications] = useState([])
@@ -207,20 +198,20 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
           position: 'fixed', top: 56, left: 8, right: 8,
           background: 'white', border: `1px solid ${C.border}`, borderRadius: 14,
           maxWidth: 400, maxHeight: '80vh', overflowY: 'auto',
-          boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
+          boxShadow: '0 8px 30px rgba(28,25,23,0.1)',
           zIndex: 200
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif" }}>Notifications</div>
             {unreadCount > 0 && (
-              <button onClick={markAllRead} style={{ background: 'none', border: 'none', fontSize: 11, color: C.slateLt, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
+              <button onClick={markAllRead} style={{ background: 'none', border: 'none', fontSize: 11, color: C.slateMd, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
                 Mark all read
               </button>
             )}
           </div>
 
           {pendingConfirms.length > 0 && (
-            <div style={{ padding: '12px 16px', background: 'rgba(220,38,38,0.08)', borderBottom: `1px solid ${C.border}` }}>
+            <div style={{ padding: '12px 16px', background: 'rgba(225,29,72,0.08)', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace", marginBottom: 8, letterSpacing: '1px' }}>
                 {pendingConfirms.length} GAME{pendingConfirms.length > 1 ? 'S' : ''} NEED YOUR CONFIRMATION
               </div>
@@ -251,7 +242,7 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
                       disabled={confirming === n.id}
                       style={{
                         flex: 2, padding: '6px 0', borderRadius: 6,
-                        background: confirming === n.id ? C.slateLt : C.jade, border: 'none',
+                        background: confirming === n.id ? C.slateMd : C.jade, border: 'none',
                         color: '#ffffff', fontSize: 11, fontWeight: 700,
                         cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
                       }}
@@ -269,22 +260,22 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
               <div key={n.id} onClick={() => { if (!n.read) markRead(n.id) }} style={{
                 display: 'flex', alignItems: 'flex-start', gap: 10,
                 padding: '11px 16px',
-                background: n.read ? 'transparent' : 'rgba(6,95,70,0.02)',
+                background: n.read ? 'transparent' : 'rgba(22,101,52,0.02)',
                 borderBottom: `1px solid ${C.border}`,
                 borderLeft: n.read ? 'none' : `3px solid ${C.jade}`,
                 cursor: n.read ? 'default' : 'pointer'
               }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                  background: n.type === 'verified' ? 'rgba(6,95,70,0.08)' : n.type === 'confirm_match' ? 'rgba(220,38,38,0.06)' : n.type === 'follow' ? 'rgba(6,95,70,0.06)' : C.cloud,
-                  color: n.type === 'verified' ? C.jade : n.type === 'confirm_match' ? C.crimson : n.type === 'follow' ? C.jade : C.slateLt,
+                  background: n.type === 'verified' ? 'rgba(22,101,52,0.08)' : n.type === 'confirm_match' ? 'rgba(225,29,72,0.06)' : n.type === 'follow' ? 'rgba(22,101,52,0.06)' : C.cloud,
+                  color: n.type === 'verified' ? C.jade : n.type === 'confirm_match' ? C.crimson : n.type === 'follow' ? C.jade : C.slateMd,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13
                 }}>
                   {n.type === 'verified' ? '✓' : n.type === 'confirm_match' ? '✓' : n.type === 'follow' ? '👤' : '●'}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: C.ink, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.4 }}>{n.message}</div>
-                  <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
+                  <div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
                     {n.created_at ? new Date(n.created_at).toLocaleDateString() : ''}
                   </div>
                 </div>

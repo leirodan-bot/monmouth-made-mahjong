@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { calculateGameEloUpdates } from '../eloUtils'
+import { C, fonts, shadows } from '../theme'
 
 // NMJL sections in card order (top to bottom) — simplified for badge tracking
 const NMJL_SECTIONS = [
@@ -14,18 +15,6 @@ const NMJL_SECTIONS = [
   { key: '369', name: '3-6-9' },
   { key: 'SP', name: 'Singles & Pairs' },
 ]
-
-// MahjRank brand colors
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
-
 function BadgeHint({ text }) {
   return (
     <div style={{
@@ -383,7 +372,7 @@ export default function RecordMatch({ session, player }) {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                   {NMJL_SECTIONS.map(sec => (
                     <button key={sec.key} onClick={() => setHandSection(handSection === sec.key ? '' : sec.key)} style={{
-                      background: handSection === sec.key ? 'rgba(220,38,38,0.06)' : 'white',
+                      background: handSection === sec.key ? 'rgba(225,29,72,0.06)' : 'white',
                       border: `1.5px solid ${handSection === sec.key ? C.crimson : C.border}`,
                       borderRadius: 10, padding: '10px 8px', cursor: 'pointer', textAlign: 'center',
                     }}>
@@ -430,11 +419,11 @@ export default function RecordMatch({ session, player }) {
                     ].map(m => (
                       <button key={m.k} onClick={() => setWinMethod(winMethod === m.k ? '' : m.k)} style={{
                         flex: 1, padding: '12px 10px', borderRadius: 10, cursor: 'pointer', textAlign: 'center',
-                        background: winMethod === m.k ? (m.k === 'self_pick' ? 'rgba(6,95,70,0.06)' : 'rgba(220,38,38,0.05)') : 'white',
+                        background: winMethod === m.k ? (m.k === 'self_pick' ? 'rgba(22,101,52,0.06)' : 'rgba(225,29,72,0.05)') : 'white',
                         border: `1.5px solid ${winMethod === m.k ? (m.k === 'self_pick' ? C.jadeLt : C.crimson) : C.border}`,
                       }}>
                         <div style={{ fontSize: 12, fontWeight: 600, color: winMethod === m.k ? C.ink : C.slate, fontFamily: "'DM Sans', sans-serif" }}>{m.label}</div>
-                        <div style={{ fontSize: 10, color: C.slateLt, marginTop: 2, fontFamily: "'DM Sans', sans-serif" }}>{m.sub}</div>
+                        <div style={{ fontSize: 10, color: C.slateMd, marginTop: 2, fontFamily: "'DM Sans', sans-serif" }}>{m.sub}</div>
                       </button>
                     ))}
                   </div>
@@ -452,7 +441,7 @@ export default function RecordMatch({ session, player }) {
                       <button key={n} onClick={() => setExposures(exposures === n ? null : n)} style={{
                         flex: 1, padding: '10px 0', borderRadius: 8, cursor: 'pointer', textAlign: 'center',
                         fontSize: 14, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
-                        background: exposures === n ? 'rgba(6,95,70,0.06)' : 'white',
+                        background: exposures === n ? 'rgba(22,101,52,0.06)' : 'white',
                         border: `1.5px solid ${exposures === n ? C.jadeLt : C.border}`,
                         color: exposures === n ? C.jade : C.slate,
                       }}>{n}</button>

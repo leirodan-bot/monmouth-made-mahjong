@@ -8,8 +8,8 @@
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background: #F8FAFC;
-  color: #0F172A;
+  background: #F0EDEB;
+  color: #1C1917;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -32,8 +32,8 @@ a {
 input, select, textarea {
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
-  color: #0F172A;
-  border: 1px solid #E2E8F0;
+  color: #1C1917;
+  border: 1px solid #D6D3D1;
   border-radius: 8px;
   padding: 10px 12px;
   background: white;
@@ -43,6 +43,32 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #065F46;
-  box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.08);
+  border-color: #166534;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.08);
+}
+
+/* ===== ACCESSIBILITY: Keyboard focus indicators ===== */
+*:focus-visible {
+  outline: 2px solid #166534;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible {
+  outline: 2px solid #166534;
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse/touch users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure interactive span/div elements are reachable */
+[role="button"] {
+  cursor: pointer;
+}
+[role="button"]:focus-visible {
+  outline: 2px solid #166534;
+  outline-offset: 2px;
 }

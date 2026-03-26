@@ -1,15 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+import { C, fonts, shadows } from '../theme'
 
 export default function Clubs({ session, player }) {
   const [clubs, setClubs] = useState([])
@@ -98,15 +89,15 @@ export default function Clubs({ session, player }) {
                 ].map((s, i) => (
                   <div key={i} style={{ background: C.cloud, border: `1px solid ${C.border}`, borderTop: `3px solid ${s.color}`, borderRadius: 10, padding: '10px 6px', textAlign: 'center' }}>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: s.color }}>{s.value}</div>
-                    <div style={{ fontSize: 9, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginTop: 3 }}>{s.label}</div>
+                    <div style={{ fontSize: 9, color: C.slateMd, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginTop: 3 }}>{s.label}</div>
                   </div>
                 ))}
               </div>
             )
           })()}
-          {session && player && !myMembership(club.id) && <button onClick={() => handleRequestJoin(club.id)} style={{ background: C.crimson, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 8px rgba(220,38,38,0.2)' }}>Request to Join</button>}
+          {session && player && !myMembership(club.id) && <button onClick={() => handleRequestJoin(club.id)} style={{ background: C.crimson, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 8px rgba(225,29,72,0.2)' }}>Request to Join</button>}
           {myMembership(club.id)?.status === 'pending' && <div style={{ background: 'rgba(245,158,11,0.05)', border: `1px solid rgba(245,158,11,0.15)`, borderLeft: `4px solid ${C.gold}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: C.goldDk }}>Your join request is pending approval.</div>}
-          {myMembership(club.id)?.status === 'approved' && <div style={{ background: 'rgba(6,95,70,0.04)', border: `1px solid rgba(6,95,70,0.12)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: C.jade }}>✓ You are a member of this club.</div>}
+          {myMembership(club.id)?.status === 'approved' && <div style={{ background: 'rgba(22,101,52,0.04)', border: `1px solid rgba(22,101,52,0.12)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", color: C.jade }}>✓ You are a member of this club.</div>}
         </div>
 
         {canManage && pending.length > 0 && (
@@ -169,7 +160,7 @@ export default function Clubs({ session, player }) {
         </div>
         {isLeagueAdmin() && <button onClick={() => { setShowForm(!showForm); setEditingClub(null); setName(''); setLocation(''); setMeetDay('') }} style={{ background: C.crimson, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, cursor: 'pointer' }}>{showForm ? 'Cancel' : '+ Add Club'}</button>}
       </div>
-      {message && <div style={{ background: 'rgba(6,95,70,0.04)', border: `1px solid rgba(6,95,70,0.12)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, color: C.jade, fontFamily: "'DM Sans', sans-serif", marginBottom: 16 }}>{message}</div>}
+      {message && <div style={{ background: 'rgba(22,101,52,0.04)', border: `1px solid rgba(22,101,52,0.12)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, color: C.jade, fontFamily: "'DM Sans', sans-serif", marginBottom: 16 }}>{message}</div>}
       {showForm && (
         <form onSubmit={handleSaveClub} style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif", marginBottom: 12 }}>{editingClub ? 'Edit Club' : 'Add New Club'}</h3>
@@ -200,12 +191,12 @@ export default function Clubs({ session, player }) {
                 <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 12 }}>Meets: {club.meet_day || 'TBD'}</div>
                 {membership && (
                   <div style={{ marginBottom: 8 }}>
-                    <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, letterSpacing: 0.3, background: membership.status === 'approved' ? 'rgba(6,95,70,0.06)' : 'rgba(245,158,11,0.06)', color: membership.status === 'approved' ? C.jade : C.goldDk }}>{membership.status === 'approved' ? '✓ MEMBER' : '⏳ PENDING'}</span>
+                    <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, letterSpacing: 0.3, background: membership.status === 'approved' ? 'rgba(22,101,52,0.06)' : 'rgba(245,158,11,0.06)', color: membership.status === 'approved' ? C.jade : C.goldDk }}>{membership.status === 'approved' ? '✓ MEMBER' : '⏳ PENDING'}</span>
                   </div>
                 )}
                 <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 10, display: 'flex', justifyContent: 'space-between' }}>
-                  <div><div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>Members</div><div style={{ fontSize: 16, fontWeight: 700, color: C.midnight }}>{clubMemberships.length}</div></div>
-                  <div style={{ textAlign: 'right' }}><div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>Avg Elo</div><div style={{ fontSize: 16, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{avgElo || '—'}</div></div>
+                  <div><div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'DM Sans', sans-serif" }}>Members</div><div style={{ fontSize: 16, fontWeight: 700, color: C.midnight }}>{clubMemberships.length}</div></div>
+                  <div style={{ textAlign: 'right' }}><div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'DM Sans', sans-serif" }}>Avg Elo</div><div style={{ fontSize: 16, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{avgElo || '—'}</div></div>
                 </div>
               </div>
             )

@@ -2,16 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { getTier, isProvisional, isInactive } from '../eloUtils'
 import { RankingSkeleton } from './Skeleton'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+import { C, fonts, shadows, card } from '../theme'
 
 function RankBadge({ elo }) {
   const tier = getTier(elo)
@@ -61,7 +52,7 @@ function PlayerCard({ player, rank, inactive, onPlayerClick }) {
               {player.name}
             </span>
             <RankBadge elo={player.elo} />
-            {inactive && <span style={{ fontSize: 9, color: C.slateLt, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5 }}>INACTIVE</span>}
+            {inactive && <span style={{ fontSize: 9, color: C.slateMd, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5 }}>INACTIVE</span>}
           </div>
           <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 2 }}>{player.town || '—'}</div>
         </div>
@@ -70,7 +61,7 @@ function PlayerCard({ player, rank, inactive, onPlayerClick }) {
         <div style={{ fontSize: 20, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>
           {Math.round(player.elo)}
         </div>
-        <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>
+        <div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>
           {player.wins}W–{player.losses}L
           {player.current_streak > 1 && <span> · 🔥{player.current_streak}</span>}
         </div>
@@ -183,7 +174,7 @@ export default function Rankings({ session, player, onPlayerClick }) {
           borderLeft: `4px solid ${C.jade}`,
           borderRadius: 14,
           padding: '16px 18px',
-          boxShadow: '0 2px 8px rgba(6,95,70,0.08)',
+          boxShadow: shadows.md,
           marginBottom: 20,
           display: 'flex',
           alignItems: 'center',
@@ -196,7 +187,7 @@ export default function Rankings({ session, player, onPlayerClick }) {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(spotlight.elo)}</div>
-            <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>Elo Rating</div>
+            <div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'DM Sans', sans-serif" }}>Elo Rating</div>
           </div>
         </div>
       )}
@@ -222,7 +213,7 @@ export default function Rankings({ session, player, onPlayerClick }) {
                 <div style={{ fontSize: 9, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.town}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace", margin: '4px 0' }}>{Math.round(p.elo)}</div>
                 <RankBadge elo={p.elo} />
-                <div style={{ fontSize: 9, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>{p.wins}W – {p.losses}L</div>
+                <div style={{ fontSize: 9, color: C.slateMd, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>{p.wins}W – {p.losses}L</div>
               </div>
             )
           })}
@@ -258,7 +249,7 @@ export default function Rankings({ session, player, onPlayerClick }) {
       {/* Provisional Players */}
       {provisionalPlayers.length > 0 && (
         <div>
-          <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'JetBrains Mono', monospace", marginBottom: 8, letterSpacing: '1px', fontWeight: 600 }}>
+          <div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'JetBrains Mono', monospace", marginBottom: 8, letterSpacing: '1px', fontWeight: 600 }}>
             PROVISIONAL ({provisionalPlayers.length}) — need 5 games to rank
           </div>
           <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden' }}>
@@ -273,8 +264,8 @@ export default function Rankings({ session, player, onPlayerClick }) {
                   <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>{p.town || '—'}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: C.slateLt, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(p.elo)}?</div>
-                  <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>{p.games_played}/5 games</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: C.slateMd, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(p.elo)}?</div>
+                  <div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'DM Sans', sans-serif" }}>{p.games_played}/5 games</div>
                 </div>
               </div>
             ))}
@@ -283,7 +274,7 @@ export default function Rankings({ session, player, onPlayerClick }) {
       )}
 
       {!session && (
-        <div style={{ marginTop: 16, background: 'rgba(6,95,70,0.04)', border: `1px solid rgba(6,95,70,0.12)`, borderRadius: 12, padding: '14px 18px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.midnight }}>
+        <div style={{ marginTop: 16, background: 'rgba(22,101,52,0.04)', border: `1px solid rgba(22,101,52,0.12)`, borderRadius: 12, padding: '14px 18px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.midnight }}>
           <strong>Want to appear on this leaderboard?</strong> Sign up to start tracking your Mahjong rating.
         </div>
       )}

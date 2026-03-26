@@ -1,16 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../supabase'
 import NotificationBell from './NotificationBell'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+import { C, fonts, shadows } from '../theme'
 
 export default function Header({ session, player, tab, setTab, refreshPlayer }) {
   const [showMenu, setShowMenu] = useState(false)
@@ -35,7 +26,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
   }
 
   const tabs = session
-    ? ['rankings', 'howitworks', 'activity', 'players', 'clubs', 'record']
+    ? ['rankings', 'howitworks', 'activity', 'players', 'clubs', 'profile', 'record']
     : ['rankings', 'howitworks']
 
   const tabLabels = {
@@ -44,6 +35,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
     activity: 'Activity',
     players: 'Players',
     clubs: 'Clubs',
+    profile: 'Profile',
     record: 'Record'
   }
 
@@ -98,7 +90,7 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
                     boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
                   }}>
                     <div style={{
-                      fontSize: 12, color: '#94A3B8', fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 12, color: C.slateLt, fontFamily: "'DM Sans', sans-serif",
                       padding: '4px 8px',
                     }}>
                       {session.user.email}

@@ -4,36 +4,8 @@ import { getTier } from '../eloUtils'
 import { BADGES, BADGE_CATEGORIES } from '../badgeUtils'
 import { usePushNotifications } from './PushNotifications'
 import AnimatedElo from './AnimatedElo'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
-
-const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉🐲' }
-
-function TierBadge({ elo }) {
-  const tier = getTier(elo)
-  const emoji = TIER_EMOJIS[tier.name]
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <span style={{ fontSize: '2rem' }}>{emoji}</span>
-      <span style={{
-        display: 'inline-flex', alignItems: 'center', gap: 6,
-        background: tier.bg, color: tier.textColor,
-        padding: '4px 12px', borderRadius: 20,
-        fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
-      }}>
-        {tier.name}
-      </span>
-    </div>
-  )
-}
+import { C, fonts, shadows, card, cardLg } from '../theme'
+import TierBadge from './TierBadge'
 
 function EloSparkline({ history }) {
   if (!history || history.length < 2) return null
@@ -59,7 +31,7 @@ function EloSparkline({ history }) {
         <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx={points.split(' ').pop().split(',')[0]} cy={points.split(' ').pop().split(',')[1]} r="3" fill={color} />
       </svg>
-      <div style={{ fontSize: 10, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", marginTop: 2 }}>
+      <div style={{ fontSize: 10, color: C.slateMd, fontFamily: fonts.body, marginTop: 2 }}>
         Last {history.length} games
       </div>
     </div>
@@ -160,49 +132,46 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
     <div>
       {/* ── Header Card ── */}
       <div style={{
-        background: 'white',
-        borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
-        borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${C.jade}`,
-        borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 16,
+        ...cardLg({ padding: '24px 20px', textAlign: 'center', marginBottom: 16 }),
       }}>
-        <div onClick={() => setShowAvatarPicker(true)} style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: player?.avatar ? 28 : 22, fontWeight: 700, fontFamily: "'Outfit', sans-serif", margin: '0 auto 12px', cursor: 'pointer', position: 'relative' }}>
+        <div onClick={() => setShowAvatarPicker(true)} style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: player?.avatar ? 28 : 22, fontWeight: 700, fontFamily: fonts.heading, margin: '0 auto 12px', cursor: 'pointer', position: 'relative' }}>
           {player?.avatar || initials}
           <div style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: '50%', background: 'white', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>✏️</div>
         </div>
-        <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
+        <div style={{ fontFamily: fonts.heading, fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
 
         {/* Avatar Picker Popup */}
         {showAvatarPicker && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowAvatarPicker(false)}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: 'white', borderRadius: 16, padding: 24, maxWidth: 340, width: '100%', boxShadow: '0 8px 30px rgba(0,0,0,0.15)' }}>
-              <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 16, textAlign: 'center' }}>Choose Your Avatar</div>
+              <div style={{ fontFamily: fonts.heading, fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 16, textAlign: 'center' }}>Choose Your Avatar</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
                 {AVATAR_ICONS.map(icon => (
                   <button key={icon} onClick={() => saveAvatar(icon)} style={{
                     width: '100%', aspectRatio: '1', borderRadius: 12, fontSize: 24,
                     border: player?.avatar === icon ? `2px solid ${C.jade}` : `1px solid ${C.border}`,
-                    background: player?.avatar === icon ? 'rgba(6,95,70,0.06)' : 'white',
+                    background: player?.avatar === icon ? 'rgba(22,101,52,0.06)' : 'white',
                     cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>{icon}</button>
                 ))}
               </div>
-              <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 8, textAlign: 'center' }}>Or type custom text (1–2 characters)</div>
+              <div style={{ fontSize: 12, color: C.slate, fontFamily: fonts.body, marginBottom: 8, textAlign: 'center' }}>Or type custom text (1–2 characters)</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input value={customText} onChange={(e) => setCustomText(e.target.value.slice(0, 2))} placeholder="AB" maxLength={2} style={{
                   flex: 1, padding: '10px 14px', borderRadius: 10, border: `1px solid ${C.border}`,
-                  fontSize: 16, fontFamily: "'Outfit', sans-serif", fontWeight: 700, textAlign: 'center',
+                  fontSize: 16, fontFamily: fonts.heading, fontWeight: 700, textAlign: 'center',
                   outline: 'none',
                 }} />
                 <button onClick={() => customText.trim() && saveAvatar(customText.trim())} disabled={!customText.trim()} style={{
                   padding: '10px 20px', borderRadius: 10, background: customText.trim() ? C.jade : C.border,
                   color: 'white', border: 'none', fontSize: 13, fontWeight: 700,
-                  fontFamily: "'DM Sans', sans-serif", cursor: customText.trim() ? 'pointer' : 'default',
+                  fontFamily: fonts.body, cursor: customText.trim() ? 'pointer' : 'default',
                 }}>Save</button>
               </div>
               <button onClick={() => saveAvatar(null)} style={{
                 width: '100%', marginTop: 12, padding: '8px', borderRadius: 8,
-                background: 'none', border: 'none', fontSize: 12, color: C.slateLt,
-                fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                background: 'none', border: 'none', fontSize: 12, color: C.slateMd,
+                fontFamily: fonts.body, cursor: 'pointer',
               }}>Reset to initials</button>
             </div>
           </div>
@@ -212,13 +181,13 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
         {/* Follow counts */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 12 }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace" }}>{followerCount}</div>
-            <div style={{ fontSize: 10, color: C.slate, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: 0.5 }}>Followers</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.midnight, fontFamily: fonts.mono }}>{followerCount}</div>
+            <div style={{ fontSize: 10, color: C.slate, fontFamily: fonts.body, textTransform: 'uppercase', letterSpacing: 0.5 }}>Followers</div>
           </div>
           <div style={{ width: 1, background: C.border }} />
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace" }}>{followingCount}</div>
-            <div style={{ fontSize: 10, color: C.slate, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: 0.5 }}>Following</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.midnight, fontFamily: fonts.mono }}>{followingCount}</div>
+            <div style={{ fontSize: 10, color: C.slate, fontFamily: fonts.body, textTransform: 'uppercase', letterSpacing: 0.5 }}>Following</div>
           </div>
         </div>
 
@@ -268,33 +237,33 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
               borderLeft: `1px solid ${C.border}`,
               borderRadius: 10, padding: '10px 6px', textAlign: 'center',
             }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: 9, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, marginTop: 3 }}>{s.label}</div>
+              <div style={{ fontFamily: fonts.mono, fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: 9, color: C.slateMd, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: fonts.body, fontWeight: 600, marginTop: 3 }}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        <button onClick={() => generateShareCard(player, earnedBadges)} style={{ marginTop: 16, width: "100%", padding: "14px", borderRadius: 10, background: C.jade, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          📤 Share My Card
+        {/* Elo Sparkline */}
+        <EloSparkline history={eloHistory} />
+        <button onClick={() => generateShareCard(player, earnedBadges)} style={{ marginTop: 16, width: "100%", padding: "14px", borderRadius: 10, background: C.jade, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: fonts.heading, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          Share My Card
         </button>
       </div>
 
       {/* ── Badges Card ── */}
       <div style={{
-        background: 'white',
-        borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
-        borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${C.gold}`,
-        borderRadius: 16, padding: '20px', marginBottom: 16,
+        ...card({ padding: '20px', marginBottom: 16 }),
       }}>
-        <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 4 }}>
+        <div style={{ fontFamily: fonts.heading, fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 4 }}>
           Badges
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.slateLt, marginLeft: 8 }}>
+          <span style={{ fontFamily: fonts.mono, fontSize: 12, color: C.slateMd, marginLeft: 8 }}>
             {earnedIds.length}/{BADGES.length}
           </span>
         </div>
 
         {loading ? (
-          <div style={{ fontSize: 13, color: C.slateLt, padding: '20px 0', textAlign: 'center' }}>Loading badges...</div>
+          <div style={{ fontSize: 13, color: C.slateMd, padding: '20px 0', textAlign: 'center' }}>Loading badges...</div>
         ) : (
           <>
             {/* Earned badges by category */}
@@ -306,7 +275,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
 
               return (
                 <div key={cat} style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: C.slate, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '1px', marginBottom: 6, textTransform: 'uppercase' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: C.slateMd, fontFamily: fonts.mono, letterSpacing: '1px', marginBottom: 6, textTransform: 'uppercase' }}>
                     {cat}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -314,7 +283,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
                       const eb = earnedBadges.find(e => e.badge_id === b.id)
                       return (
                         <div key={b.id} title={`${b.name}: ${b.desc}\nEarned ${eb ? new Date(eb.earned_at).toLocaleDateString() : ''}`} style={{
-                          background: C.goldPale, border: `1px solid rgba(245,158,11,0.2)`,
+                          background: 'rgba(245,158,11,0.04)', border: `1px solid rgba(245,158,11,0.2)`,
                           borderRadius: 10, padding: '6px 10px',
                           display: 'flex', alignItems: 'center', gap: 6,
                         }}>
@@ -330,12 +299,12 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
                       <div key={b.id} title={b.desc} style={{
                         background: C.cloud, border: `1px solid ${C.border}`,
                         borderRadius: 10, padding: '6px 10px',
-                        display: 'flex', alignItems: 'center', gap: 6, opacity: 0.35,
+                        display: 'flex', alignItems: 'center', gap: 6, opacity: 0.4,
                       }}>
                         <span style={{ fontSize: 18, filter: 'grayscale(1)' }}>{b.emoji}</span>
                         <div>
-                          <div style={{ fontSize: 11, fontWeight: 600, color: C.slateLt }}>{b.name}</div>
-                          <div style={{ fontSize: 9, color: C.slateLt }}>{b.desc}</div>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: C.slateMd }}>{b.name}</div>
+                          <div style={{ fontSize: 9, color: C.slateMd }}>{b.desc}</div>
                         </div>
                       </div>
                     ))}
@@ -349,8 +318,8 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
 
       {/* ── My Rivals ── */}
       {rivals.length > 0 && (
-        <div style={{ background: 'white', border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.crimson}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>My Rivals</div>
+        <div style={{ ...card({ padding: 20, marginBottom: 16 }) }}>
+          <div style={{ fontFamily: fonts.heading, fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>My Rivals</div>
           {rivals.slice(0, 5).map(r => {
             const nonWallGames = r.games_together - (r.wall_games || 0)
             const theirWinPct = nonWallGames >= 5 ? r.their_wins / nonWallGames : 0
@@ -362,19 +331,19 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
             <div key={r.opponent_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div onClick={() => onPlayerClick && onPlayerClick(r.opponent_id)} style={{ fontSize: 14, fontWeight: 600, color: onPlayerClick ? C.jade : C.midnight, fontFamily: "'DM Sans', sans-serif", cursor: onPlayerClick ? 'pointer' : 'default' }}>{r.name || 'Unknown'}</div>
-                  {label && <span style={{ fontSize: 10, fontWeight: 700, color: label.color, fontFamily: "'DM Sans', sans-serif" }}>{label.emoji} {label.text}</span>}
+                  <div onClick={() => onPlayerClick && onPlayerClick(r.opponent_id)} style={{ fontSize: 14, fontWeight: 600, color: onPlayerClick ? C.jade : C.midnight, fontFamily: fonts.body, cursor: onPlayerClick ? 'pointer' : 'default' }}>{r.name || 'Unknown'}</div>
+                  {label && <span style={{ fontSize: 10, fontWeight: 700, color: label.color, fontFamily: fonts.body }}>{label.emoji} {label.text}</span>}
                 </div>
-                <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{r.games_together} games together</div>
+                <div style={{ fontSize: 11, color: C.slate, fontFamily: fonts.body }}>{r.games_together} games together</div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: C.jade, fontFamily: "'JetBrains Mono', monospace" }}>{r.my_wins}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: C.jade, fontFamily: fonts.mono }}>{r.my_wins}</div>
                   <div style={{ fontSize: 9, color: C.slate, textTransform: 'uppercase' }}>W</div>
                 </div>
-                <div style={{ fontSize: 12, color: C.slateLt }}>—</div>
+                <div style={{ fontSize: 12, color: C.slateMd }}>—</div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{r.their_wins}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: C.crimson, fontFamily: fonts.mono }}>{r.their_wins}</div>
                   <div style={{ fontSize: 9, color: C.slate, textTransform: 'uppercase' }}>L</div>
                 </div>
               </div>
@@ -386,21 +355,21 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
 
       {/* ── People You Play With ── */}
       {suggestions.length > 0 && (
-        <div style={{ background: 'white', border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.jadeLt}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>People You Play With</div>
-          <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 12 }}>Players you've shared 3+ games with</div>
+        <div style={{ ...card({ padding: 20, marginBottom: 16 }) }}>
+          <div style={{ fontFamily: fonts.heading, fontSize: 16, fontWeight: 700, color: C.midnight, marginBottom: 14 }}>People You Play With</div>
+          <div style={{ fontSize: 11, color: C.slate, fontFamily: fonts.body, marginBottom: 12 }}>Players you've shared 3+ games with</div>
           {suggestions.map(s => (
             <div key={s.opponent_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
               <div>
-                <div onClick={() => onPlayerClick && onPlayerClick(s.opponent_id)} style={{ fontSize: 14, fontWeight: 600, color: onPlayerClick ? C.jade : C.midnight, fontFamily: "'DM Sans', sans-serif", cursor: onPlayerClick ? 'pointer' : 'default' }}>{s.name || 'Unknown'}</div>
-                <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{s.games_together} games together</div>
+                <div onClick={() => onPlayerClick && onPlayerClick(s.opponent_id)} style={{ fontSize: 14, fontWeight: 600, color: onPlayerClick ? C.jade : C.midnight, fontFamily: fonts.body, cursor: onPlayerClick ? 'pointer' : 'default' }}>{s.name || 'Unknown'}</div>
+                <div style={{ fontSize: 11, color: C.slate, fontFamily: fonts.body }}>{s.games_together} games together</div>
               </div>
               <button onClick={async () => {
                 await supabase.from('follows').insert({ follower_id: player.id, following_id: s.opponent_id })
                 setSuggestions(prev => prev.filter(p => p.opponent_id !== s.opponent_id))
               }} style={{
                 padding: '5px 14px', borderRadius: 20, fontSize: 11,
-                fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
+                fontFamily: fonts.body, fontWeight: 600, cursor: 'pointer',
                 background: 'white', color: C.jade, border: `1px solid ${C.jade}`,
               }}>Follow</button>
             </div>
@@ -413,9 +382,9 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
         <button onClick={() => push.subscribed ? push.unsubscribe() : push.subscribe()} disabled={push.loading} style={{
           width: '100%', background: 'white',
           borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
-          borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${push.subscribed ? C.jade : C.slateLt}`,
+          borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${push.subscribed ? C.jade : C.slateMd}`,
           borderRadius: 10, padding: '14px 16px', marginBottom: 6,
-          fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.midnight,
+          fontFamily: fonts.body, fontSize: 14, color: C.midnight,
           textAlign: 'left', fontWeight: 600, cursor: 'pointer',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
@@ -441,28 +410,28 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
         borderTop: `1px solid ${C.border}`, borderRight: `1px solid ${C.border}`,
         borderBottom: `1px solid ${C.border}`, borderLeft: `4px solid ${C.jade}`,
         borderRadius: 10, padding: '14px 16px', marginBottom: 6,
-        fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.midnight,
+        fontFamily: fonts.body, fontSize: 14, color: C.midnight,
         textAlign: 'left', fontWeight: 600, cursor: 'pointer',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         My Clubs
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateMd} strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
       </button>
 
       {/* ── Legal links (small) ── */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8, marginBottom: 8 }}>
-        <span onClick={() => setTab('terms')} style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}>Terms of Service</span>
+        <span onClick={() => setTab('terms')} style={{ fontSize: 11, color: C.slateMd, fontFamily: fonts.body, cursor: 'pointer' }}>Terms of Service</span>
         <span style={{ color: C.border }}>·</span>
-        <span onClick={() => setTab('privacy')} style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}>Privacy Policy</span>
+        <span onClick={() => setTab('privacy')} style={{ fontSize: 11, color: C.slateMd, fontFamily: fonts.body, cursor: 'pointer' }}>Privacy Policy</span>
       </div>
 
       {/* Sign out */}
       <button onClick={onSignOut} style={{
         width: '100%', background: 'white',
-        borderTop: '1px solid rgba(220,38,38,0.2)', borderRight: '1px solid rgba(220,38,38,0.2)',
-        borderBottom: '1px solid rgba(220,38,38,0.2)', borderLeft: `4px solid ${C.crimson}`,
+        borderTop: '1px solid rgba(225,29,72,0.2)', borderRight: '1px solid rgba(225,29,72,0.2)',
+        borderBottom: '1px solid rgba(225,29,72,0.2)', borderLeft: `4px solid ${C.crimson}`,
         borderRadius: 10, padding: '14px 16px', marginTop: 8,
-        fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.crimson,
+        fontFamily: fonts.body, fontSize: 14, color: C.crimson,
         textAlign: 'center', fontWeight: 600, cursor: 'pointer',
       }}>Sign Out</button>
 
@@ -497,7 +466,7 @@ async function generateShareCard(player, earnedBadges) {
   ctx.fillRect(0, 0, W, H)
 
   // Top jade bar
-  ctx.fillStyle = '#065F46'
+  ctx.fillStyle = '#166534'
   ctx.fillRect(0, 0, W, 6)
 
   // ── LOGO ──
@@ -507,15 +476,15 @@ async function generateShareCard(player, earnedBadges) {
   const rankW = ctx.measureText('Rank').width
   const totalLogoW = mahjW + rankW
   const logoX = W / 2 - totalLogoW / 2
-  ctx.fillStyle = '#065F46'
+  ctx.fillStyle = '#166534'
   ctx.textAlign = 'left'
   ctx.fillText('Mahj', logoX, 40)
-  ctx.fillStyle = '#DC2626'
+  ctx.fillStyle = '#E11D48'
   ctx.fillText('Rank', logoX + mahjW, 40)
 
   // ── Player initials circle ──
   const avatarText = player.avatar || (player.name ? player.name.split(' ').map(n => n[0]).join('') : '?')
-  ctx.fillStyle = '#065F46'
+  ctx.fillStyle = '#166534'
   ctx.beginPath()
   ctx.roundRect(W/2 - 44, 120, 88, 88, 22)
   ctx.fill()
@@ -527,7 +496,7 @@ async function generateShareCard(player, earnedBadges) {
 
   // ── Player name ──
   ctx.textBaseline = 'top'
-  ctx.fillStyle = '#0F172A'
+  ctx.fillStyle = '#1C1917'
   ctx.font = '700 48px Outfit, sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText(player.name || 'Player', W/2, 228)
@@ -563,11 +532,11 @@ async function generateShareCard(player, earnedBadges) {
   // ── Elo rating ──
   const eloY = tierImg ? 460 : 360
   ctx.textBaseline = 'top'
-  ctx.fillStyle = '#DC2626'
+  ctx.fillStyle = '#E11D48'
   ctx.font = '800 112px "JetBrains Mono", monospace'
   ctx.textAlign = 'center'
   ctx.fillText(Math.round(player.elo || 800), W/2, eloY)
-  ctx.fillStyle = '#94A3B8'
+  ctx.fillStyle = '#78716C'
   ctx.font = '700 14px "JetBrains Mono", monospace'
   ctx.fillText('E L O   R A T I N G', W/2, eloY + 120)
 
@@ -583,9 +552,9 @@ async function generateShareCard(player, earnedBadges) {
   // ── Stats row ──
   const statsY = divY + 25
   const stats = [
-    { label: 'WINS', value: String(player.wins || 0), color: '#065F46' },
-    { label: 'LOSSES', value: String(player.losses || 0), color: '#64748B' },
-    { label: 'GAMES', value: String(player.games_played || 0), color: '#0F172A' },
+    { label: 'WINS', value: String(player.wins || 0), color: '#166534' },
+    { label: 'LOSSES', value: String(player.losses || 0), color: '#78716C' },
+    { label: 'GAMES', value: String(player.games_played || 0), color: '#1C1917' },
     { label: 'WIN %', value: (player.games_played ? Math.round((player.wins||0)/(player.games_played)*100) : 0) + '%', color: '#F59E0B' },
   ]
   const statW = 200, statGap = 28
@@ -593,7 +562,7 @@ async function generateShareCard(player, earnedBadges) {
 
   stats.forEach((s, i) => {
     const x = statsStartX + i * (statW + statGap)
-    ctx.fillStyle = '#F8FAFC'
+    ctx.fillStyle = '#FAFAF9'
     ctx.beginPath()
     ctx.roundRect(x, statsY, statW, 100, 14)
     ctx.fill()
@@ -606,20 +575,20 @@ async function generateShareCard(player, earnedBadges) {
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
     ctx.fillText(s.value, x + statW/2, statsY + 18)
-    ctx.fillStyle = '#94A3B8'
+    ctx.fillStyle = '#78716C'
     ctx.font = '700 11px "DM Sans", sans-serif'
     ctx.fillText(s.label, x + statW/2, statsY + 72)
   })
 
   // ── Badges section ──
   const badgeStartY = statsY + 140
-  ctx.fillStyle = '#0F172A'
+  ctx.fillStyle = '#1C1917'
   ctx.font = '700 26px Outfit, sans-serif'
   ctx.textAlign = 'left'
   ctx.textBaseline = 'top'
   const badgesLabel = 'Badges'
   ctx.fillText(badgesLabel, 80, badgeStartY)
-  ctx.fillStyle = '#94A3B8'
+  ctx.fillStyle = '#78716C'
   ctx.font = '500 26px Outfit, sans-serif'
   const badgesLabelW = ctx.measureText(badgesLabel).width
   ctx.fillText('  ' + earnedBadges.length + '/' + BADGES.length, 80 + badgesLabelW - 10, badgeStartY)
@@ -633,7 +602,7 @@ async function generateShareCard(player, earnedBadges) {
   earnedBadges.forEach((eb, i) => {
     const badge = BADGES.find(b => b.id === eb.badge_id)
     if (!badge) return
-    ctx.fillStyle = '#F8FAFC'
+    ctx.fillStyle = '#FAFAF9'
     ctx.beginPath()
     ctx.roundRect(bx, by, badgeW, badgeH, 10)
     ctx.fill()
@@ -645,7 +614,7 @@ async function generateShareCard(player, earnedBadges) {
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(badge.emoji, bx + 30, by + badgeH/2)
-    ctx.fillStyle = '#0F172A'
+    ctx.fillStyle = '#1C1917'
     ctx.font = '600 13px "DM Sans", sans-serif'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'middle'
@@ -658,15 +627,15 @@ async function generateShareCard(player, earnedBadges) {
   })
 
   // ── Footer ──
-  ctx.fillStyle = '#F8FAFC'
+  ctx.fillStyle = '#FAFAF9'
   ctx.fillRect(0, H - 100, W, 100)
-  ctx.strokeStyle = '#E2E8F0'
+  ctx.strokeStyle = '#D6D3D1'
   ctx.lineWidth = 1
   ctx.beginPath()
   ctx.moveTo(0, H - 100)
   ctx.lineTo(W, H - 100)
   ctx.stroke()
-  ctx.fillStyle = '#065F46'
+  ctx.fillStyle = '#166534'
   ctx.fillRect(0, H - 4, W, 4)
 
   // Logo in footer
@@ -675,14 +644,14 @@ async function generateShareCard(player, earnedBadges) {
   const fMahjW = ctx.measureText('Mahj').width
   const fTotalW = fMahjW + ctx.measureText('Rank').width
   const fX = W / 2 - fTotalW / 2
-  ctx.fillStyle = '#065F46'
+  ctx.fillStyle = '#166534'
   ctx.textAlign = 'left'
   ctx.fillText('Mahj', fX, H - 58)
-  ctx.fillStyle = '#DC2626'
+  ctx.fillStyle = '#E11D48'
   ctx.fillText('Rank', fX + fMahjW, H - 58)
 
   // Date + URL
-  ctx.fillStyle = '#94A3B8'
+  ctx.fillStyle = '#78716C'
   ctx.font = '400 14px "DM Sans", sans-serif'
   ctx.textAlign = 'center'
   const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })

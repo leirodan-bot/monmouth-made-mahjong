@@ -3,17 +3,9 @@ import { supabase } from '../supabase'
 import { getTier, TIERS } from '../eloUtils'
 import logoWhite from '../assets/mahjrank/mahjranklogomonowhite1800.png'
 import EloCalculator from './EloCalculator'
-const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉🐲' }
+import { C, fonts, shadows, card } from '../theme'
 
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+const TIER_EMOJIS = { Novice: '🀆', Beginner: '🌸', Skilled: '🎋', Expert: '🐲', Master: '🐉', Grandmaster: '🐉🐲' }
 
 export default function Homepage({ setTab }) {
   const [topPlayers, setTopPlayers] = useState([])
@@ -84,7 +76,7 @@ export default function Homepage({ setTab }) {
       }}>
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(6,95,70,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(22,101,52,0.08) 0%, transparent 70%)',
         }} />
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -157,10 +149,10 @@ export default function Homepage({ setTab }) {
               fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 700,
               cursor: 'pointer', letterSpacing: '0.02em',
               transition: 'all 0.3s ease',
-              boxShadow: '0 4px 20px rgba(220,38,38,0.3)',
+              boxShadow: '0 4px 20px rgba(225,29,72,0.3)',
             }}
-            onMouseEnter={e => { e.target.style.background = '#EF4444'; e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(220,38,38,0.4)' }}
-            onMouseLeave={e => { e.target.style.background = C.crimson; e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(220,38,38,0.3)' }}
+            onMouseEnter={e => { e.target.style.background = '#F43F5E'; e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(225,29,72,0.4)' }}
+            onMouseLeave={e => { e.target.style.background = C.crimson; e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(225,29,72,0.3)' }}
           >
             Get Started — Free
           </button>
@@ -203,7 +195,7 @@ export default function Homepage({ setTab }) {
       <div style={{
         background: C.ink, padding: '1.4rem 2rem',
         display: 'flex', justifyContent: 'center', gap: '3rem', flexWrap: 'wrap',
-        borderTop: `1px solid rgba(6,95,70,0.2)`,
+        borderTop: `1px solid rgba(22,101,52,0.2)`,
       }}>
         {[
           { num: stats.players || '—', label: 'Players' },
@@ -229,26 +221,33 @@ export default function Homepage({ setTab }) {
             MahjRank is the first platform to bring Elo-based skill ratings to in-person American Mahjong. Track your wins, earn badges, and see how you stack up — whether you play at the community center, your friend's kitchen table, or a tournament.
           </p>
 
+          <div style={{
+            background: C.midnight, borderRadius: 20, padding: '3rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 280,
+          }}>
+            <img src={logoWhite} alt="MahjRank" style={{ width: '80%' }} />
+          </div>
+
           <div ref={addRevealRef} style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '1.5rem', marginTop: '3rem',
+            display: 'flex', flexDirection: 'column', gap: '1.8rem', marginTop: '3rem',
             opacity: 0, transform: 'translateY(30px)', transition: 'all 0.8s ease',
           }}>
             {[
-              { icon: '📊', title: 'Elo-Rated Rankings', desc: 'The same rating system used in chess, adapted for 4-player Mahjong. Every game counts toward your rating.', accent: C.jade, paleBg: C.jadePale },
-              { icon: '🏅', title: 'Badges & Achievements', desc: 'Earn recognition for milestones — first win, win streaks, climbing the leaderboard, and more.', accent: C.gold, paleBg: C.goldPale },
-              { icon: '🏠', title: 'Club Management', desc: 'Organize your group, track club stats, and run seasonal leagues all in one place.', accent: C.jadeLt, paleBg: C.jadePale },
-              { icon: '📱', title: 'Works Like an App', desc: 'Install it right from your browser — no app store needed. Log games on your phone at the table.', accent: C.crimson, paleBg: C.crimsonPale },
+              { icon: '📊', title: 'Elo-Rated Rankings', desc: 'The same rating system used in chess, adapted for 4-player Mahjong. Every game counts toward your rating.' },
+              { icon: '🏅', title: 'Badges & Achievements', desc: 'Earn recognition for milestones — first win, win streaks, climbing the leaderboard, and more.' },
+              { icon: '🏠', title: 'Club Management', desc: 'Organize your group, track club stats, and run seasonal leagues all in one place.' },
+              { icon: '📱', title: 'Works Like an App', desc: 'Install it right from your browser — no app store needed. Log games on your phone at the table.' },
             ].map((f, i) => (
               <div key={i} style={{
                 display: 'flex', gap: '1rem', alignItems: 'flex-start',
                 background: 'white', borderRadius: 14, padding: '1.2rem 1.4rem',
                 border: `1px solid ${C.border}`,
-                borderLeft: `4px solid ${f.accent}`,
+                boxShadow: shadows.md,
               }}>
                 <div style={{
-                  width: 48, height: 48, background: f.paleBg, borderRadius: 12,
+                  width: 44, height: 44, background: C.cloud, borderRadius: 12,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem',
+                  border: `1px solid ${C.border}`,
                 }}>{f.icon}</div>
                 <div>
                   <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.05rem', color: C.midnight, marginBottom: '0.3rem' }}>{f.title}</h4>
@@ -273,9 +272,9 @@ export default function Homepage({ setTab }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2.5rem', marginTop: '3.5rem' }}>
             {[
-              { num: '1', icon: '✍️', title: 'Sign Up & Join a Club', desc: 'Create your free account and join your Mahjong group — or start a new one. Every player starts with an 800 Elo rating.', accent: C.jade },
-              { num: '2', icon: '🀄', title: 'Play & Log Your Games', desc: 'After each session, log who played and who won. It takes 30 seconds. Other players verify the result for accuracy.', accent: C.crimson },
-              { num: '3', icon: '🏆', title: 'Watch Your Rating Rise', desc: 'Your Elo rating updates after every verified game. Track your progress, earn badges, and climb the leaderboard.', accent: C.gold },
+              { num: '1', icon: '✍️', title: 'Sign Up & Join a Club', desc: 'Create your free account and join your Mahjong group — or start a new one. Every player starts with an 800 Elo rating.' },
+              { num: '2', icon: '🀄', title: 'Play & Log Your Games', desc: 'After each session, log who played and who won. It takes 30 seconds. Other players verify the result for accuracy.' },
+              { num: '3', icon: '🏆', title: 'Watch Your Rating Rise', desc: 'Your Elo rating updates after every verified game. Track your progress, earn badges, and climb the leaderboard.' },
             ].map((s, i) => (
               <div
                 key={i}
@@ -285,17 +284,17 @@ export default function Homepage({ setTab }) {
                   borderRadius: 20,
                   padding: '2.5rem 2rem 2rem',
                   border: `1px solid ${C.border}`,
-                  borderTop: `4px solid ${s.accent}`,
+                  boxShadow: shadows.md,
                   transition: 'all 0.3s ease',
                   opacity: 0, transform: 'translateY(30px)',
                   transitionDelay: `${i * 0.15}s`,
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(15,23,42,0.06)' }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = shadows.lg }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = shadows.md }}
               >
                 <span style={{
                   fontFamily: "'JetBrains Mono', monospace", fontSize: '3.5rem', fontWeight: 700,
-                  color: s.accent, opacity: 0.15, position: 'absolute', top: '1rem', right: '1.5rem', lineHeight: 1,
+                  color: C.slate, opacity: 0.15, position: 'absolute', top: '1rem', right: '1.5rem', lineHeight: 1,
                 }}>{s.num}</span>
                 <div style={{
                   width: 56, height: 56, background: 'white', borderRadius: 16,
@@ -375,7 +374,7 @@ export default function Homepage({ setTab }) {
         background: C.midnight, color: '#fff', padding: '5rem 2rem',
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(6,95,70,0.06), transparent)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(22,101,52,0.06), transparent)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.gold, fontWeight: 600, marginBottom: '0.8rem', fontFamily: "'JetBrains Mono', monospace" }}>Rankings</div>
@@ -476,10 +475,10 @@ export default function Homepage({ setTab }) {
                 background: C.crimson, color: '#fff',
                 fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', fontWeight: 700,
                 cursor: 'pointer', transition: 'all 0.3s ease',
-                boxShadow: '0 4px 20px rgba(220,38,38,0.25)',
+                boxShadow: '0 4px 20px rgba(225,29,72,0.25)',
               }}
-              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(220,38,38,0.3)' }}
-              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(220,38,38,0.25)' }}
+              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(225,29,72,0.3)' }}
+              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(225,29,72,0.25)' }}
             >
               Create Your Free Account
             </button>

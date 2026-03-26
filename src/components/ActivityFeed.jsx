@@ -2,16 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { getBadge } from '../badgeUtils'
 import { ActivitySkeleton } from './Skeleton'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+import { C, fonts, shadows } from '../theme'
 
 export default function ActivityFeed({ player }) {
   const [items, setItems] = useState([])
@@ -157,18 +148,18 @@ export default function ActivityFeed({ player }) {
                 : item.status === 'Verified' || item.status === 'Auto-verified' ? `4px solid ${C.jade}`
                 : '4px solid transparent',
               cursor: filter === 'foryou' && !item.read ? 'pointer' : 'default',
-              background: filter === 'foryou' && !item.read ? 'rgba(6,95,70,0.02)' : 'transparent',
+              background: filter === 'foryou' && !item.read ? 'rgba(22,101,52,0.02)' : 'transparent',
             }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                background: item.type === 'badge' ? 'rgba(245,158,11,0.08)' : item.isPending ? 'rgba(245,158,11,0.06)' : 'rgba(6,95,70,0.06)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+                background: item.type === 'badge' ? 'rgba(245,158,11,0.08)' : item.isPending ? 'rgba(245,158,11,0.06)' : 'rgba(22,101,52,0.06)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
               }}>{item.icon}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: C.midnight, lineHeight: 1.4 }}>{item.title}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                    <div style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>{timeAgo(item.time)}</div>
+                    <div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'DM Sans', sans-serif" }}>{timeAgo(item.time)}</div>
                     {filter === 'foryou' && !item.read && <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.crimson, flexShrink: 0 }} />}
                   </div>
                 </div>
@@ -181,7 +172,7 @@ export default function ActivityFeed({ player }) {
                 {item.eloUpdates && (item.status === 'Verified' || item.status === 'Auto-verified') && (
                   <div style={{ marginTop: 6, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {item.eloUpdates.map(u => (
-                      <span key={u.id} style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: u.delta > 0 ? C.jade : u.delta < 0 ? C.crimson : C.slateLt }}>
+                      <span key={u.id} style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: u.delta > 0 ? C.jade : u.delta < 0 ? C.crimson : C.slateMd }}>
                         {getName(u.id)} {u.delta > 0 ? '+' : ''}{u.delta.toFixed(1)}
                       </span>
                     ))}

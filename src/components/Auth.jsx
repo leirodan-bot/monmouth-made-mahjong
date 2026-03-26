@@ -1,15 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+import { C, fonts, shadows } from '../theme'
 
 export default function Auth() {
   const [mode, setMode] = useState('signin')
@@ -70,10 +61,10 @@ export default function Auth() {
         </p>
 
         {message && (
-          <div style={{ background: 'rgba(6,95,70,0.06)', border: `1px solid rgba(6,95,70,0.15)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, color: C.jade, fontFamily: "'DM Sans', sans-serif", marginBottom: 16 }}>{message}</div>
+          <div style={{ background: 'rgba(22,101,52,0.06)', border: `1px solid rgba(22,101,52,0.15)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, color: C.jade, fontFamily: "'DM Sans', sans-serif", marginBottom: 16 }}>{message}</div>
         )}
         {error && (
-          <div style={{ background: 'rgba(220,38,38,0.04)', border: `1px solid rgba(220,38,38,0.15)`, borderLeft: `4px solid ${C.crimson}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, color: C.crimson, fontFamily: "'DM Sans', sans-serif", marginBottom: 16 }}>{error}</div>
+          <div style={{ background: 'rgba(225,29,72,0.04)', border: `1px solid rgba(225,29,72,0.15)`, borderLeft: `4px solid ${C.crimson}`, borderRadius: 8, padding: '10px 14px', fontSize: 12, color: C.crimson, fontFamily: "'DM Sans', sans-serif", marginBottom: 16 }}>{error}</div>
         )}
 
         <button onClick={handleGoogle} style={{
@@ -86,7 +77,7 @@ export default function Auth() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
           <div style={{ flex: 1, height: 1, background: C.border }} />
-          <span style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif" }}>or</span>
+          <span style={{ fontSize: 11, color: C.slateMd, fontFamily: "'DM Sans', sans-serif" }}>or</span>
           <div style={{ flex: 1, height: 1, background: C.border }} />
         </div>
 
@@ -131,7 +122,7 @@ export default function Auth() {
           )}
           <button type="submit" disabled={loading} style={{
             width: '100%', background: C.crimson, color: '#ffffff', border: 'none', borderRadius: 8, padding: '11px',
-            fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(220,38,38,0.2)'
+            fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(225,29,72,0.2)'
           }}>
             {loading ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
           </button>

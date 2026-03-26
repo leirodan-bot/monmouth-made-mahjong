@@ -1,16 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
 import { getKFactor, getTier, TIERS } from '../eloUtils'
-
-const C = {
-  jade: '#065F46', jadeLt: '#059669', jadePale: '#ECFDF5',
-  crimson: '#DC2626', crimsonLt: '#EF4444', crimsonPale: '#FEF2F2',
-  gold: '#F59E0B', goldDk: '#D97706', goldPale: '#FFFBEB',
-  midnight: '#0F172A', ink: '#1E293B',
-  cloud: '#F8FAFC', white: '#FFFFFF',
-  slate: '#64748B', slateLt: '#94A3B8', slateXlt: '#CBD5E1',
-  border: '#E2E8F0', borderLt: '#F1F5F9',
-}
+import { C, fonts, shadows } from '../theme'
 
 function RankBadge({ name, bg, textColor, range }) {
   return <div style={{ background: bg, borderRadius: 8, padding: '12px 8px', textAlign: 'center' }}><div style={{ fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: textColor, marginBottom: 2 }}>{name}</div><div style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", color: textColor, opacity: 0.8 }}>{range}</div></div>
@@ -29,14 +20,14 @@ function Faq({ q, a }) {
 function ContactForm() {
   const [name, setName] = useState(''); const [email, setEmail] = useState(''); const [topic, setTopic] = useState(''); const [message, setMessage] = useState(''); const [sent, setSent] = useState(false)
   async function handleSubmit(e) { e.preventDefault(); await supabase.from('notifications').insert({ type: 'contact', message: `From: ${name} (${email}) | Topic: ${topic} | Message: ${message}` }); setSent(true) }
-  if (sent) return <div style={{ background: 'rgba(6,95,70,0.06)', border: `1px solid rgba(6,95,70,0.15)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '14px 16px', fontSize: 13, color: C.jade, fontFamily: "'DM Sans', sans-serif" }}>Message sent — we'll be in touch within 48 hours.</div>
+  if (sent) return <div style={{ background: 'rgba(22,101,52,0.06)', border: `1px solid rgba(22,101,52,0.15)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 8, padding: '14px 16px', fontSize: 13, color: C.jade, fontFamily: "'DM Sans', sans-serif" }}>Message sent — we'll be in touch within 48 hours.</div>
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ marginBottom: 12 }}><label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Your name</label><input value={name} onChange={e => setName(e.target.value)} placeholder="Jane Smith" required /></div>
       <div style={{ marginBottom: 12 }}><label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@email.com" required /></div>
       <div style={{ marginBottom: 12 }}><label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Topic</label><select value={topic} onChange={e => setTopic(e.target.value)} required><option value="">Select a topic...</option><option>General question</option><option>Starting a new club</option><option>Match dispute</option><option>Account issue</option><option>Report a violation</option><option>Other</option></select></div>
       <div style={{ marginBottom: 16 }}><label style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: 4 }}>Message</label><textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Tell us what's on your mind..." required style={{ height: 90, resize: 'vertical' }} /></div>
-      <button type="submit" style={{ width: '100%', background: C.crimson, color: '#fff', border: 'none', borderRadius: 8, padding: 11, fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(220,38,38,0.2)' }}>Send Message</button>
+      <button type="submit" style={{ width: '100%', background: C.crimson, color: '#fff', border: 'none', borderRadius: 8, padding: 11, fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(225,29,72,0.2)' }}>Send Message</button>
     </form>
   )
 }
@@ -78,7 +69,7 @@ export default function HowItWorks() {
               </div>
             ))}
           </div>
-          <div style={{ background: 'rgba(6,95,70,0.04)', border: `1px solid rgba(6,95,70,0.12)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 10, padding: 16, marginBottom: 24 }}>
+          <div style={{ background: 'rgba(22,101,52,0.04)', border: `1px solid rgba(22,101,52,0.12)`, borderLeft: `4px solid ${C.jade}`, borderRadius: 10, padding: 16, marginBottom: 24 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: C.midnight, marginBottom: 10 }}>How game verification works</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {[
@@ -149,14 +140,14 @@ export default function HowItWorks() {
             <p style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 12 }}>Drag the sliders to see how your rating would change.</p>
             <div style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 12 }}>
-                <div><div style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Your Elo</div><div style={{ fontSize: 20, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>{myElo}</div><input type="range" min="500" max="1400" value={myElo} onChange={e => setMyElo(parseInt(e.target.value))} style={{ width: '100%' }} /></div>
-                <div><div style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Avg Opponent Elo</div><div style={{ fontSize: 20, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>{oppElo}</div><input type="range" min="500" max="1400" value={oppElo} onChange={e => setOppElo(parseInt(e.target.value))} style={{ width: '100%' }} /></div>
-                <div><div style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Rated Games</div><div style={{ fontSize: 20, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>{myGames} <span style={{ fontSize: 11, fontWeight: 400, color: C.slateLt }}>K={k.toFixed(2)}</span></div><input type="range" min="0" max="150" value={myGames} onChange={e => setMyGames(parseInt(e.target.value))} style={{ width: '100%' }} /></div>
+                <div><div style={{ fontSize: 11, color: C.slateMd, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Your Elo</div><div style={{ fontSize: 20, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>{myElo}</div><input type="range" min="500" max="1400" value={myElo} onChange={e => setMyElo(parseInt(e.target.value))} style={{ width: '100%' }} /></div>
+                <div><div style={{ fontSize: 11, color: C.slateMd, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Avg Opponent Elo</div><div style={{ fontSize: 20, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>{oppElo}</div><input type="range" min="500" max="1400" value={oppElo} onChange={e => setOppElo(parseInt(e.target.value))} style={{ width: '100%' }} /></div>
+                <div><div style={{ fontSize: 11, color: C.slateMd, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Rated Games</div><div style={{ fontSize: 20, fontWeight: 700, color: C.midnight, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>{myGames} <span style={{ fontSize: 11, fontWeight: 400, color: C.slateMd }}>K={k.toFixed(2)}</span></div><input type="range" min="0" max="150" value={myGames} onChange={e => setMyGames(parseInt(e.target.value))} style={{ width: '100%' }} /></div>
               </div>
               <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 12 }}>{ctx}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                <div style={{ background: 'rgba(6,95,70,0.06)', borderRadius: 10, padding: 12, textAlign: 'center', border: `1px solid rgba(6,95,70,0.12)` }}><div style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: C.jade, marginBottom: 3 }}>If you WIN</div><div style={{ fontSize: 22, fontWeight: 700, color: C.jade, fontFamily: "'JetBrains Mono', monospace" }}>+{winGain}</div></div>
-                <div style={{ background: 'rgba(220,38,38,0.04)', borderRadius: 10, padding: 12, textAlign: 'center', border: `1px solid rgba(220,38,38,0.1)` }}><div style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: C.crimson, marginBottom: 3 }}>If you LOSE</div><div style={{ fontSize: 22, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>−{lossLoss}</div></div>
+                <div style={{ background: 'rgba(22,101,52,0.06)', borderRadius: 10, padding: 12, textAlign: 'center', border: `1px solid rgba(22,101,52,0.12)` }}><div style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: C.jade, marginBottom: 3 }}>If you WIN</div><div style={{ fontSize: 22, fontWeight: 700, color: C.jade, fontFamily: "'JetBrains Mono', monospace" }}>+{winGain}</div></div>
+                <div style={{ background: 'rgba(225,29,72,0.04)', borderRadius: 10, padding: 12, textAlign: 'center', border: `1px solid rgba(225,29,72,0.1)` }}><div style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: C.crimson, marginBottom: 3 }}>If you LOSE</div><div style={{ fontSize: 22, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>−{lossLoss}</div></div>
                 <div style={{ background: C.cloud, borderRadius: 10, padding: 12, textAlign: 'center', border: `1px solid ${C.border}` }}><div style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: C.slate, marginBottom: 3 }}>WALL GAME</div><div style={{ fontSize: 22, fontWeight: 700, color: C.slate, fontFamily: "'JetBrains Mono', monospace" }}>0</div></div>
               </div>
             </div>
@@ -220,7 +211,7 @@ export default function HowItWorks() {
               {[{ title: 'Season Champion', desc: '#1 Elo at season close' }, { title: 'Most Improved', desc: 'Biggest Elo gain' }, { title: 'Most Active', desc: 'Most games played' }, { title: 'Club Champion', desc: 'Top player per club' }].map(a => (
                 <div key={a.title} style={{ background: C.cloud, border: `1px solid ${C.border}`, borderRadius: 8, padding: '10px 12px' }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: C.midnight }}>{a.title}</div>
-                  <div style={{ fontSize: 11, color: C.slateLt, fontFamily: "'DM Sans', sans-serif", marginTop: 2 }}>{a.desc}</div>
+                  <div style={{ fontSize: 11, color: C.slateMd, fontFamily: "'DM Sans', sans-serif", marginTop: 2 }}>{a.desc}</div>
                 </div>
               ))}
             </div>
