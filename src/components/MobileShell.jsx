@@ -44,6 +44,12 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   const [unreadTotal, setUnreadTotal] = useState(0)
   const [awaitingCount, setAwaitingCount] = useState(0)
   const [homeExpanded, setHomeExpanded] = useState(null) // 'friends' | 'review' | 'awaiting' | null
+  const [statPanel, setStatPanel] = useState(null) // 'games' | 'wins' | 'elo' | null
+  const [gameHistory, setGameHistory] = useState([])
+  const [eloHistory, setEloHistory] = useState([])
+  const [gamePlayers, setGamePlayers] = useState({})
+  const [gameLocations, setGameLocations] = useState({})
+  const [statsLoading, setStatsLoading] = useState(false)
   const [showMyCode, setShowMyCode] = useState(false)
   const [showAddFriend, setShowAddFriend] = useState(false)
   const { pending: friendRequests } = useFriends(player?.id, player?.name)
@@ -76,12 +82,65 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
     }
   }
 
+  // Fetch game history + elo history when stat panel opens
+  useEffect(() => {
+    if (!statPanel || !player?.id) return
+    if (gameHistory.length > 0 && eloHistory.length > 0) return // already loaded
+    setStatsLoading(true)
+    ;(async () => {
+      // Fetch matches this player was in
+      const { data: matches } = await supabase
+        .from('matches')
+        .select('*')
+        .contains('player_ids', [player.id])
+        .order('played_at', { ascending: false })
+        .limit(50)
+      if (matches) {
+        setGameHistory(matches)
+        // Gather all player IDs and location IDs
+        const allPlayerIds = new Set()
+        const allLocationIds = new Set()
+        matches.forEach(m => {
+          (m.player_ids || []).forEach(id => allPlayerIds.add(id))
+          if (m.location_id) allLocationIds.add(m.location_id)
+        })
+        // Fetch player names
+        if (allPlayerIds.size > 0) {
+          const { data: pData } = await supabase.from('players').select('id, name, avatar').in('id', [...allPlayerIds])
+          if (pData) {
+            const map = {}
+            pData.forEach(p => { map[p.id] = p })
+            setGamePlayers(map)
+          }
+        }
+        // Fetch location names
+        if (allLocationIds.size > 0) {
+          const { data: lData } = await supabase.from('locations').select('id, name').in('id', [...allLocationIds])
+          if (lData) {
+            const map = {}
+            lData.forEach(l => { map[l.id] = l })
+            setGameLocations(map)
+          }
+        }
+      }
+      // Fetch elo history
+      const { data: history } = await supabase
+        .from('elo_history')
+        .select('rating_before, rating_after, rating_change, created_at')
+        .eq('player_id', player.id)
+        .order('created_at', { ascending: true })
+        .limit(50)
+      if (history) setEloHistory(history)
+      setStatsLoading(false)
+    })()
+  }, [statPanel, player?.id])
+
   useEffect(() => {
     if (session && tab === 'landing') setTab('home')
     if (!session) setTab('landing')
   }, [session])
 
-  useEffect(() => { window.scrollTo(0, 0); setHomeExpanded(null) }, [tab])
+  useEffect(() => { window.scrollTo(0, 0); setHomeExpanded(null); setStatPanel(null) }, [tab])
 
   if (!session && tab === 'landing') {
     return <Homepage setTab={(t) => {
@@ -139,31 +198,278 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   <TierBadge elo={player?.elo || 800} />
                 </div>
 
-                {/* Stat boxes */}
+                {/* Stat boxes — clickable */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                   {[
-                    { label: 'Games', value: player?.games_played || 0, color: C.jadeLt },
-                    { label: 'Wins', value: player?.wins || 0, color: C.ink },
-                    { label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
-                  ].map((s, i) => (
-                    <div key={i} style={{
-                      background: C.white,
+                    { key: 'games', label: 'Games', value: player?.games_played || 0, color: C.jadeLt },
+                    { key: 'wins', label: 'Wins', value: player?.wins || 0, color: C.ink },
+                    { key: 'elo', label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
+                  ].map((s) => (
+                    <button key={s.key} onClick={() => setStatPanel(statPanel === s.key ? null : s.key)} style={{
+                      background: statPanel === s.key ? 'rgba(28,25,23,0.03)' : C.white,
                       borderTop: `3px solid ${s.color}`,
-                      borderRight: `1px solid ${C.border}`,
-                      borderBottom: `1px solid ${C.border}`,
-                      borderLeft: `1px solid ${C.border}`,
+                      borderRight: `1px solid ${statPanel === s.key ? s.color : C.border}`,
+                      borderBottom: `1px solid ${statPanel === s.key ? s.color : C.border}`,
+                      borderLeft: `1px solid ${statPanel === s.key ? s.color : C.border}`,
                       borderRadius: 14, padding: '18px 12px', textAlign: 'center',
+                      cursor: 'pointer', transition: 'all 0.15s ease',
                     }}>
-                      {s.label === 'Elo' ? (
+                      {s.key === 'elo' ? (
                         <AnimatedElo value={s.value} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 30, fontWeight: 700, color: s.color, lineHeight: 1 }} />
                       ) : (
                         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 30, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
                       )}
                       <div style={{ fontSize: 12, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", marginTop: 8, fontWeight: 600 }}>{s.label}</div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
+
+              {/* ══ Stat Panels ══ */}
+              {statPanel === 'games' && (
+                <div style={{
+                  background: 'white', border: `1px solid ${C.border}`, borderRadius: 16,
+                  padding: 20, marginBottom: 14, boxShadow: shadows.md,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <div style={{ fontFamily: fonts.heading, fontSize: 18, fontWeight: 700, color: C.midnight }}>
+                      Game History
+                    </div>
+                    <button onClick={() => setStatPanel(null)} style={{ background: 'none', border: 'none', fontSize: 18, color: C.slate, cursor: 'pointer' }}>✕</button>
+                  </div>
+                  {statsLoading ? (
+                    <div style={{ textAlign: 'center', padding: 20, fontFamily: fonts.body, fontSize: 14, color: C.slate }}>Loading...</div>
+                  ) : gameHistory.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: 20, fontFamily: fonts.body, fontSize: 14, color: C.slateLt }}>No games yet. Record your first game!</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {gameHistory.slice(0, 20).map((m, i) => {
+                        const isWinner = m.winner_id === player?.id
+                        const isWall = m.is_wall_game
+                        const otherPlayers = (m.player_ids || []).filter(id => id !== player?.id).map(id => gamePlayers[id]?.name || '?').join(', ')
+                        const locName = m.location_id ? gameLocations[m.location_id]?.name : null
+                        const date = new Date(m.played_at)
+                        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined })
+                        return (
+                          <div key={m.id || i} style={{
+                            display: 'flex', alignItems: 'flex-start', gap: 12,
+                            padding: '12px 14px', borderRadius: 12,
+                            background: i % 2 === 0 ? '#FAFAF9' : 'white',
+                            border: `1px solid ${C.borderLt || C.border}`,
+                          }}>
+                            <div style={{
+                              width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                              background: isWall ? C.goldPale : isWinner ? 'rgba(22,101,52,0.06)' : 'rgba(225,29,72,0.06)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 20,
+                            }}>
+                              {isWall ? '🧱' : isWinner ? '🏆' : '🀄'}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontFamily: fonts.body, fontSize: 14, fontWeight: 600, color: C.midnight }}>
+                                {isWall ? 'Wall Game' : isWinner ? 'You won!' : `${gamePlayers[m.winner_id]?.name || 'Someone'} won`}
+                              </div>
+                              <div style={{ fontFamily: fonts.body, fontSize: 12, color: C.slate, marginTop: 2 }}>
+                                vs {otherPlayers || 'unknown'}
+                              </div>
+                              <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+                                <span style={{ fontFamily: fonts.body, fontSize: 11, color: C.slateLt }}>{dateStr}</span>
+                                {locName && <span style={{ fontFamily: fonts.body, fontSize: 11, color: C.slateLt }}>📍 {locName}</span>}
+                                {m.hand_section && <span style={{ fontFamily: fonts.mono, fontSize: 10, color: C.slateMd, background: C.cloud, padding: '1px 6px', borderRadius: 4 }}>{m.hand_section}</span>}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {statPanel === 'wins' && (
+                <div style={{
+                  background: 'white', border: `1px solid ${C.border}`, borderRadius: 16,
+                  padding: 20, marginBottom: 14, boxShadow: shadows.md,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <div style={{ fontFamily: fonts.heading, fontSize: 18, fontWeight: 700, color: C.midnight }}>
+                      Win / Loss Stats
+                    </div>
+                    <button onClick={() => setStatPanel(null)} style={{ background: 'none', border: 'none', fontSize: 18, color: C.slate, cursor: 'pointer' }}>✕</button>
+                  </div>
+                  {statsLoading ? (
+                    <div style={{ textAlign: 'center', padding: 20, fontFamily: fonts.body, fontSize: 14, color: C.slate }}>Loading...</div>
+                  ) : (() => {
+                    const totalGames = player?.games_played || 0
+                    const wins = player?.wins || 0
+                    const losses = totalGames - wins
+                    const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0
+                    const wallGames = gameHistory.filter(m => m.is_wall_game).length
+                    const nonWallGames = totalGames - wallGames
+
+                    // Streak calculation
+                    let currentStreak = 0
+                    let streakType = null
+                    for (let i = 0; i < gameHistory.length; i++) {
+                      const m = gameHistory[i]
+                      if (m.is_wall_game) continue
+                      const won = m.winner_id === player?.id
+                      if (streakType === null) { streakType = won ? 'W' : 'L'; currentStreak = 1 }
+                      else if ((won && streakType === 'W') || (!won && streakType === 'L')) currentStreak++
+                      else break
+                    }
+
+                    // Best opponent (most wins against)
+                    const winsAgainst = {}
+                    gameHistory.forEach(m => {
+                      if (m.is_wall_game || m.winner_id !== player?.id) return
+                      ;(m.player_ids || []).forEach(id => {
+                        if (id !== player?.id) winsAgainst[id] = (winsAgainst[id] || 0) + 1
+                      })
+                    })
+                    const topOpponentId = Object.entries(winsAgainst).sort((a, b) => b[1] - a[1])[0]
+
+                    return (
+                      <div>
+                        {/* Win rate bar */}
+                        <div style={{ marginBottom: 20 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                            <span style={{ fontFamily: fonts.mono, fontSize: 28, fontWeight: 700, color: C.jade }}>{wins}W</span>
+                            <span style={{ fontFamily: fonts.mono, fontSize: 28, fontWeight: 700, color: C.crimson }}>{losses}L</span>
+                          </div>
+                          <div style={{ height: 12, borderRadius: 6, background: C.cloud, overflow: 'hidden', display: 'flex' }}>
+                            <div style={{ width: `${winRate}%`, background: C.jade, borderRadius: '6px 0 0 6px', transition: 'width 0.5s ease' }} />
+                            <div style={{ flex: 1, background: totalGames > 0 ? 'rgba(225,29,72,0.2)' : C.cloud }} />
+                          </div>
+                          <div style={{ textAlign: 'center', marginTop: 8, fontFamily: fonts.mono, fontSize: 16, fontWeight: 700, color: C.midnight }}>
+                            {winRate}% win rate
+                          </div>
+                        </div>
+
+                        {/* Stats grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                          <div style={{ background: '#FAFAF9', borderRadius: 12, padding: '14px 12px', textAlign: 'center', border: `1px solid ${C.border}` }}>
+                            <div style={{ fontFamily: fonts.mono, fontSize: 24, fontWeight: 700, color: C.midnight }}>{totalGames}</div>
+                            <div style={{ fontFamily: fonts.body, fontSize: 11, color: C.slateLt, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>Total Games</div>
+                          </div>
+                          <div style={{ background: '#FAFAF9', borderRadius: 12, padding: '14px 12px', textAlign: 'center', border: `1px solid ${C.border}` }}>
+                            <div style={{ fontFamily: fonts.mono, fontSize: 24, fontWeight: 700, color: C.goldDk }}>{wallGames}</div>
+                            <div style={{ fontFamily: fonts.body, fontSize: 11, color: C.slateLt, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>Wall Games</div>
+                          </div>
+                          {currentStreak > 1 && (
+                            <div style={{ background: streakType === 'W' ? 'rgba(22,101,52,0.04)' : 'rgba(225,29,72,0.04)', borderRadius: 12, padding: '14px 12px', textAlign: 'center', border: `1px solid ${streakType === 'W' ? 'rgba(22,101,52,0.15)' : 'rgba(225,29,72,0.15)'}` }}>
+                              <div style={{ fontFamily: fonts.mono, fontSize: 24, fontWeight: 700, color: streakType === 'W' ? C.jade : C.crimson }}>{currentStreak}{streakType}</div>
+                              <div style={{ fontFamily: fonts.body, fontSize: 11, color: C.slateLt, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>Current Streak</div>
+                            </div>
+                          )}
+                          {topOpponentId && (
+                            <div style={{ background: '#FAFAF9', borderRadius: 12, padding: '14px 12px', textAlign: 'center', border: `1px solid ${C.border}` }}>
+                              <div style={{ fontFamily: fonts.body, fontSize: 14, fontWeight: 700, color: C.midnight }}>{gamePlayers[topOpponentId[0]]?.name || '?'}</div>
+                              <div style={{ fontFamily: fonts.body, fontSize: 11, color: C.slateLt, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{topOpponentId[1]} wins vs</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </div>
+              )}
+
+              {statPanel === 'elo' && (
+                <div style={{
+                  background: 'white', border: `1px solid ${C.border}`, borderRadius: 16,
+                  padding: 20, marginBottom: 14, boxShadow: shadows.md,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <div style={{ fontFamily: fonts.heading, fontSize: 18, fontWeight: 700, color: C.midnight }}>
+                      Elo Trend
+                    </div>
+                    <button onClick={() => setStatPanel(null)} style={{ background: 'none', border: 'none', fontSize: 18, color: C.slate, cursor: 'pointer' }}>✕</button>
+                  </div>
+                  {statsLoading ? (
+                    <div style={{ textAlign: 'center', padding: 20, fontFamily: fonts.body, fontSize: 14, color: C.slate }}>Loading...</div>
+                  ) : eloHistory.length < 2 ? (
+                    <div style={{ textAlign: 'center', padding: 20, fontFamily: fonts.body, fontSize: 14, color: C.slateLt }}>Play more games to see your Elo trend!</div>
+                  ) : (() => {
+                    const ratings = eloHistory.map(h => h.rating_after)
+                    const min = Math.min(...ratings) - 10
+                    const max = Math.max(...ratings) + 10
+                    const range = max - min || 1
+                    const w = 320, h = 140, padX = 40, padY = 16
+                    const chartW = w - padX * 2, chartH = h - padY * 2
+
+                    const points = ratings.map((r, i) => {
+                      const x = padX + (i / (ratings.length - 1)) * chartW
+                      const y = padY + (1 - (r - min) / range) * chartH
+                      return [x, y]
+                    })
+
+                    const polyline = points.map(p => `${p[0]},${p[1]}`).join(' ')
+                    const lastRating = ratings[ratings.length - 1]
+                    const firstRating = ratings[0]
+                    const color = lastRating >= firstRating ? C.jade : C.crimson
+                    const change = lastRating - firstRating
+                    const highElo = Math.max(...ratings)
+                    const lowElo = Math.min(...ratings)
+
+                    // Grid lines
+                    const gridLines = 4
+                    const gridValues = Array.from({ length: gridLines }, (_, i) => Math.round(min + (range * i) / (gridLines - 1)))
+
+                    return (
+                      <div>
+                        {/* Chart */}
+                        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                          <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ maxWidth: '100%' }}>
+                            {/* Grid lines */}
+                            {gridValues.map((v, i) => {
+                              const y = padY + (1 - (v - min) / range) * chartH
+                              return (
+                                <g key={i}>
+                                  <line x1={padX} y1={y} x2={w - padX} y2={y} stroke={C.border} strokeWidth="1" strokeDasharray="3,3" />
+                                  <text x={padX - 6} y={y + 4} textAnchor="end" fill={C.slateLt} fontSize="10" fontFamily="JetBrains Mono, monospace">{v}</text>
+                                </g>
+                              )
+                            })}
+                            {/* Area fill */}
+                            <polygon
+                              points={`${points[0][0]},${padY + chartH} ${polyline} ${points[points.length - 1][0]},${padY + chartH}`}
+                              fill={lastRating >= firstRating ? 'rgba(22,101,52,0.06)' : 'rgba(225,29,72,0.06)'}
+                            />
+                            {/* Line */}
+                            <polyline points={polyline} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                            {/* Endpoint dot */}
+                            <circle cx={points[points.length - 1][0]} cy={points[points.length - 1][1]} r="5" fill={color} />
+                            <circle cx={points[points.length - 1][0]} cy={points[points.length - 1][1]} r="3" fill="white" />
+                          </svg>
+                        </div>
+
+                        {/* Summary stats */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                          <div style={{ background: '#FAFAF9', borderRadius: 10, padding: '10px 8px', textAlign: 'center', border: `1px solid ${C.border}` }}>
+                            <div style={{ fontFamily: fonts.mono, fontSize: 18, fontWeight: 700, color: change >= 0 ? C.jade : C.crimson }}>
+                              {change >= 0 ? '+' : ''}{Math.round(change)}
+                            </div>
+                            <div style={{ fontFamily: fonts.body, fontSize: 10, color: C.slateLt, textTransform: 'uppercase', marginTop: 3 }}>Overall</div>
+                          </div>
+                          <div style={{ background: '#FAFAF9', borderRadius: 10, padding: '10px 8px', textAlign: 'center', border: `1px solid ${C.border}` }}>
+                            <div style={{ fontFamily: fonts.mono, fontSize: 18, fontWeight: 700, color: C.jade }}>{Math.round(highElo)}</div>
+                            <div style={{ fontFamily: fonts.body, fontSize: 10, color: C.slateLt, textTransform: 'uppercase', marginTop: 3 }}>High</div>
+                          </div>
+                          <div style={{ background: '#FAFAF9', borderRadius: 10, padding: '10px 8px', textAlign: 'center', border: `1px solid ${C.border}` }}>
+                            <div style={{ fontFamily: fonts.mono, fontSize: 18, fontWeight: 700, color: C.crimson }}>{Math.round(lowElo)}</div>
+                            <div style={{ fontFamily: fonts.body, fontSize: 10, color: C.slateLt, textTransform: 'uppercase', marginTop: 3 }}>Low</div>
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: 'center', marginTop: 12, fontFamily: fonts.body, fontSize: 12, color: C.slateLt }}>
+                          Last {eloHistory.length} games
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </div>
+              )}
 
               {/* ══ Status Bubbles ══ */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
