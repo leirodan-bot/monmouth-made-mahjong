@@ -89,7 +89,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   }
 
   const isLegalPage = tab === 'terms' || tab === 'privacy' || tab === 'cookies'
-  const showBottomNav = !isLegalPage && tab !== 'login' && tab !== 'howitworks'
+  const showBottomNav = !isLegalPage && tab !== 'login'
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: C.cloud }}>
