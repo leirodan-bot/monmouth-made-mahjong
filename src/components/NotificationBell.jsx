@@ -267,11 +267,11 @@ export default function NotificationBell({ player, onNavigate, refreshPlayer, on
               }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                  background: n.type === 'verified' ? 'rgba(22,101,52,0.08)' : n.type === 'confirm_match' ? 'rgba(225,29,72,0.06)' : n.type === 'follow' ? 'rgba(22,101,52,0.06)' : C.cloud,
-                  color: n.type === 'verified' ? C.jade : n.type === 'confirm_match' ? C.crimson : n.type === 'follow' ? C.jade : C.slateMd,
+                  background: n.type === 'verified' ? 'rgba(22,101,52,0.08)' : n.type === 'confirm_match' ? 'rgba(225,29,72,0.06)' : (n.type === 'follow' || n.type === 'friend_request' || n.type === 'friend_accepted') ? 'rgba(22,101,52,0.06)' : C.cloud,
+                  color: n.type === 'verified' ? C.jade : n.type === 'confirm_match' ? C.crimson : (n.type === 'follow' || n.type === 'friend_request' || n.type === 'friend_accepted') ? C.jade : C.slateMd,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13
                 }}>
-                  {n.type === 'verified' ? '✓' : n.type === 'confirm_match' ? '✓' : n.type === 'follow' ? '👤' : '●'}
+                  {n.type === 'verified' ? '✓' : n.type === 'confirm_match' ? '✓' : n.type === 'friend_request' ? '👋' : n.type === 'friend_accepted' ? '🤝' : n.type === 'follow' ? '👤' : '●'}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: C.ink, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.4 }}>{n.message}</div>

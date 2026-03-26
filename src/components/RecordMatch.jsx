@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { calculateGameEloUpdates } from '../eloUtils'
 import { C, fonts, shadows } from '../theme'
+import useFriends from '../useFriends'
 
 // NMJL sections in card order (top to bottom) — simplified for badge tracking
 const NMJL_SECTIONS = [
@@ -47,6 +48,9 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
   const [newLocName, setNewLocName] = useState('')
   const [newLocType, setNewLocType] = useState('home')
   const [showNewLoc, setShowNewLoc] = useState(false)
+  const [playerFilter, setPlayerFilter] = useState('friends') // 'friends' or 'all'
+  const { friendIds } = useFriends(player?.id, player?.name)
+
   // Step 4 — all optional, badge-only fields
   const [winMethod, setWinMethod] = useState('')
   const [exposures, setExposures] = useState(null)
@@ -54,6 +58,13 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
   const [handSection, setHandSection] = useState('')
 
   useEffect(() => { fetchData() }, [])
+
+  // Auto-add yourself to the table
+  useEffect(() => {
+    if (player?.id && !selectedPlayers.includes(player.id)) {
+      setSelectedPlayers(prev => prev.includes(player.id) ? prev : [player.id, ...prev])
+    }
+  }, [player?.id])
 
   async function fetchData() {
     const { data: playerData } = await supabase.from('players').select('*').order('name')
@@ -79,8 +90,8 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
   }
 
   function resetForm() {
-    setStep(1); setSelectedPlayers([]); setSelectedLocation(null); setWinner(''); setIsWallGame(false)
-    setWinMethod(''); setExposures(null); setJokerless(false); setHandSection('')
+    setStep(1); setSelectedPlayers(player?.id ? [player.id] : []); setSelectedLocation(null); setWinner(''); setIsWallGame(false)
+    setWinMethod(''); setExposures(null); setJokerless(false); setHandSection(''); setPlayerFilter('friends'); setSearchQuery('')
   }
 
   async function createLocation() {
@@ -152,7 +163,13 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
 
   if (loading) return <div style={{ textAlign: 'center', padding: 40, fontFamily: "'DM Sans', sans-serif", color: C.slate }}>Loading...</div>
 
-  const filteredPlayers = players.filter(p => !selectedPlayers.includes(p.id) && p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredPlayers = players.filter(p => {
+    if (selectedPlayers.includes(p.id)) return false
+    if (p.id === player?.id) return false // exclude self (auto-included)
+    if (!p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
+    if (playerFilter === 'friends' && !searchQuery && !friendIds.has(p.id)) return false
+    return true
+  })
   const preview = getEloPreview()
 
   // Shared button styles
@@ -213,17 +230,19 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
                   {selectedPlayers.map(id => {
                     const p = players.find(pl => pl.id === id)
                     const initials = p?.name ? p.name.split(' ').map(n => n[0]).join('') : '?'
+                    const isSelf = id === player?.id
                     return (
                       <div key={id} style={{
                         display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 12,
-                        background: '#F0FDF4', border: `1.5px solid ${C.jade}`, fontSize: 14, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: C.jade,
+                        background: isSelf ? 'rgba(22,101,52,0.04)' : '#F0FDF4',
+                        border: `1.5px solid ${C.jade}`, fontSize: 14, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: C.jade,
                       }}>
                         <div style={{
                           width: 28, height: 28, borderRadius: '50%', background: C.jade, color: 'white',
                           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, fontFamily: "'Outfit', sans-serif", flexShrink: 0,
                         }}>{p?.avatar || initials}</div>
-                        {p?.name}
-                        <span onClick={() => togglePlayer(id)} style={{ cursor: 'pointer', color: C.crimson, fontWeight: 700, fontSize: 16, marginLeft: 4 }}>✕</span>
+                        {isSelf ? 'You' : p?.name}
+                        {!isSelf && <span onClick={() => togglePlayer(id)} style={{ cursor: 'pointer', color: C.crimson, fontWeight: 700, fontSize: 16, marginLeft: 4 }}>✕</span>}
                       </div>
                     )
                   })}
@@ -233,7 +252,27 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
               {/* Player search & list */}
               {selectedPlayers.length < 4 && (
                 <div>
-                  <input type="text" placeholder="Search players by name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  {/* Friends / All Players toggle */}
+                  <div style={{
+                    display: 'flex', gap: 0, borderRadius: 10, overflow: 'hidden',
+                    border: `1.5px solid ${C.border}`, marginBottom: 10,
+                  }}>
+                    {[
+                      { key: 'friends', label: '👋 Friends', count: friendIds.size },
+                      { key: 'all', label: '👥 All Players' },
+                    ].map(t => (
+                      <button key={t.key} onClick={() => setPlayerFilter(t.key)} style={{
+                        flex: 1, padding: '10px 14px', fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 600,
+                        cursor: 'pointer', border: 'none', transition: 'all 0.15s ease',
+                        background: playerFilter === t.key ? C.midnight : 'white',
+                        color: playerFilter === t.key ? '#fff' : C.slate,
+                      }}>
+                        {t.label}{t.count != null ? ` (${t.count})` : ''}
+                      </button>
+                    ))}
+                  </div>
+
+                  <input type="text" placeholder={playerFilter === 'friends' ? 'Search friends...' : 'Search all players...'} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                     style={{
                       width: '100%', padding: '12px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 14,
                       fontFamily: "'DM Sans', sans-serif", marginBottom: 10, boxSizing: 'border-box', background: 'white',
@@ -242,9 +281,28 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
                     onFocus={e => e.target.style.borderColor = C.jade}
                     onBlur={e => e.target.style.borderColor = C.border}
                   />
-                  <div style={{ maxHeight: 240, overflowY: 'auto', display: 'grid', gap: 6 }}>
+
+                  <div style={{ maxHeight: 280, overflowY: 'auto', display: 'grid', gap: 6 }}>
+                    {filteredPlayers.length === 0 && playerFilter === 'friends' && !searchQuery && (
+                      <div style={{ textAlign: 'center', padding: '20px 16px' }}>
+                        <div style={{ fontSize: 28, marginBottom: 8 }}>👋</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>No friends yet</div>
+                        <div style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 12 }}>Add friends from the Community tab to see them here</div>
+                        <button onClick={() => setPlayerFilter('all')} style={{
+                          padding: '8px 16px', borderRadius: 10, border: `1.5px solid ${C.jade}`, fontSize: 13,
+                          fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
+                          background: 'white', color: C.jade,
+                        }}>Browse All Players</button>
+                      </div>
+                    )}
+                    {filteredPlayers.length === 0 && searchQuery && (
+                      <div style={{ textAlign: 'center', padding: '16px', fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>
+                        No {playerFilter === 'friends' ? 'friends' : 'players'} match "{searchQuery}"
+                      </div>
+                    )}
                     {filteredPlayers.slice(0, 20).map(p => {
                       const initials = p.name ? p.name.split(' ').map(n => n[0]).join('') : '?'
+                      const isFriend = friendIds.has(p.id)
                       return (
                         <button key={p.id} type="button" onClick={() => { togglePlayer(p.id); setSearchQuery('') }}
                           style={{
@@ -254,12 +312,17 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
                             display: 'flex', alignItems: 'center', gap: 10,
                           }}>
                           <div style={{
-                            width: 36, height: 36, borderRadius: '50%', background: C.cloud, color: C.slateLt,
+                            width: 36, height: 36, borderRadius: '50%',
+                            background: isFriend ? C.jade : C.cloud,
+                            color: isFriend ? 'white' : C.slateLt,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 13, fontWeight: 700, fontFamily: "'Outfit', sans-serif", flexShrink: 0,
+                            fontSize: p.avatar ? 16 : 13, fontWeight: 700, fontFamily: "'Outfit', sans-serif", flexShrink: 0,
                           }}>{p.avatar || initials}</div>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 14, fontWeight: 600 }}>{p.name}</div>
+                            <div style={{ fontSize: 14, fontWeight: 600 }}>
+                              {p.name}
+                              {isFriend && <span style={{ fontSize: 10, marginLeft: 6, color: C.jade, fontWeight: 700 }}>👋</span>}
+                            </div>
                             <div style={{ fontSize: 11, color: C.slate, marginTop: 1 }}>{p.town || 'No town'} · Elo {Math.round(p.elo || 800)}</div>
                           </div>
                         </button>

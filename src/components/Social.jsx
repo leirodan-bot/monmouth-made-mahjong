@@ -1,11 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../supabase'
 import { C, fonts, shadows } from '../theme'
+import useFriends from '../useFriends'
 import Players from './Players'
 import Clubs from './Clubs'
 
 export default function Social({ session, player, initialPlayerId, onClearInitial }) {
   const [view, setView] = useState('players') // 'players' or 'clubs'
   const [search, setSearch] = useState('')
+  const { pending, acceptRequest, declineRequest } = useFriends(player?.id, player?.name)
+  const [pendingPlayers, setPendingPlayers] = useState([])
+
+  // Resolve pending request player names
+  useEffect(() => {
+    if (pending.length === 0) { setPendingPlayers([]); return }
+    const ids = pending.map(p => p.requester_id)
+    supabase.from('players').select('id, name, avatar, elo, town')
+      .in('id', ids)
+      .then(({ data }) => setPendingPlayers(data || []))
+  }, [pending.length])
 
   return (
     <div>
@@ -16,6 +29,57 @@ export default function Social({ session, player, initialPlayerId, onClearInitia
           Find friends, join clubs, and grow your circle.
         </p>
       </div>
+
+      {/* ══ Friend Requests Banner ══ */}
+      {pending.length > 0 && (
+        <div style={{
+          background: 'white', border: `1.5px solid ${C.jade}`, borderRadius: 14,
+          padding: 16, marginBottom: 16, boxShadow: shadows.sm,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 8, background: 'rgba(22,101,52,0.08)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
+            }}>👋</div>
+            <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontWeight: 700, color: C.midnight }}>
+              Friend Request{pending.length > 1 ? 's' : ''} ({pending.length})
+            </div>
+          </div>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {pending.map(req => {
+              const p = pendingPlayers.find(pl => pl.id === req.requester_id)
+              if (!p) return null
+              const initials = p.name ? p.name.split(' ').map(n => n[0]).join('') : '?'
+              return (
+                <div key={req.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                  background: C.cloudLt, borderRadius: 12, border: `1px solid ${C.border}`,
+                }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: '50%', background: C.jade, color: 'white',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: p.avatar ? 16 : 12, fontWeight: 700, fontFamily: "'Outfit', sans-serif", flexShrink: 0,
+                  }}>{p.avatar || initials}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{p.name}</div>
+                    <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{p.town || 'MahjRank player'}</div>
+                  </div>
+                  <button onClick={() => acceptRequest(req.requester_id)} style={{
+                    padding: '8px 16px', borderRadius: 10, border: 'none', fontSize: 13,
+                    fontFamily: "'DM Sans', sans-serif", fontWeight: 700, cursor: 'pointer',
+                    background: C.jade, color: 'white',
+                  }}>Accept</button>
+                  <button onClick={() => declineRequest(req.requester_id)} style={{
+                    padding: '8px 12px', borderRadius: 10, border: `1px solid ${C.border}`, fontSize: 13,
+                    fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                    background: 'white', color: C.slate,
+                  }}>✕</button>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div style={{ position: 'relative', marginBottom: 16 }}>

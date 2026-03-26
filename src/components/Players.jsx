@@ -3,6 +3,7 @@ import { supabase } from '../supabase'
 import { getTier } from '../eloUtils'
 import { BADGES, BADGE_CATEGORIES, getBadge } from '../badgeUtils'
 import { C, fonts, shadows } from '../theme'
+import useFriends from '../useFriends'
 
 function RankBadge({ elo }) {
   const tier = getTier(elo)
@@ -36,25 +37,16 @@ export default function Players({ session, player, initialPlayerId, onClearIniti
   }
   function selectPlayer(p) { setSelected(p); fetchBadges(p.id); fetchH2H(p.id) }
 
-  // Follow system — fetch who this player follows
-  const [followedIds, setFollowedIds] = useState([])
-  useEffect(() => {
-    if (!player?.id) return
-    supabase.from('follows').select('following_id').eq('follower_id', player.id)
-      .then(({ data }) => setFollowedIds((data || []).map(f => f.following_id)))
-  }, [player?.id])
+  // Friends system
+  const { friendIds, getStatus, sendRequest, removeFriend } = useFriends(player?.id, player?.name)
 
-  async function toggleFollow(e, targetId) {
+  function handleFriendAction(e, targetId) {
     e.stopPropagation()
     if (!player?.id || targetId === player.id) return
-    const isFollowing = followedIds.includes(targetId)
-    if (isFollowing) {
-      await supabase.from('follows').delete().eq('follower_id', player.id).eq('following_id', targetId)
-      setFollowedIds(prev => prev.filter(id => id !== targetId))
-    } else {
-      await supabase.from('follows').insert({ follower_id: player.id, following_id: targetId })
-      setFollowedIds(prev => [...prev, targetId])
-    }
+    const status = getStatus(targetId)
+    if (status === 'none') sendRequest(targetId)
+    else if (status === 'friends') removeFriend(targetId)
+    // 'sent' and 'pending' — no action on click (show label only)
   }
 
   async function generateShareCard(p, earnedBadges) {
@@ -105,15 +97,22 @@ export default function Players({ session, player, initialPlayerId, onClearIniti
             <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
               <div style={{ fontSize: 32, fontWeight: 700, color: C.crimson, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(selected.elo || 800)}</div>
               <div style={{ fontSize: 11, color: C.slateMd, fontFamily: "'DM Sans', sans-serif" }}>Elo Rating</div>
-              {player && selected.id !== player.id && (
-                <button onClick={(e) => toggleFollow(e, selected.id)} style={{
-                  marginTop: 8, padding: '6px 18px', borderRadius: 20, fontSize: 12,
-                  fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
-                  background: followedIds.includes(selected.id) ? C.jade : 'white',
-                  color: followedIds.includes(selected.id) ? 'white' : C.jade,
-                  border: followedIds.includes(selected.id) ? 'none' : `1px solid ${C.jade}`,
-                }}>{followedIds.includes(selected.id) ? 'Following' : 'Follow'}</button>
-              )}
+              {player && selected.id !== player.id && (() => {
+                const status = getStatus(selected.id)
+                const labels = { none: '+ Add Friend', sent: 'Request Sent', pending: 'Accept Request', friends: 'Friends ✓' }
+                const isFriend = status === 'friends'
+                const isSent = status === 'sent'
+                return (
+                  <button onClick={(e) => handleFriendAction(e, selected.id)} style={{
+                    marginTop: 8, padding: '8px 20px', borderRadius: 12, fontSize: 13,
+                    fontFamily: "'DM Sans', sans-serif", fontWeight: 600,
+                    cursor: isSent ? 'default' : 'pointer',
+                    background: isFriend ? C.jade : isSent ? C.cloud : 'white',
+                    color: isFriend ? 'white' : isSent ? C.slate : C.jade,
+                    border: isFriend ? 'none' : isSent ? `1px solid ${C.border}` : `1.5px solid ${C.jade}`,
+                  }}>{labels[status] || '+ Add Friend'}</button>
+                )
+              })()}
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
@@ -236,16 +235,26 @@ export default function Players({ session, player, initialPlayerId, onClearIniti
               <div style={{ fontSize: 10, color: C.slateMd, fontFamily: "'DM Sans', sans-serif" }}>{p.wins || 0}W–{p.losses || 0}L</div>
             </div>
             {(p.current_streak || 0) > 1 && <div style={{ fontSize: 11 }}>🔥{p.current_streak}</div>}
-            {/* Follow button — right side of card */}
-            {player && p.id !== player.id && (
-              <button onClick={(e) => toggleFollow(e, p.id)} style={{
-                flexShrink: 0, padding: '4px 12px', borderRadius: 20, fontSize: 11,
-                fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
-                background: followedIds.includes(p.id) ? C.jade : 'white',
-                color: followedIds.includes(p.id) ? 'white' : C.jade,
-                border: followedIds.includes(p.id) ? 'none' : '1px solid ' + C.jade,
-              }}>{followedIds.includes(p.id) ? 'Following' : 'Follow'}</button>
-            )}
+            {/* Friend button — right side of card */}
+            {player && p.id !== player.id && (() => {
+              const status = getStatus(p.id)
+              const isFriend = status === 'friends'
+              const isSent = status === 'sent'
+              const isPending = status === 'pending'
+              const label = isFriend ? '👋' : isSent ? '⏳' : isPending ? '✓' : '+'
+              const title = isFriend ? 'Friends' : isSent ? 'Request sent' : isPending ? 'Accept request' : 'Add friend'
+              return (
+                <button onClick={(e) => handleFriendAction(e, p.id)} title={title} style={{
+                  flexShrink: 0, width: 32, height: 32, borderRadius: 10, fontSize: 14,
+                  fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
+                  cursor: isSent ? 'default' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: isFriend ? 'rgba(22,101,52,0.06)' : isPending ? 'rgba(22,101,52,0.06)' : 'white',
+                  color: isFriend ? C.jade : isPending ? C.jade : isSent ? C.slate : C.jade,
+                  border: isFriend ? `1.5px solid ${C.jade}` : isPending ? `1.5px solid ${C.jade}` : isSent ? `1px solid ${C.border}` : `1.5px solid ${C.jade}`,
+                }}>{label}</button>
+              )
+            })()}
           </div>
         ))}
       </div>
