@@ -192,7 +192,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                         <div style={{
                           position: 'absolute', top: -8, right: -8,
                           minWidth: 28, height: 28, borderRadius: 14,
-                          background: b.activeColor, color: 'white',
+                          background: C.crimson, color: 'white',
                           fontSize: 14, fontWeight: 800, display: 'flex',
                           alignItems: 'center', justifyContent: 'center',
                           padding: '0 6px', border: '2.5px solid white',
