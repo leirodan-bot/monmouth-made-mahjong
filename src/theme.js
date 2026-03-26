@@ -17,6 +17,10 @@ export const C = {
   // Gold — unchanged
   gold: '#F59E0B',
   goldDk: '#D97706',
+  goldPale: 'rgba(245,158,11,0.08)',
+
+  // Semantic pale tints for selected states
+  jadePale: '#F0FDF4',
 
   // Dark backgrounds — warm stone instead of cool navy
   midnight: '#1C1917',    // stone-900, warm charcoal (was #0F172A)

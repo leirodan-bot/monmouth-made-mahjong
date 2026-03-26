@@ -238,7 +238,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           {tab === 'social' && session && <Social session={session} player={player} initialPlayerId={selectedPlayerId} onClearInitial={() => setSelectedPlayerId(null)} />}
           {tab === 'players' && session && <Players session={session} player={player} initialPlayerId={selectedPlayerId} onClearInitial={() => setSelectedPlayerId(null)} />}
           {tab === 'clubs' && session && <Clubs session={session} player={player} />}
-          {tab === 'record' && session && <RecordMatch session={session} player={player} refreshPlayer={refreshPlayer} />}
+          {tab === 'record' && session && <RecordMatch session={session} player={player} refreshPlayer={refreshPlayer} onDone={() => setTab('home')} />}
           {tab === 'howitworks' && <HowItWorks />}
           {tab === 'activity' && <ActivityFeed player={player} />}
           {tab === 'terms' && <TermsOfService setTab={setTab} />}
