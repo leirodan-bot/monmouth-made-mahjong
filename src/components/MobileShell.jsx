@@ -130,11 +130,11 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           {tab === 'home' && session && (
             <div>
               {/* Welcome card */}
-              <div style={cardLg({ padding: '20px', marginBottom: 14 })}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+              <div style={cardLg({ padding: '24px', marginBottom: 14 })}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
                   <div>
-                    <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Welcome back,</div>
-                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 24, fontWeight: 800, color: C.midnight, letterSpacing: -0.5 }}>{player?.name || 'Player'}</div>
+                    <div style={{ fontSize: 15, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>Welcome back,</div>
+                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 28, fontWeight: 800, color: C.midnight, letterSpacing: -0.5 }}>{player?.name || 'Player'}</div>
                   </div>
                   <TierBadge elo={player?.elo || 800} />
                 </div>
@@ -152,14 +152,14 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                       borderRight: `1px solid ${C.border}`,
                       borderBottom: `1px solid ${C.border}`,
                       borderLeft: `1px solid ${C.border}`,
-                      borderRadius: 12, padding: '14px 10px', textAlign: 'center',
+                      borderRadius: 14, padding: '18px 12px', textAlign: 'center',
                     }}>
                       {s.label === 'Elo' ? (
-                        <AnimatedElo value={s.value} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 700, color: s.color, lineHeight: 1 }} />
+                        <AnimatedElo value={s.value} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 30, fontWeight: 700, color: s.color, lineHeight: 1 }} />
                       ) : (
-                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 30, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
                       )}
-                      <div style={{ fontSize: 10, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", marginTop: 6, fontWeight: 600 }}>{s.label}</div>
+                      <div style={{ fontSize: 12, color: C.slateLt, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", marginTop: 8, fontWeight: 600 }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
