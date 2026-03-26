@@ -163,7 +163,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               </div>
 
               {/* ══ Status Bubbles ══ */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
                 {[
                   { key: 'friends', emoji: '👋', label: 'Friends', count: friendRequests.length, activeColor: C.jade, activeBg: 'rgba(22,101,52,0.06)', restLabel: 'No requests' },
                   { key: 'review', emoji: '✅', label: 'Review', count: pendingCount, activeColor: C.crimson, activeBg: 'rgba(225,29,72,0.06)', restLabel: 'All clear' },
@@ -177,29 +177,29 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     }} style={{
                       background: isExpanded ? b.activeBg : 'white',
                       border: isExpanded ? `2px solid ${b.activeColor}` : `1px solid ${C.border}`,
-                      borderRadius: 14, padding: '14px 8px', textAlign: 'center',
+                      borderRadius: 16, padding: '18px 10px', textAlign: 'center',
                       cursor: isActive ? 'pointer' : 'default',
                       fontFamily: "'DM Sans', sans-serif",
                       boxShadow: isActive ? shadows.sm : 'none',
                       transition: 'all 0.15s ease',
                       position: 'relative',
                     }}>
-                      <div style={{ fontSize: 22, marginBottom: 4 }}>{b.emoji}</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: isActive ? b.activeColor : C.slateLt }}>
+                      <div style={{ fontSize: 34, marginBottom: 6, lineHeight: 1 }}>{b.emoji}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: isActive ? b.activeColor : C.slateLt }}>
                         {b.label}
                       </div>
                       {isActive ? (
                         <div style={{
-                          position: 'absolute', top: -6, right: -6,
-                          minWidth: 22, height: 22, borderRadius: 11,
+                          position: 'absolute', top: -8, right: -8,
+                          minWidth: 28, height: 28, borderRadius: 14,
                           background: b.activeColor, color: 'white',
-                          fontSize: 11, fontWeight: 800, display: 'flex',
+                          fontSize: 14, fontWeight: 800, display: 'flex',
                           alignItems: 'center', justifyContent: 'center',
-                          padding: '0 5px', border: '2px solid white',
+                          padding: '0 6px', border: '2.5px solid white',
                           fontFamily: "'JetBrains Mono', monospace",
                         }}>{b.count}</div>
                       ) : (
-                        <div style={{ fontSize: 10, color: C.slateLt, marginTop: 2 }}>{b.restLabel}</div>
+                        <div style={{ fontSize: 12, color: C.slateLt, marginTop: 4 }}>{b.restLabel}</div>
                       )}
                     </button>
                   )
