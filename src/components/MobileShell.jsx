@@ -16,6 +16,7 @@ import PrivacyPolicy from './PrivacyPolicy'
 import CookiePolicy from './CookiePolicy'
 import Auth from './Auth'
 import InstallPrompt from './InstallPrompt'
+import { MyCodeModal, AddFriendModal } from './QRFriend'
 
 import ProfileSection from "./ProfileSection"
 import AnimatedElo from './AnimatedElo'
@@ -43,6 +44,8 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   const [unreadTotal, setUnreadTotal] = useState(0)
   const [awaitingCount, setAwaitingCount] = useState(0)
   const [homeExpanded, setHomeExpanded] = useState(null) // 'friends' | 'review' | 'awaiting' | null
+  const [showMyCode, setShowMyCode] = useState(false)
+  const [showAddFriend, setShowAddFriend] = useState(false)
   const { pending: friendRequests } = useFriends(player?.id, player?.name)
 
   useEffect(() => {
@@ -262,6 +265,34 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               }}>
                 <span style={{ fontSize: 20, fontWeight: 300 }}>+</span> Record a Game
               </button>
+
+              {/* ══ Add Friends (QR) ══ */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                <button onClick={() => setShowMyCode(true)} style={{
+                  background: 'white', border: `1px solid ${C.border}`,
+                  borderRadius: 16, padding: '20px 16px', textAlign: 'left',
+                  fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                  boxShadow: shadows.sm,
+                }}>
+                  <div style={{ fontSize: 34, marginBottom: 8, lineHeight: 1 }}>📱</div>
+                  <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>My Code</div>
+                  <div style={{ fontSize: 13, color: C.slateLt, marginTop: 4, lineHeight: 1.3 }}>Show your QR code</div>
+                </button>
+                <button onClick={() => setShowAddFriend(true)} style={{
+                  background: 'white', border: `1px solid ${C.border}`,
+                  borderRadius: 16, padding: '20px 16px', textAlign: 'left',
+                  fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                  boxShadow: shadows.sm,
+                }}>
+                  <div style={{ fontSize: 34, marginBottom: 8, lineHeight: 1 }}>👋</div>
+                  <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>Add Friend</div>
+                  <div style={{ fontSize: 13, color: C.slateLt, marginTop: 4, lineHeight: 1.3 }}>Scan a QR code</div>
+                </button>
+              </div>
+
+              {/* QR Modals */}
+              {showMyCode && <MyCodeModal player={player} onClose={() => setShowMyCode(false)} />}
+              {showAddFriend && <AddFriendModal player={player} onClose={() => setShowAddFriend(false)} onAdded={() => {}} />}
 
               {/* Quick links */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
