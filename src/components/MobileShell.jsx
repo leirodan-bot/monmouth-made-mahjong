@@ -7,6 +7,7 @@ import Rankings from './Rankings'
 import Towns from './Towns'
 import Players from './Players'
 import Clubs from './Clubs'
+import Social from './Social'
 import RecordMatch from './RecordMatch'
 import HowItWorks from './HowItWorks'
 import ActivityFeed from './ActivityFeed'
@@ -24,7 +25,7 @@ const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: HomeIcon },
   { id: 'rankings', label: 'Rankings', icon: RankingsIcon },
   { id: 'record', label: 'Log', icon: LogIcon, center: true },
-  { id: 'activity', label: 'Activity', icon: ActivityIcon },
+  { id: 'social', label: 'Social', icon: SocialIcon },
   { id: 'profile', label: 'Profile', icon: ProfileIcon },
 ]
 
@@ -207,9 +208,9 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[
                   { label: 'Rankings', icon: '🏆', sub: 'See where you stand', tab: 'rankings' },
-                  { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs' },
+                  { label: 'Community', icon: '👥', sub: 'Players & clubs', tab: 'social' },
                   { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks' },
-                  { label: 'Players', icon: '👥', sub: 'Browse all players', tab: 'players' },
+                  { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs' },
                 ].map((link, i) => (
                   <button key={i} onClick={() => setTab(link.tab)} style={{
                     background: 'white',
@@ -232,8 +233,9 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             <ProfileSection session={session} player={player} onSignOut={onSignOut} setTab={setTab} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('players') }} />
           )}
 
-          {tab === 'rankings' && <Rankings session={session} player={player} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('players') }} />}
+          {tab === 'rankings' && <Rankings session={session} player={player} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('social') }} />}
           {tab === 'towns' && <Towns />}
+          {tab === 'social' && session && <Social session={session} player={player} initialPlayerId={selectedPlayerId} onClearInitial={() => setSelectedPlayerId(null)} />}
           {tab === 'players' && session && <Players session={session} player={player} initialPlayerId={selectedPlayerId} onClearInitial={() => setSelectedPlayerId(null)} />}
           {tab === 'clubs' && session && <Clubs session={session} player={player} />}
           {tab === 'record' && session && <RecordMatch session={session} player={player} refreshPlayer={refreshPlayer} />}
@@ -303,6 +305,9 @@ function LogIcon({ color, size }) {
 }
 function ActivityIcon({ color, size }) {
   return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>)
+}
+function SocialIcon({ color, size }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>)
 }
 function ProfileIcon({ color, size }) {
   return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>)

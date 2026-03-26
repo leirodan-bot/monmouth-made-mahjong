@@ -26,15 +26,13 @@ export default function Header({ session, player, tab, setTab, refreshPlayer }) 
   }
 
   const tabs = session
-    ? ['rankings', 'howitworks', 'activity', 'players', 'clubs', 'profile', 'record']
+    ? ['rankings', 'social', 'howitworks', 'profile', 'record']
     : ['rankings', 'howitworks']
 
   const tabLabels = {
     rankings: 'Rankings',
+    social: 'Community',
     howitworks: 'How It Works',
-    activity: 'Activity',
-    players: 'Players',
-    clubs: 'Clubs',
     profile: 'Profile',
     record: 'Record'
   }

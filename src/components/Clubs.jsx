@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { C, fonts, shadows } from '../theme'
 
-export default function Clubs({ session, player }) {
+export default function Clubs({ session, player, searchFilter = '' }) {
   const [clubs, setClubs] = useState([])
   const [players, setPlayers] = useState([])
   const [memberships, setMemberships] = useState([])
@@ -172,11 +172,24 @@ export default function Clubs({ session, player }) {
           <button type="submit" disabled={saving} style={{ background: C.crimson, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, cursor: 'pointer' }}>{saving ? 'Saving...' : editingClub ? 'Save Changes' : 'Add Club'}</button>
         </form>
       )}
-      {clubs.length === 0 ? (
-        <div style={{ background: 'white', border: `1px dashed ${C.border}`, borderRadius: 12, padding: 40, textAlign: 'center' }}><div style={{ fontSize: 14, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>No clubs yet — add one to get started.</div></div>
-      ) : (
+      {(() => {
+        const filteredClubs = searchFilter
+          ? clubs.filter(c =>
+              c.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
+              (c.location && c.location.toLowerCase().includes(searchFilter.toLowerCase()))
+            )
+          : clubs
+        if (filteredClubs.length === 0 && searchFilter) return (
+          <div style={{ textAlign: 'center', padding: '32px 16px', color: C.slate, fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>
+            No clubs found for "{searchFilter}"
+          </div>
+        )
+        if (filteredClubs.length === 0) return (
+          <div style={{ background: 'white', border: `1px dashed ${C.border}`, borderRadius: 12, padding: 40, textAlign: 'center' }}><div style={{ fontSize: 14, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>No clubs yet — add one to get started.</div></div>
+        )
+        return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
-          {clubs.map(club => {
+          {filteredClubs.map(club => {
             const clubMemberships = memberships.filter(m => m.club_id === club.id && m.status === 'approved')
             const pendingCount = memberships.filter(m => m.club_id === club.id && m.status === 'pending').length
             const clubPlayers = players.filter(p => clubMemberships.some(m => m.player_id === p.id))
@@ -202,7 +215,8 @@ export default function Clubs({ session, player }) {
             )
           })}
         </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

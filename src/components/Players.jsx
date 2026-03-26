@@ -9,7 +9,7 @@ function RankBadge({ elo }) {
   return <span style={{ display: 'inline-block', fontSize: 10, padding: '2px 8px', borderRadius: 20, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, background: tier.bg, color: tier.textColor }}>{tier.name}</span>
 }
 
-export default function Players({ session, player, initialPlayerId, onClearInitial }) {
+export default function Players({ session, player, initialPlayerId, onClearInitial, searchFilter = '' }) {
   const [players, setPlayers] = useState([])
   const [selected, setSelected] = useState(null)
   const [badges, setBadges] = useState([])
@@ -201,14 +201,28 @@ export default function Players({ session, player, initialPlayerId, onClearIniti
     )
   }
 
+  const filteredPlayers = searchFilter
+    ? players.filter(p =>
+        p.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
+        (p.town && p.town.toLowerCase().includes(searchFilter.toLowerCase()))
+      )
+    : players
+
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: C.midnight }}>Player Directory</h2>
-        <p style={{ fontSize: 12, color: C.slate, fontFamily: "'JetBrains Mono', monospace", marginTop: 4, letterSpacing: 0.3 }}>{players.length} players · Season 1</p>
-      </div>
+      {!searchFilter && (
+        <div style={{ marginBottom: 16 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: C.midnight }}>Player Directory</h2>
+          <p style={{ fontSize: 12, color: C.slate, fontFamily: "'JetBrains Mono', monospace", marginTop: 4, letterSpacing: 0.3 }}>{players.length} players · Season 1</p>
+        </div>
+      )}
+      {searchFilter && filteredPlayers.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '32px 16px', color: C.slate, fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>
+          No players found for "{searchFilter}"
+        </div>
+      )}
       <div style={{ display: 'grid', gap: 8 }}>
-        {players.map((p, i) => (
+        {filteredPlayers.map((p, i) => (
           <div key={p.id} onClick={() => selectPlayer(p)} style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: C.slateMd, minWidth: 24, fontFamily: "'JetBrains Mono', monospace" }}>{i + 1}</div>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: C.jade, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: p.avatar ? 18 : 11, fontWeight: 700, flexShrink: 0, fontFamily: "'Outfit', sans-serif" }}>{p.avatar || p.name.split(' ').map(n => n[0]).join('')}</div>
