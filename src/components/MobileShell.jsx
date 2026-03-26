@@ -20,6 +20,7 @@ import InstallPrompt from './InstallPrompt'
 import ProfileSection from "./ProfileSection"
 import AnimatedElo from './AnimatedElo'
 import { C, fonts, shadows, card, cardLg, statusCard } from '../theme'
+import useFriends from '../useFriends'
 
 const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: HomeIcon },
@@ -41,6 +42,8 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   const [pendingCount, setPendingCount] = useState(0)
   const [unreadTotal, setUnreadTotal] = useState(0)
   const [awaitingCount, setAwaitingCount] = useState(0)
+  const [homeExpanded, setHomeExpanded] = useState(null) // 'friends' | 'review' | 'awaiting' | null
+  const { pending: friendRequests } = useFriends(player?.id, player?.name)
 
   useEffect(() => {
     if (!player) return
@@ -75,7 +78,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
     if (!session) setTab('landing')
   }, [session])
 
-  useEffect(() => { window.scrollTo(0, 0) }, [tab])
+  useEffect(() => { window.scrollTo(0, 0); setHomeExpanded(null) }, [tab])
 
   if (!session && tab === 'landing') {
     return <Homepage setTab={(t) => {
@@ -159,37 +162,93 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                 </div>
               </div>
 
-              {/* Pending confirmations */}
-              {pendingCount > 0 && (
-                <button onClick={() => setTab('activity')} style={{
-                  width: '100%', background: 'rgba(245,158,11,0.12)',
-                  borderTop: '1px solid rgba(245,158,11,0.35)', borderRight: '1px solid rgba(245,158,11,0.15)',
-                  borderBottom: '1px solid rgba(245,158,11,0.35)', borderLeft: `4px solid ${C.gold}`,
-                  borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
-                  marginBottom: 14, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
-                }}>
-                  <div style={{ width: 24, height: 24, borderRadius: 8, background: C.gold, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{pendingCount}</div>
-                  <div style={{ flex: 1, textAlign: 'left' }}>
-                    <div style={{ color: C.goldDk, fontSize: 13, fontWeight: 600 }}>{pendingCount === 1 ? 'game needs' : 'games need'} your review</div>
-                    <div style={{ fontSize: 11, color: C.slate, marginTop: 1 }}>Tap to review and confirm</div>
-                  </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.goldDk} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-                </button>
-              )}
+              {/* ══ Status Bubbles ══ */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
+                {[
+                  { key: 'friends', emoji: '👋', label: 'Friends', count: friendRequests.length, activeColor: C.jade, activeBg: 'rgba(22,101,52,0.06)', restLabel: 'No requests' },
+                  { key: 'review', emoji: '✅', label: 'Review', count: pendingCount, activeColor: C.crimson, activeBg: 'rgba(225,29,72,0.06)', restLabel: 'All clear' },
+                  { key: 'awaiting', emoji: '⏳', label: 'Sent', count: awaitingCount, activeColor: C.goldDk, activeBg: 'rgba(245,158,11,0.06)', restLabel: 'None pending' },
+                ].map(b => {
+                  const isActive = b.count > 0
+                  const isExpanded = homeExpanded === b.key
+                  return (
+                    <button key={b.key} onClick={() => {
+                      if (isActive) setHomeExpanded(isExpanded ? null : b.key)
+                    }} style={{
+                      background: isExpanded ? b.activeBg : 'white',
+                      border: isExpanded ? `2px solid ${b.activeColor}` : `1px solid ${C.border}`,
+                      borderRadius: 14, padding: '14px 8px', textAlign: 'center',
+                      cursor: isActive ? 'pointer' : 'default',
+                      fontFamily: "'DM Sans', sans-serif",
+                      boxShadow: isActive ? shadows.sm : 'none',
+                      transition: 'all 0.15s ease',
+                      position: 'relative',
+                    }}>
+                      <div style={{ fontSize: 22, marginBottom: 4 }}>{b.emoji}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: isActive ? b.activeColor : C.slateLt }}>
+                        {b.label}
+                      </div>
+                      {isActive ? (
+                        <div style={{
+                          position: 'absolute', top: -6, right: -6,
+                          minWidth: 22, height: 22, borderRadius: 11,
+                          background: b.activeColor, color: 'white',
+                          fontSize: 11, fontWeight: 800, display: 'flex',
+                          alignItems: 'center', justifyContent: 'center',
+                          padding: '0 5px', border: '2px solid white',
+                          fontFamily: "'JetBrains Mono', monospace",
+                        }}>{b.count}</div>
+                      ) : (
+                        <div style={{ fontSize: 10, color: C.slateLt, marginTop: 2 }}>{b.restLabel}</div>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
 
-              {/* Awaiting verification */}
-              {awaitingCount > 0 && (
+              {/* ══ Expanded panels ══ */}
+              {homeExpanded === 'friends' && friendRequests.length > 0 && (
+                <FriendRequestsPanel
+                  player={player}
+                  friendRequests={friendRequests}
+                  onClose={() => setHomeExpanded(null)}
+                  onViewAll={() => { setHomeExpanded(null); setTab('social') }}
+                />
+              )}
+              {homeExpanded === 'review' && pendingCount > 0 && (
                 <div style={{
-                  width: '100%', background: 'rgba(245,158,11,0.10)',
-                  borderTop: '1px solid rgba(245,158,11,0.35)', borderRight: '1px solid rgba(245,158,11,0.35)',
-                  borderBottom: '1px solid rgba(245,158,11,0.35)', borderLeft: `4px solid ${C.goldDk}`,
-                  borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
-                  marginBottom: 14, fontFamily: "'DM Sans', sans-serif",
+                  background: 'white', border: `1px solid ${C.border}`, borderRadius: 14,
+                  padding: 16, marginBottom: 14, boxShadow: shadows.sm,
                 }}>
-                  <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(245,158,11,0.25)', color: C.goldDk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{awaitingCount}</div>
-                  <div>
-                    <div style={{ color: C.goldDk, fontSize: 13, fontWeight: 600 }}>{awaitingCount === 1 ? 'game' : 'games'} awaiting verification</div>
-                    <div style={{ fontSize: 11, color: C.slate, marginTop: 1 }}>Waiting for another player to confirm</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontWeight: 700, color: C.midnight }}>
+                      Games to Review ({pendingCount})
+                    </div>
+                    <button onClick={() => setHomeExpanded(null)} style={{ background: 'none', border: 'none', fontSize: 16, color: C.slate, cursor: 'pointer' }}>✕</button>
+                  </div>
+                  <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 12 }}>
+                    Other players submitted games that include you. Tap the bell to review and confirm.
+                  </div>
+                  <button onClick={() => { setHomeExpanded(null); setTab('activity') }} style={{
+                    width: '100%', padding: 12, borderRadius: 10, border: 'none', fontSize: 14,
+                    fontFamily: "'DM Sans', sans-serif", fontWeight: 700, cursor: 'pointer',
+                    background: C.crimson, color: 'white', boxShadow: shadows.rose,
+                  }}>Review Games →</button>
+                </div>
+              )}
+              {homeExpanded === 'awaiting' && awaitingCount > 0 && (
+                <div style={{
+                  background: 'white', border: `1px solid ${C.border}`, borderRadius: 14,
+                  padding: 16, marginBottom: 14, boxShadow: shadows.sm,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontWeight: 700, color: C.midnight }}>
+                      Awaiting Verification ({awaitingCount})
+                    </div>
+                    <button onClick={() => setHomeExpanded(null)} style={{ background: 'none', border: 'none', fontSize: 16, color: C.slate, cursor: 'pointer' }}>✕</button>
+                  </div>
+                  <div style={{ fontSize: 13, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>
+                    You submitted {awaitingCount} {awaitingCount === 1 ? 'game' : 'games'} that {awaitingCount === 1 ? 'is' : 'are'} waiting for another player to confirm. Games auto-verify after 48 hours.
                   </div>
                 </div>
               )}
@@ -290,6 +349,71 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
         </nav>
       )}
       <InstallPrompt />
+    </div>
+  )
+}
+
+function FriendRequestsPanel({ player, friendRequests, onClose, onViewAll }) {
+  const [requestPlayers, setRequestPlayers] = useState([])
+  const { acceptRequest, declineRequest } = useFriends(player?.id, player?.name)
+
+  useEffect(() => {
+    if (friendRequests.length === 0) { setRequestPlayers([]); return }
+    const ids = friendRequests.map(r => r.requester_id)
+    supabase.from('players').select('id, name, avatar, elo, town')
+      .in('id', ids)
+      .then(({ data }) => setRequestPlayers(data || []))
+  }, [friendRequests.length])
+
+  return (
+    <div style={{
+      background: 'white', border: `1px solid ${C.border}`, borderRadius: 14,
+      padding: 16, marginBottom: 14, boxShadow: shadows.sm,
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontWeight: 700, color: C.midnight }}>
+          Friend Requests ({friendRequests.length})
+        </div>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 16, color: C.slate, cursor: 'pointer' }}>✕</button>
+      </div>
+      <div style={{ display: 'grid', gap: 8 }}>
+        {friendRequests.map(req => {
+          const p = requestPlayers.find(pl => pl.id === req.requester_id)
+          if (!p) return null
+          const initials = p.name ? p.name.split(' ').map(n => n[0]).join('') : '?'
+          return (
+            <div key={req.id} style={{
+              display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+              background: C.cloudLt, borderRadius: 12, border: `1px solid ${C.border}`,
+            }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%', background: C.jade, color: 'white',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: p.avatar ? 16 : 12, fontWeight: 700, fontFamily: "'Outfit', sans-serif", flexShrink: 0,
+              }}>{p.avatar || initials}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.midnight, fontFamily: "'DM Sans', sans-serif" }}>{p.name}</div>
+                <div style={{ fontSize: 11, color: C.slate, fontFamily: "'DM Sans', sans-serif" }}>{p.town || 'MahjRank player'}</div>
+              </div>
+              <button onClick={() => acceptRequest(req.requester_id)} style={{
+                padding: '8px 14px', borderRadius: 10, border: 'none', fontSize: 13,
+                fontFamily: "'DM Sans', sans-serif", fontWeight: 700, cursor: 'pointer',
+                background: C.jade, color: 'white',
+              }}>Accept</button>
+              <button onClick={() => declineRequest(req.requester_id)} style={{
+                padding: '8px 10px', borderRadius: 10, border: `1px solid ${C.border}`, fontSize: 13,
+                fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                background: 'white', color: C.slate,
+              }}>✕</button>
+            </div>
+          )
+        })}
+      </div>
+      <button onClick={onViewAll} style={{
+        width: '100%', marginTop: 10, padding: 10, borderRadius: 10,
+        border: `1px solid ${C.border}`, fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+        fontWeight: 600, cursor: 'pointer', background: 'white', color: C.jade,
+      }}>View All in Community →</button>
     </div>
   )
 }
