@@ -621,6 +621,53 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   </button>
                 ))}
               </div>
+
+              {/* ══ NMJL Card Year Countdown ══ */}
+              {(() => {
+                const now = new Date()
+                const year = now.getFullYear()
+                const month = now.getMonth() // 0-indexed
+                // NMJL card year: April 1 – March 31
+                // Next April 1
+                const nextApril1 = month >= 3 // April (3) or later → next year's April
+                  ? new Date(year + 1, 3, 1)
+                  : new Date(year, 3, 1)
+                const daysLeft = Math.ceil((nextApril1 - now) / (1000 * 60 * 60 * 24))
+                const totalDays = 365
+                const pct = Math.round(((totalDays - daysLeft) / totalDays) * 100)
+                const cardYear = month >= 3 ? year : year - 1
+
+                return (
+                  <div style={{
+                    background: 'white', border: `1px solid ${C.border}`,
+                    borderRadius: 16, padding: '20px', marginTop: 10,
+                    boxShadow: shadows.sm, textAlign: 'center',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
+                      <span style={{ fontSize: 34, lineHeight: 1 }}>🀄</span>
+                      <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontFamily: fonts.heading, fontSize: 16, fontWeight: 700, color: C.midnight }}>
+                          {cardYear} NMJL Card
+                        </div>
+                        <div style={{ fontFamily: fonts.body, fontSize: 13, color: C.slate }}>
+                          {daysLeft} {daysLeft === 1 ? 'day' : 'days'} until new card
+                        </div>
+                      </div>
+                    </div>
+                    {/* Progress bar */}
+                    <div style={{ height: 10, borderRadius: 5, background: C.cloud, overflow: 'hidden', marginBottom: 8 }}>
+                      <div style={{
+                        width: `${pct}%`, height: '100%',
+                        background: `linear-gradient(to right, ${C.jade}, ${C.jadeLt})`,
+                        borderRadius: 5, transition: 'width 0.5s ease',
+                      }} />
+                    </div>
+                    <div style={{ fontFamily: fonts.mono, fontSize: 13, fontWeight: 600, color: C.slateMd }}>
+                      {pct}% of card year complete
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )}
 
