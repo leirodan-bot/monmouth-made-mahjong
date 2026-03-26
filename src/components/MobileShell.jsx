@@ -274,13 +274,13 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   <button key={i} onClick={() => setTab(link.tab)} style={{
                     background: 'white',
                     border: `1px solid ${C.border}`,
-                    borderRadius: 14, padding: '18px 16px', textAlign: 'left',
+                    borderRadius: 16, padding: '20px 16px', textAlign: 'left',
                     fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
                     boxShadow: shadows.sm,
                   }}>
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>{link.icon}</div>
-                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>{link.label}</div>
-                    <div style={{ fontSize: 11, color: C.slateLt, marginTop: 3, lineHeight: 1.3 }}>{link.sub}</div>
+                    <div style={{ fontSize: 34, marginBottom: 8, lineHeight: 1 }}>{link.icon}</div>
+                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>{link.label}</div>
+                    <div style={{ fontSize: 13, color: C.slateLt, marginTop: 4, lineHeight: 1.3 }}>{link.sub}</div>
                   </button>
                 ))}
               </div>
