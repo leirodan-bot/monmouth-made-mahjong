@@ -153,10 +153,10 @@ export default function Rankings({ session, player, onPlayerClick }) {
         </div>
       </div>
 
-      {/* View toggle: Global / My Circle / Club */}
+      {/* View toggle: Global / Friends / Club */}
       {player && (
         <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
-          {[{ key: 'global', label: 'Global' }, { key: 'circle', label: 'My Circle' }, { key: 'club', label: 'My Club' }].map(v => (
+          {[{ key: 'global', label: 'Global' }, { key: 'circle', label: 'Friends' }, { key: 'club', label: 'My Club' }].map(v => (
             <button key={v.key} onClick={() => setView(v.key)} style={{
               padding: '5px 14px', borderRadius: 20, fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, cursor: 'pointer',
               background: view === v.key ? C.midnight : 'white', color: view === v.key ? C.cloud : C.slate,
