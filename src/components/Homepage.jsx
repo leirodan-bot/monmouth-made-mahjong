@@ -59,7 +59,7 @@ export default function Homepage({ setTab }) {
   const rankColors = [C.gold, '#C0C0C0', '#CD7F32', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']
 
   return (
-    <div style={{ minHeight: '100vh', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
 
       {/* ===== HERO ===== */}
       <section style={{

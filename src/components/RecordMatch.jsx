@@ -3,6 +3,8 @@ import { supabase } from '../supabase'
 import { calculateGameEloUpdates } from '../eloUtils'
 import { C, fonts, shadows } from '../theme'
 import useFriends from '../useFriends'
+import { haptics } from '../native'
+import WinAnimation from './WinAnimation'
 
 // NMJL sections in card order (top to bottom) — simplified for badge tracking
 const NMJL_SECTIONS = [
@@ -38,6 +40,7 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [showWinAnimation, setShowWinAnimation] = useState(false)
   const [error, setError] = useState('')
   const [pendingMatches, setPendingMatches] = useState([])
   const [tab, setTab] = useState('submit')
@@ -69,7 +72,7 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
   async function fetchData() {
     const { data: playerData } = await supabase.from('players').select('*').order('name')
     setPlayers(playerData || [])
-    const { data: locData } = await supabase.from('locations').select('*').order('created_at', { ascending: false })
+    const { data: locData } = await supabase.from('locations').select('*').eq('created_by', player.id).order('created_at', { ascending: false })
     setLocations(locData || [])
     if (player?.id) {
       const { data: matchData } = await supabase
@@ -147,8 +150,15 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
       })
     }
     setSuccess(true); setSaving(false)
+    haptics.success() // Native haptic feedback on successful match recording
     if (refreshPlayer) refreshPlayer()
-    setTimeout(() => { setSuccess(false); resetForm(); fetchData(); if (onDone) onDone() }, 2000)
+    // Show win animation if the current user won
+    const playerWon = !isWallGame && winner === player?.id
+    if (playerWon) {
+      setShowWinAnimation(true)
+    } else {
+      setTimeout(() => { setSuccess(false); resetForm(); fetchData(); if (onDone) onDone() }, 2000)
+    }
   }
 
   async function confirmMatch(matchId) {
@@ -179,6 +189,20 @@ export default function RecordMatch({ session, player, refreshPlayer, onDone }) 
 
   return (
     <div>
+      {/* Win celebration animation */}
+      {showWinAnimation && (
+        <WinAnimation
+          winnerName={player?.name}
+          onComplete={() => {
+            setShowWinAnimation(false)
+            setSuccess(false)
+            resetForm()
+            fetchData()
+            if (onDone) onDone()
+          }}
+        />
+      )}
+
       <div style={{ marginBottom: 16 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, color: C.midnight, fontFamily: "'Outfit', sans-serif" }}>Record a Game</h2>
         <p style={{ fontSize: 12, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>1 player must confirm · Auto-verified after 48 hours</p>

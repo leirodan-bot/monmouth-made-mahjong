@@ -4,6 +4,23 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  /* Disable tap highlight on iOS */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS safe areas — notch, Dynamic Island, home indicator */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+html {
+  /* Prevent pinch-to-zoom but allow normal scroll/touch */
+  touch-action: pan-x pan-y;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -12,6 +29,24 @@ body {
   color: #1C1917;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Disable text selection on non-input elements (feels native) */
+  -webkit-user-select: none;
+  user-select: none;
+  /* Disable callout on long-press (e.g. image save dialog) */
+  -webkit-touch-callout: none;
+  /* NO safe area padding on body — components handle their own */
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+}
+
+/* Re-enable text selection on inputs and text areas */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 h1, h2, h3, h4 {
@@ -31,7 +66,7 @@ a {
 
 input, select, textarea {
   font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  font-size: 16px; /* 16px prevents iOS auto-zoom on input focus */
   color: #1C1917;
   border: 1px solid #D6D3D1;
   border-radius: 8px;
@@ -45,6 +80,28 @@ input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: #166534;
   box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.08);
+}
+
+/* ===== iOS NATIVE FEEL: Page transitions ===== */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: fadeSlideIn 0.25s ease-out;
+}
+
+/* Subtle press-down effect on tappable elements */
+button:active, [role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
 }
 
 /* ===== ACCESSIBILITY: Keyboard focus indicators ===== */

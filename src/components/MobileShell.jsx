@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
+import { haptics } from '../native'
 import logoHeader from '../assets/mahjrank/mahjranklogotransparent2400.png'
 import NotificationBell from './NotificationBell'
 import Homepage from './Homepage'
@@ -37,7 +38,19 @@ function Chevron() {
   return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.slateLt} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
 }
 
+// Hook to detect tablet-sized screens (iPad)
+function useIsTablet() {
+  const [isTablet, setIsTablet] = useState(() => window.innerWidth >= 768)
+  useEffect(() => {
+    const check = () => setIsTablet(window.innerWidth >= 768)
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return isTablet
+}
+
 export default function MobileShell({ session, player, onSignOut, refreshPlayer }) {
+  const isTablet = useIsTablet()
   const [tab, setTab] = useState(session ? 'home' : 'landing')
   const [selectedPlayerId, setSelectedPlayerId] = useState(null)
   const [pendingCount, setPendingCount] = useState(0)
@@ -52,7 +65,18 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   const [statsLoading, setStatsLoading] = useState(false)
   const [showMyCode, setShowMyCode] = useState(false)
   const [showAddFriend, setShowAddFriend] = useState(false)
+  const [transitionKey, setTransitionKey] = useState(0)
+  const contentRef = useRef(null)
   const { pending: friendRequests } = useFriends(player?.id, player?.name)
+
+  // Trigger page transition animation on tab change
+  const prevTab = useRef(tab)
+  useEffect(() => {
+    if (prevTab.current !== tab) {
+      setTransitionKey(k => k + 1)
+      prevTab.current = tab
+    }
+  }, [tab])
 
   useEffect(() => {
     if (!player) return
@@ -140,7 +164,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
     if (!session) setTab('landing')
   }, [session])
 
-  useEffect(() => { window.scrollTo(0, 0); setHomeExpanded(null); setStatPanel(null) }, [tab])
+  useEffect(() => { contentRef.current?.scrollTo(0, 0); setHomeExpanded(null); setStatPanel(null) }, [tab])
 
   if (!session && tab === 'landing') {
     return <Homepage setTab={(t) => {
@@ -157,16 +181,17 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   const showBottomNav = !isLegalPage && tab !== 'login'
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: C.cloud }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', background: C.cloud, overflow: 'hidden' }}>
 
       {/* ===== TOP BAR ===== */}
       <div style={{
-        background: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100,
+        background: 'white', padding: '8px 16px', paddingTop: 'calc(env(safe-area-inset-top, 0px) + 6px)',
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', zIndex: 100, flexShrink: 0,
         borderBottom: `1px solid ${C.border}`,
       }}>
         <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setTab(session ? 'home' : 'landing')}>
-          <img src={logoHeader} alt="MahjRank" style={{ height: 56 }} />
+          <img src={logoHeader} alt="MahjRank" style={{ height: 40 }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {session && player && <NotificationBell player={player} onNavigate={setTab} refreshPlayer={refreshPlayer} onCountChange={({ pending, total }) => { setPendingCount(pending); setUnreadTotal(total); }} />}
@@ -179,27 +204,27 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
       </div>
 
       {/* Gradient accent */}
-      <div style={{ height: 2, background: `linear-gradient(to right, ${C.jade}, ${C.jadeLt}, ${C.crimson})`, opacity: 0.4 }} />
+      <div style={{ height: 2, flexShrink: 0, background: `linear-gradient(to right, ${C.jade}, ${C.jadeLt}, ${C.crimson})`, opacity: 0.4 }} />
 
       {/* ===== CONTENT ===== */}
-      <div style={{ flex: 1, paddingBottom: showBottomNav ? 80 : 0 }}>
-        <main style={{ maxWidth: 600, margin: '0 auto', padding: '16px 12px' }}>
+      <div ref={contentRef} style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <main key={transitionKey} className="page-transition" style={{ maxWidth: isTablet ? 960 : 600, margin: '0 auto', padding: isTablet ? '28px 24px' : '16px 12px' }}>
 
           {/* ═══════ HOME TAB ═══════ */}
           {tab === 'home' && session && (
             <div>
               {/* Welcome card */}
-              <div style={cardLg({ padding: '24px', marginBottom: 14 })}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+              <div style={cardLg({ padding: isTablet ? '28px' : '24px', marginBottom: isTablet ? 20 : 14 })}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isTablet ? 24 : 20 }}>
                   <div>
-                    <div style={{ fontSize: 15, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>Welcome back,</div>
-                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 28, fontWeight: 800, color: C.midnight, letterSpacing: -0.5 }}>{player?.name || 'Player'}</div>
+                    <div style={{ fontSize: isTablet ? 16 : 15, color: C.slate, fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>Welcome back,</div>
+                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: isTablet ? 32 : 28, fontWeight: 800, color: C.midnight, letterSpacing: -0.5 }}>{player?.name || 'Player'}</div>
                   </div>
                   <TierBadge elo={player?.elo || 800} />
                 </div>
 
                 {/* Stat boxes — clickable */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: isTablet ? 16 : 10 }}>
                   {[
                     { key: 'games', label: 'Games', value: player?.games_played || 0, color: C.jadeLt },
                     { key: 'wins', label: 'Wins', value: player?.wins || 0, color: C.ink },
@@ -472,7 +497,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               )}
 
               {/* ══ Status Bubbles ══ */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: isTablet ? 16 : 10, marginBottom: isTablet ? 24 : 16 }}>
                 {[
                   { key: 'friends', emoji: '👋', label: 'Friends', count: friendRequests.length, activeColor: C.jade, activeBg: 'rgba(22,101,52,0.06)', restLabel: 'No requests' },
                   { key: 'review', emoji: '✅', label: 'Review', count: pendingCount, activeColor: C.crimson, activeBg: 'rgba(225,29,72,0.06)', restLabel: 'All clear' },
@@ -486,15 +511,15 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                     }} style={{
                       background: isExpanded ? b.activeBg : 'white',
                       border: isExpanded ? `2px solid ${b.activeColor}` : `1px solid ${C.border}`,
-                      borderRadius: 16, padding: '18px 10px', textAlign: 'center',
+                      borderRadius: isTablet ? 18 : 16, padding: isTablet ? '24px 14px' : '18px 10px', textAlign: 'center',
                       cursor: isActive ? 'pointer' : 'default',
                       fontFamily: "'DM Sans', sans-serif",
                       boxShadow: isActive ? shadows.sm : 'none',
                       transition: 'all 0.15s ease',
                       position: 'relative',
                     }}>
-                      <div style={{ fontSize: 34, marginBottom: 6, lineHeight: 1 }}>{b.emoji}</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: isActive ? b.activeColor : C.slateLt }}>
+                      <div style={{ fontSize: isTablet ? 42 : 34, marginBottom: isTablet ? 10 : 6, lineHeight: 1 }}>{b.emoji}</div>
+                      <div style={{ fontSize: isTablet ? 17 : 15, fontWeight: 700, color: isActive ? b.activeColor : C.slateLt }}>
                         {b.label}
                       </div>
                       {isActive ? (
@@ -508,7 +533,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                           fontFamily: "'JetBrains Mono', monospace",
                         }}>{b.count}</div>
                       ) : (
-                        <div style={{ fontSize: 12, color: C.slateLt, marginTop: 4 }}>{b.restLabel}</div>
+                        <div style={{ fontSize: isTablet ? 13 : 12, color: C.slateLt, marginTop: isTablet ? 6 : 4 }}>{b.restLabel}</div>
                       )}
                     </button>
                   )
@@ -564,63 +589,41 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
 
               {/* Record a Game */}
               <button onClick={() => setTab('record')} style={{
-                width: '100%', background: C.crimson, border: 'none', borderRadius: 14, padding: '16px', color: '#fff',
-                fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 20,
+                width: '100%', background: C.crimson, border: 'none', borderRadius: isTablet ? 16 : 14, padding: isTablet ? '22px' : '16px', color: '#fff',
+                fontFamily: "'Outfit', sans-serif", fontSize: isTablet ? 19 : 16, fontWeight: 700, marginBottom: isTablet ? 24 : 20,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 boxShadow: '0 4px 20px rgba(225,29,72,0.25)', letterSpacing: -0.3,
               }}>
                 <span style={{ fontSize: 20, fontWeight: 300 }}>+</span> Record a Game
               </button>
 
-              {/* ══ Add Friends (QR) ══ */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-                <button onClick={() => setShowMyCode(true)} style={{
-                  background: 'white', border: `1px solid ${C.border}`,
-                  borderRadius: 16, padding: '20px 16px', textAlign: 'left',
-                  fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
-                  boxShadow: shadows.sm,
-                }}>
-                  <div style={{ fontSize: 34, marginBottom: 8, lineHeight: 1 }}>📱</div>
-                  <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>My Code</div>
-                  <div style={{ fontSize: 13, color: C.slateLt, marginTop: 4, lineHeight: 1.3 }}>Show your QR code</div>
-                </button>
-                <button onClick={() => setShowAddFriend(true)} style={{
-                  background: 'white', border: `1px solid ${C.border}`,
-                  borderRadius: 16, padding: '20px 16px', textAlign: 'left',
-                  fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
-                  boxShadow: shadows.sm,
-                }}>
-                  <div style={{ fontSize: 34, marginBottom: 8, lineHeight: 1 }}>👋</div>
-                  <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>Add Friend</div>
-                  <div style={{ fontSize: 13, color: C.slateLt, marginTop: 4, lineHeight: 1.3 }}>Scan a QR code</div>
-                </button>
+              {/* ══ Quick Actions & Links (unified grid) ══ */}
+              <div style={{ display: 'grid', gridTemplateColumns: isTablet ? '1fr 1fr 1fr' : '1fr 1fr', gap: isTablet ? 16 : 10 }}>
+                {[
+                  { label: 'My Code', icon: '📱', sub: 'Show your QR code', action: () => setShowMyCode(true) },
+                  { label: 'Add Friend', icon: '👋', sub: 'Scan a QR code', action: () => setShowAddFriend(true) },
+                  { label: 'Rankings', icon: '🏆', sub: 'See where you stand', tab: 'rankings' },
+                  { label: 'Community', icon: '👥', sub: 'Players & clubs', tab: 'social' },
+                  { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs' },
+                  { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks' },
+                ].map((link, i) => (
+                  <button key={i} onClick={() => link.action ? link.action() : setTab(link.tab)} style={{
+                    background: 'white',
+                    border: `1px solid ${C.border}`,
+                    borderRadius: isTablet ? 18 : 16, padding: isTablet ? '24px 20px' : '20px 16px', textAlign: 'left',
+                    fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                    boxShadow: shadows.sm,
+                  }}>
+                    <div style={{ fontSize: isTablet ? 40 : 34, marginBottom: isTablet ? 10 : 8, lineHeight: 1 }}>{link.icon}</div>
+                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: isTablet ? 18 : 16, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>{link.label}</div>
+                    <div style={{ fontSize: isTablet ? 14 : 13, color: C.slateLt, marginTop: isTablet ? 6 : 4, lineHeight: 1.3 }}>{link.sub}</div>
+                  </button>
+                ))}
               </div>
 
               {/* QR Modals */}
               {showMyCode && <MyCodeModal player={player} onClose={() => setShowMyCode(false)} />}
               {showAddFriend && <AddFriendModal player={player} onClose={() => setShowAddFriend(false)} onAdded={() => {}} />}
-
-              {/* Quick links */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {[
-                  { label: 'Rankings', icon: '🏆', sub: 'See where you stand', tab: 'rankings' },
-                  { label: 'Community', icon: '👥', sub: 'Players & clubs', tab: 'social' },
-                  { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks' },
-                  { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs' },
-                ].map((link, i) => (
-                  <button key={i} onClick={() => setTab(link.tab)} style={{
-                    background: 'white',
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 16, padding: '20px 16px', textAlign: 'left',
-                    fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
-                    boxShadow: shadows.sm,
-                  }}>
-                    <div style={{ fontSize: 34, marginBottom: 8, lineHeight: 1 }}>{link.icon}</div>
-                    <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, fontWeight: 700, color: C.midnight, letterSpacing: -0.2 }}>{link.label}</div>
-                    <div style={{ fontSize: 13, color: C.slateLt, marginTop: 4, lineHeight: 1.3 }}>{link.sub}</div>
-                  </button>
-                ))}
-              </div>
 
               {/* ══ NMJL Card Year Countdown ══ */}
               {(() => {
@@ -697,10 +700,10 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
       {/* ===== BOTTOM NAV ===== */}
       {showBottomNav && session && (
         <nav style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0,
-          background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-          borderTop: `1px solid ${C.border}`, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around',
-          paddingBottom: 'env(safe-area-inset-bottom, 8px)', paddingTop: 6, zIndex: 200,
+          flexShrink: 0,
+          background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+          borderTop: `0.5px solid rgba(0,0,0,0.12)`, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-around',
+          paddingBottom: 'max(8px, calc(env(safe-area-inset-bottom, 0px) - 14px))', paddingTop: 6, zIndex: 200,
         }}>
           {NAV_ITEMS.map(item => {
             const isActive = tab === item.id
@@ -708,25 +711,25 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
             const showBadge = item.id === 'activity' && unreadTotal > 0
             if (item.center) {
               return (
-                <button key={item.id} onClick={() => setTab(item.id)} style={{
-                  background: C.crimson, border: 'none', width: 52, height: 52, borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -18,
+                <button key={item.id} onClick={() => { haptics.medium(); setTab(item.id) }} style={{
+                  background: C.crimson, border: 'none', width: 48, height: 48, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -8,
                   boxShadow: '0 4px 16px rgba(220,38,38,0.3)', position: 'relative', cursor: 'pointer',
-                }}><Icon color="#fff" size={24} /></button>
+                }}><Icon color="#fff" size={22} /></button>
               )
             }
             return (
-              <button key={item.id} onClick={() => setTab(item.id)} style={{
+              <button key={item.id} onClick={() => { haptics.light(); setTab(item.id) }} style={{
                 background: 'none', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center',
-                gap: 2, padding: '4px 12px 8px', position: 'relative', minWidth: 56, cursor: 'pointer',
+                gap: 2, padding: '2px 16px 4px', position: 'relative', minWidth: 64, cursor: 'pointer',
               }}>
                 <div style={{ position: 'relative' }}>
-                  <Icon color={isActive ? C.jade : C.slateLt} size={22} />
+                  <Icon color={isActive ? C.jade : C.slateLt} size={24} />
                   {showBadge && (
                     <div style={{ position: 'absolute', top: -4, right: -8, background: C.crimson, color: '#fff', fontSize: 9, fontWeight: 700, minWidth: 16, height: 16, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif" }}>{unreadTotal}</div>
                   )}
                 </div>
-                <span style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 700 : 500, color: isActive ? C.jade : C.slateLt }}>{item.label}</span>
+                <span style={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: isActive ? 600 : 400, color: isActive ? C.jade : C.slateLt, letterSpacing: 0.1 }}>{item.label}</span>
               </button>
             )
           })}

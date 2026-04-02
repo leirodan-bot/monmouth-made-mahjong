@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
+import { native } from './native'
+import { Capacitor } from '@capacitor/core'
 import Auth from './components/Auth'
 import Header from './components/Header'
 import Homepage from './components/Homepage'
@@ -16,11 +18,14 @@ import TermsOfService from './components/TermsOfService'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import CookiePolicy from './components/CookiePolicy'
 import CookieConsent from './components/CookieConsent'
+import ProfileSetup from './components/ProfileSetup'
 import InstallPrompt from './components/InstallPrompt'
 import logoLoading from './assets/mahjrank/mahjranklogomonowhite1800.png'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() => {
+    // Capacitor native is always "mobile"
+    if (native.isNative) return true
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       || window.navigator.standalone === true
     const isNarrow = window.innerWidth <= 768
@@ -28,6 +33,7 @@ function useIsMobile() {
   })
 
   useEffect(() => {
+    if (native.isNative) return // Always mobile on native
     function check() {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches
         || window.navigator.standalone === true
@@ -72,6 +78,99 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // ── Native iOS initialization ──
+  useEffect(() => {
+    if (!native.isNative) return
+
+    // Set status bar to light text (for dark header backgrounds)
+    native.statusBar.setLight()
+
+    // Hide splash screen once React has mounted
+    native.splash.hide()
+
+    // Handle OAuth deep link callback from Safari
+    async function handleOAuthUrl(url) {
+      if (!url || !url.includes('login-callback')) return false
+      console.log('OAuth callback URL received:', url)
+
+      try {
+        // Handle PKCE flow: ?code=...
+        const queryString = url.split('?')[1]?.split('#')[0]
+        if (queryString) {
+          const params = new URLSearchParams(queryString)
+          const code = params.get('code')
+          if (code) {
+            console.log('PKCE code found, exchanging...')
+            const { error } = await supabase.auth.exchangeCodeForSession(code)
+            if (error) console.error('Code exchange failed:', error.message)
+            return true
+          }
+        }
+
+        // Handle implicit flow: #access_token=...
+        const hashPart = url.split('#')[1]
+        if (hashPart) {
+          const params = new URLSearchParams(hashPart)
+          const access_token = params.get('access_token')
+          const refresh_token = params.get('refresh_token')
+          if (access_token && refresh_token) {
+            console.log('Tokens found, setting session...')
+            const { error } = await supabase.auth.setSession({ access_token, refresh_token })
+            if (error) console.error('Set session failed:', error.message)
+            return true
+          }
+        }
+        console.log('No tokens or code found in URL')
+      } catch (err) {
+        console.error('OAuth URL handling error:', err)
+      }
+      return false
+    }
+
+    // Set up deep link listener (for when app is in background)
+    import('@capacitor/app').then(({ App }) => {
+      App.addListener('appUrlOpen', ({ url }) => {
+        handleOAuthUrl(url)
+      })
+
+      // Also check if the app was launched via URL (app was killed)
+      App.getLaunchUrl().then((result) => {
+        if (result?.url) {
+          handleOAuthUrl(result.url)
+        }
+      })
+    })
+  }, [])
+
+  // ── Register push notifications once we have a logged-in player ──
+  useEffect(() => {
+    if (!native.isNative || !session || !player) return
+
+    async function registerPush() {
+      const token = await native.push.register()
+      if (token) {
+        // Store the APNs device token in the player's record
+        await supabase.from('players').update({ push_token: token }).eq('id', player.id)
+      }
+
+      // Handle taps on notifications — navigate to the relevant tab
+      native.push.onTapped(({ data }) => {
+        if (data?.tab) setTab(data.tab)
+      })
+    }
+
+    registerPush()
+  }, [session, player?.id])
+
+  // ── Auto-verify stale matches (client-side fallback for pg_cron) ──
+  useEffect(() => {
+    if (!session) return
+    supabase.rpc('auto_verify_old_games').then(({ data, error }) => {
+      if (error) console.warn('Auto-verify RPC failed:', error.message)
+      else if (data > 0) console.log(`Auto-verified ${data} stale matches`)
+    })
+  }, [session])
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [tab])
@@ -106,20 +205,7 @@ function App() {
   )
 
   if (session && !player) {
-    supabase.from('players').insert({
-      user_id: session.user.id,
-      name: session.user.email.split('@')[0],
-      email: session.user.email,
-      elo: 800
-    }).then(() => fetchPlayer(session.user.id))
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#1C1917' }}>
-        <div style={{ textAlign: 'center', color: '#FAFAF9' }}>
-          <img src={logoLoading} alt="MahjRank" style={{ height: 48 }} />
-          <div style={{ marginTop: 16, fontSize: 14, fontFamily: "'DM Sans', sans-serif", opacity: 0.7 }}>Setting up your account...</div>
-        </div>
-      </div>
-    )
+    return <ProfileSetup session={session} onComplete={() => fetchPlayer(session.user.id)} />
   }
 
   if (isMobile) {

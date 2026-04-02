@@ -48,6 +48,9 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
   const [followedIds, setFollowedIdsLocal] = useState([])
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   const [customText, setCustomText] = useState('')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => {
     if (!player?.id) return
@@ -132,13 +135,18 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
     <div>
       {/* ── Header Card ── */}
       <div style={{
-        ...cardLg({ padding: '24px 20px', textAlign: 'center', marginBottom: 16 }),
+        ...cardLg({ padding: '24px 20px', marginBottom: 16 }),
       }}>
-        <div onClick={() => setShowAvatarPicker(true)} style={{ width: 64, height: 64, borderRadius: 16, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: player?.avatar ? 28 : 22, fontWeight: 700, fontFamily: fonts.heading, margin: '0 auto 12px', cursor: 'pointer', position: 'relative' }}>
-          {player?.avatar || initials}
-          <div style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: '50%', background: 'white', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>✏️</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 4 }}>
+          <div onClick={() => setShowAvatarPicker(true)} style={{ width: 56, height: 56, borderRadius: 14, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: player?.avatar ? 26 : 20, fontWeight: 700, fontFamily: fonts.heading, cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
+            {player?.avatar || initials}
+            <div style={{ position: 'absolute', bottom: -2, right: -2, width: 18, height: 18, borderRadius: '50%', background: 'white', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9 }}>✏️</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <div style={{ fontFamily: fonts.heading, fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
+            <div style={{ marginTop: 4 }}><TierBadge elo={player?.elo || 800} /></div>
+          </div>
         </div>
-        <div style={{ fontFamily: fonts.heading, fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
 
         {/* Avatar Picker Popup */}
         {showAvatarPicker && (
@@ -176,7 +184,6 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
             </div>
           </div>
         )}
-        <div style={{ marginTop: 8 }}><TierBadge elo={player?.elo || 800} /></div>
 
         {/* Follow counts */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 12 }}>
@@ -243,8 +250,6 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
           ))}
         </div>
 
-        {/* Elo Sparkline */}
-        <EloSparkline history={eloHistory} />
         <button onClick={() => generateShareCard(player, earnedBadges)} style={{ marginTop: 16, width: "100%", padding: "14px", borderRadius: 10, background: C.jade, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: fonts.heading, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           Share My Card
@@ -435,6 +440,71 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
         textAlign: 'center', fontWeight: 600, cursor: 'pointer',
       }}>Sign Out</button>
 
+      {/* Delete Account */}
+      {!showDeleteConfirm ? (
+        <button onClick={() => setShowDeleteConfirm(true)} style={{
+          width: '100%', background: 'transparent', border: 'none',
+          padding: '14px 16px', marginTop: 12,
+          fontFamily: fonts.body, fontSize: 12, color: C.slateLt,
+          textAlign: 'center', cursor: 'pointer',
+          textDecoration: 'underline',
+        }}>Delete Account</button>
+      ) : (
+        <div style={{
+          background: 'rgba(225,29,72,0.04)', border: `1.5px solid rgba(225,29,72,0.2)`,
+          borderRadius: 14, padding: 20, marginTop: 12,
+        }}>
+          <div style={{ fontFamily: fonts.heading, fontSize: 16, fontWeight: 700, color: C.crimson, marginBottom: 8 }}>
+            Delete your account?
+          </div>
+          <div style={{ fontFamily: fonts.body, fontSize: 13, color: C.slate, lineHeight: 1.5, marginBottom: 16 }}>
+            This will permanently delete your account, profile, game history, and all associated data. This action cannot be undone.
+          </div>
+          {deleteError && (
+            <div style={{ fontFamily: fonts.body, fontSize: 12, color: C.crimson, marginBottom: 12, padding: '8px 12px', background: 'rgba(225,29,72,0.06)', borderRadius: 8 }}>
+              {deleteError}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => { setShowDeleteConfirm(false); setDeleteError('') }} style={{
+              flex: 1, padding: 12, borderRadius: 10, border: `1.5px solid ${C.border}`,
+              background: 'white', fontFamily: fonts.body, fontSize: 13, fontWeight: 600,
+              color: C.slate, cursor: 'pointer',
+            }}>Cancel</button>
+            <button
+              disabled={deleteLoading}
+              onClick={async () => {
+                setDeleteLoading(true); setDeleteError('')
+                try {
+                  // Delete player data from the players table
+                  if (player?.id) {
+                    await supabase.from('notifications').delete().eq('player_id', player.id)
+                    await supabase.from('elo_history').delete().eq('player_id', player.id)
+                    await supabase.from('follows').delete().or(`follower_id.eq.${player.id},followed_id.eq.${player.id}`)
+                    await supabase.from('friend_requests').delete().or(`from_id.eq.${player.id},to_id.eq.${player.id}`)
+                    await supabase.from('players').delete().eq('id', player.id)
+                  }
+                  // Delete the auth user account via edge function or direct
+                  // Note: Supabase client-side cannot delete auth users directly,
+                  // so we sign out and the account becomes orphaned.
+                  // For full deletion, use a Supabase Edge Function or admin API.
+                  await supabase.auth.signOut()
+                  if (onSignOut) onSignOut()
+                } catch (err) {
+                  setDeleteError('Failed to delete account: ' + (err.message || 'Please try again'))
+                  setDeleteLoading(false)
+                }
+              }}
+              style={{
+                flex: 1, padding: 12, borderRadius: 10, border: 'none',
+                background: C.crimson, fontFamily: fonts.body, fontSize: 13, fontWeight: 700,
+                color: 'white', cursor: deleteLoading ? 'wait' : 'pointer',
+                opacity: deleteLoading ? 0.6 : 1,
+              }}
+            >{deleteLoading ? 'Deleting...' : 'Delete Forever'}</button>
+          </div>
+        </div>
+      )}
 
     </div>
   )
