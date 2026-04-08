@@ -18,6 +18,7 @@ import CookiePolicy from './CookiePolicy'
 import Auth from './Auth'
 import InstallPrompt from './InstallPrompt'
 import { MyCodeModal, AddFriendModal } from './QRFriend'
+import FeedbackModal from './FeedbackModal'
 
 import ProfileSection from "./ProfileSection"
 import AnimatedElo from './AnimatedElo'
@@ -65,6 +66,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
   const [statsLoading, setStatsLoading] = useState(false)
   const [showMyCode, setShowMyCode] = useState(false)
   const [showAddFriend, setShowAddFriend] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
   const [transitionKey, setTransitionKey] = useState(0)
   const contentRef = useRef(null)
   const { pending: friendRequests } = useFriends(player?.id, player?.name)
@@ -641,6 +643,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   { label: 'Community', icon: '👥', sub: 'Players & clubs', tab: 'social' },
                   { label: 'My Clubs', icon: '🏘️', sub: 'Your groups & games', tab: 'clubs' },
                   { label: 'How It Works', icon: '📖', sub: 'Elo ratings explained', tab: 'howitworks' },
+                  { label: 'Support', icon: '💬', sub: 'Bugs, ideas & questions', action: () => setShowFeedback(true) },
                 ].map((link, i) => (
                   <button key={i} onClick={() => link.action ? link.action() : setTab(link.tab)} style={{
                     background: 'white',
@@ -659,6 +662,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
               {/* QR Modals */}
               {showMyCode && <MyCodeModal player={player} onClose={() => setShowMyCode(false)} />}
               {showAddFriend && <AddFriendModal player={player} onClose={() => setShowAddFriend(false)} onAdded={() => {}} />}
+              {showFeedback && <FeedbackModal player={player} session={session} onClose={() => setShowFeedback(false)} />}
 
               {/* ══ NMJL Card Year Countdown ══ */}
               {(() => {
