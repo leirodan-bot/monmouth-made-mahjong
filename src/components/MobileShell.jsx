@@ -271,7 +271,15 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                       {gameHistory.slice(0, 20).map((m, i) => {
                         const isWall = m.is_wall_game === true || m.winner_id == null
                         const isWinner = !isWall && m.winner_id === player?.id
-                        const otherPlayers = (m.player_ids || []).filter(id => id !== player?.id).map(id => gamePlayers[id]?.name || '?').join(', ')
+                        const myName = (player?.name || '').trim().toLowerCase()
+                        const otherPlayers = (m.player_ids || [])
+                          .filter(id => {
+                            if (id === player?.id) return false
+                            // Defensive: also drop any duplicate-name rows that point at the same human
+                            const n = (gamePlayers[id]?.name || '').trim().toLowerCase()
+                            return !myName || n !== myName
+                          })
+                          .map(id => gamePlayers[id]?.name || '?').join(', ')
                         const locName = m.location_id ? gameLocations[m.location_id]?.name : null
                         const date = new Date(m.played_at)
                         const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined })
