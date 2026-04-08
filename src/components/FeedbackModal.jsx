@@ -2,8 +2,6 @@ import { useState } from 'react'
 import { supabase } from '../supabase'
 import { C, fonts, shadows } from '../theme'
 
-const SUPPORT_EMAIL = 'support@mahjrank.com'
-
 const CATEGORIES = [
   { value: 'bug',            label: 'Bug / Issue',    emoji: '🐞', color: C.crimson },
   { value: 'recommendation', label: 'Recommendation', emoji: '💡', color: C.gold    },
@@ -35,22 +33,6 @@ export default function FeedbackModal({ player, session, onClose }) {
   const trimmed = message.trim()
   const canSubmit = !sending && trimmed.length >= 4 && trimmed.length <= 4000
 
-  function buildMailto() {
-    const cat = CATEGORIES.find(c => c.value === category)
-    const subject = `[MahjRank] ${cat?.label || 'Feedback'} from ${player?.name || 'a player'}`
-    const bodyLines = [
-      trimmed,
-      '',
-      '---',
-      `Player: ${player?.name || '(unknown)'}`,
-      `Player ID: ${player?.id || '(none)'}`,
-      `App version: ${APP_VERSION}`,
-      `Platform: ${detectPlatform()}`,
-    ]
-    const body = bodyLines.join('\n')
-    return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-  }
-
   async function handleSubmit() {
     if (!canSubmit) return
     setSending(true)
@@ -68,16 +50,9 @@ export default function FeedbackModal({ player, session, onClose }) {
       })
       if (insertError) throw insertError
       setSent(true)
-      // Fire mailto fallback so the support inbox is also notified
-      // immediately, in case the dashboard isn't being watched. Wrapped
-      // in try/catch — if the mail client refuses to open, the row in
-      // Supabase is still the source of truth.
-      try {
-        if (typeof window !== 'undefined') window.location.href = buildMailto()
-      } catch (_) { /* ignore */ }
     } catch (err) {
       console.error('[MahjRank] feedback submit failed:', err)
-      setError('Could not save your feedback. Please try again, or email ' + SUPPORT_EMAIL + ' directly.')
+      setError('Could not save your feedback. Please check your connection and try again.')
     } finally {
       setSending(false)
     }
