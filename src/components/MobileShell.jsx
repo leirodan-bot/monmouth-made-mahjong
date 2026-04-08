@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../supabase'
 import { haptics } from '../native'
 import logoHeader from '../assets/mahjrank/mahjranklogotransparent2400.png'
@@ -106,10 +106,11 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
     }
   }
 
-  // Fetch game history + elo history when stat panel opens
+  // Fetch game history + elo history as soon as we know who the player is.
+  // (Previously gated on statPanel, which left the Home stat bubbles relying
+  // on stale cached counters on the player row.)
   useEffect(() => {
-    if (!statPanel || !player?.id) return
-    if (gameHistory.length > 0 && eloHistory.length > 0) return // already loaded
+    if (!player?.id) return
     setStatsLoading(true)
     ;(async () => {
       // Fetch matches this player was in
@@ -157,7 +158,39 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
       if (history) setEloHistory(history)
       setStatsLoading(false)
     })()
-  }, [statPanel, player?.id])
+  }, [player?.id])
+
+  // ── Single source of truth for displayed stats ──
+  // All stat displays (Home bubbles, Win/Loss panel, Profile bubbles) draw
+  // from this so they can never disagree with each other or with the game
+  // history feed. Computed only from VERIFIED games (confirmed or
+  // auto-verified). Wall games count toward the total but never as wins or
+  // losses, and they do not break a win streak — they're neutral.
+  const liveStats = useMemo(() => {
+    const isWall = (m) => m.is_wall_game === true || m.winner_id == null
+    const isVerified = (m) => m.status === 'confirmed' || m.status === 'auto-verified'
+    const verified = (gameHistory || []).filter(isVerified)
+    const wallGames = verified.filter(isWall).length
+    const wins = verified.filter(m => !isWall(m) && m.winner_id === player?.id).length
+    const losses = verified.filter(m => !isWall(m) && m.winner_id !== player?.id).length
+    const games = verified.length
+    const decided = wins + losses
+    const winRate = decided > 0 ? Math.round((wins / decided) * 100) : 0
+
+    // Walk newest → oldest. Wall games are skipped (neutral, do not break a
+    // streak). Streak terminates as soon as we hit a result of the opposite
+    // type. By construction this can never exceed `wins` (or `losses`).
+    let currentStreak = 0
+    let streakType = null
+    for (const m of verified) {
+      if (isWall(m)) continue
+      const won = m.winner_id === player?.id
+      if (streakType === null) { streakType = won ? 'W' : 'L'; currentStreak = 1 }
+      else if ((won && streakType === 'W') || (!won && streakType === 'L')) currentStreak++
+      else break
+    }
+    return { games, wins, losses, wallGames, winRate, currentStreak, streakType }
+  }, [gameHistory, player?.id])
 
   useEffect(() => {
     if (session && tab === 'landing') setTab('home')
@@ -223,11 +256,15 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   <TierBadge elo={player?.elo || 800} />
                 </div>
 
-                {/* Stat boxes — clickable */}
+                {/* Stat boxes — clickable. Games/Wins come from liveStats so
+                    they always agree with the Profile bubbles, the Win/Loss
+                    panel, and the game history feed. Elo still comes from
+                    the player row (the rating engine is the source of truth
+                    for that). */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: isTablet ? 16 : 10 }}>
                   {[
-                    { key: 'games', label: 'Games', value: player?.games_played || 0, color: C.jadeLt },
-                    { key: 'wins', label: 'Wins', value: player?.wins || 0, color: C.ink },
+                    { key: 'games', label: 'Games', value: liveStats.games, color: C.jadeLt },
+                    { key: 'wins', label: 'Wins', value: liveStats.wins, color: C.ink },
                     { key: 'elo', label: 'Elo', value: Math.round(player?.elo || 800), color: C.crimson },
                   ].map((s) => (
                     <button key={s.key} onClick={() => setStatPanel(statPanel === s.key ? null : s.key)} style={{
@@ -333,33 +370,23 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   {statsLoading ? (
                     <div style={{ textAlign: 'center', padding: 20, fontFamily: fonts.body, fontSize: 14, color: C.slate }}>Loading...</div>
                   ) : (() => {
-                    const totalGames = player?.games_played || 0
-                    const wins = player?.wins || 0
-                    const losses = totalGames - wins
-                    const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0
-                    const wallGames = gameHistory.filter(m => m.is_wall_game).length
-                    const nonWallGames = totalGames - wallGames
+                    // All counters come from liveStats (verified-only) so the
+                    // panel matches the Home bubbles, the Profile bubbles,
+                    // and the streak number can never exceed wins.
+                    const { games: totalGames, wins, losses, wallGames, winRate, currentStreak, streakType } = liveStats
 
-                    // Streak calculation
-                    let currentStreak = 0
-                    let streakType = null
-                    for (let i = 0; i < gameHistory.length; i++) {
-                      const m = gameHistory[i]
-                      if (m.is_wall_game) continue
-                      const won = m.winner_id === player?.id
-                      if (streakType === null) { streakType = won ? 'W' : 'L'; currentStreak = 1 }
-                      else if ((won && streakType === 'W') || (!won && streakType === 'L')) currentStreak++
-                      else break
-                    }
-
-                    // Best opponent (most wins against)
+                    // Best opponent (most wins against), still computed from
+                    // verified games only so it matches the win count.
                     const winsAgainst = {}
-                    gameHistory.forEach(m => {
-                      if (m.is_wall_game || m.winner_id !== player?.id) return
-                      ;(m.player_ids || []).forEach(id => {
-                        if (id !== player?.id) winsAgainst[id] = (winsAgainst[id] || 0) + 1
+                    gameHistory
+                      .filter(m => m.status === 'confirmed' || m.status === 'auto-verified')
+                      .forEach(m => {
+                        const isWall = m.is_wall_game === true || m.winner_id == null
+                        if (isWall || m.winner_id !== player?.id) return
+                        ;(m.player_ids || []).forEach(id => {
+                          if (id !== player?.id) winsAgainst[id] = (winsAgainst[id] || 0) + 1
+                        })
                       })
-                    })
                     const topOpponentId = Object.entries(winsAgainst).sort((a, b) => b[1] - a[1])[0]
 
                     return (
@@ -684,7 +711,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
 
           {/* ═══════ PROFILE TAB ═══════ */}
           {tab === 'profile' && session && (
-            <ProfileSection session={session} player={player} onSignOut={onSignOut} setTab={setTab} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('players') }} />
+            <ProfileSection session={session} player={player} onSignOut={onSignOut} setTab={setTab} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('players') }} liveStats={liveStats} />
           )}
 
           {tab === 'rankings' && <Rankings session={session} player={player} onPlayerClick={(id) => { setSelectedPlayerId(id); setTab('social') }} />}

@@ -38,7 +38,7 @@ function EloSparkline({ history }) {
   )
 }
 
-export default function ProfileSection({ session, player, onSignOut, setTab, onPlayerClick }) {
+export default function ProfileSection({ session, player, onSignOut, setTab, onPlayerClick, liveStats }) {
   const push = usePushNotifications(player)
   const [earnedBadges, setEarnedBadges] = useState([])
   const [rivals, setRivals] = useState([])
@@ -118,8 +118,17 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
       .then(({ count }) => setFollowingCount(count || 0))
   }, [player?.id])
   const earnedIds = earnedBadges.map(b => b.badge_id)
-  const gamesPlayed = player?.games_played || 0
-  const winRate = gamesPlayed > 0 ? Math.round(((player?.wins || 0) / gamesPlayed) * 100) : 0
+  // Prefer the live, verified-only stats passed in from MobileShell so the
+  // Profile bubbles agree with the Home bubbles and the game history feed.
+  // Falls back to the cached counters on the player row if no liveStats prop
+  // was provided (e.g. if this component is rendered from another caller).
+  const statWins = liveStats ? liveStats.wins : (player?.wins || 0)
+  const statLosses = liveStats ? liveStats.losses : (player?.losses || 0)
+  const statGames = liveStats ? liveStats.games : (player?.games_played || 0)
+  const gamesPlayed = statGames
+  const winRate = liveStats
+    ? liveStats.winRate
+    : (gamesPlayed > 0 ? Math.round(((player?.wins || 0) / gamesPlayed) * 100) : 0)
 
   const AVATAR_ICONS = ['🀄', '🧱', '🐉', '🎋', '🔴', '🌸', '🎴', '🏮', '🌙', '🍀', '🦅', '🎲', '🎯', '🌊', '💎', '🔥', '🌺', '🐦', '⭐', '🏆']
   const initials = player?.name ? player.name.split(' ').map(n => n[0]).join('') : '?'
@@ -232,8 +241,8 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 12 }}>
           {[
-            { label: 'Wins', value: player?.wins || 0, color: C.jade },
-            { label: 'Losses', value: player?.losses || 0, color: C.ink },
+            { label: 'Wins', value: statWins, color: C.jade },
+            { label: 'Losses', value: statLosses, color: C.ink },
             { label: 'Win %', value: `${winRate}%`, color: C.gold },
           ].map((s, i) => (
             <div key={i} style={{
@@ -250,7 +259,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
           ))}
         </div>
 
-        <button onClick={() => generateShareCard(player, earnedBadges)} style={{ marginTop: 16, width: "100%", padding: "14px", borderRadius: 10, background: C.jade, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: fonts.heading, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <button onClick={() => generateShareCard(player, earnedBadges, liveStats)} style={{ marginTop: 16, width: "100%", padding: "14px", borderRadius: 10, background: C.jade, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: fonts.heading, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           Share My Card
         </button>
@@ -511,7 +520,7 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
 }
 
 // ── Share Card Generator ──
-async function generateShareCard(player, earnedBadges) {
+async function generateShareCard(player, earnedBadges, liveStats) {
   const W = 1080, H = 1350
   const canvas = document.createElement('canvas')
   canvas.width = W; canvas.height = H
@@ -621,11 +630,20 @@ async function generateShareCard(player, earnedBadges) {
 
   // ── Stats row ──
   const statsY = divY + 25
+  // Use liveStats (verified-only) so the share card matches the in-app
+  // Home and Profile bubbles. Falls back to cached counters if liveStats
+  // wasn't passed.
+  const cardWins = liveStats ? liveStats.wins : (player.wins || 0)
+  const cardLosses = liveStats ? liveStats.losses : (player.losses || 0)
+  const cardGames = liveStats ? liveStats.games : (player.games_played || 0)
+  const cardWinPct = liveStats
+    ? liveStats.winRate
+    : (player.games_played ? Math.round((player.wins || 0) / player.games_played * 100) : 0)
   const stats = [
-    { label: 'WINS', value: String(player.wins || 0), color: '#166534' },
-    { label: 'LOSSES', value: String(player.losses || 0), color: '#78716C' },
-    { label: 'GAMES', value: String(player.games_played || 0), color: '#1C1917' },
-    { label: 'WIN %', value: (player.games_played ? Math.round((player.wins||0)/(player.games_played)*100) : 0) + '%', color: '#F59E0B' },
+    { label: 'WINS', value: String(cardWins), color: '#166534' },
+    { label: 'LOSSES', value: String(cardLosses), color: '#78716C' },
+    { label: 'GAMES', value: String(cardGames), color: '#1C1917' },
+    { label: 'WIN %', value: cardWinPct + '%', color: '#F59E0B' },
   ]
   const statW = 200, statGap = 28
   const statsStartX = (W - (stats.length * statW + (stats.length - 1) * statGap)) / 2
