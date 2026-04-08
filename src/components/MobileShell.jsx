@@ -269,8 +269,8 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       {gameHistory.slice(0, 20).map((m, i) => {
-                        const isWinner = m.winner_id === player?.id
-                        const isWall = m.is_wall_game
+                        const isWall = m.is_wall_game === true || m.winner_id == null
+                        const isWinner = !isWall && m.winner_id === player?.id
                         const otherPlayers = (m.player_ids || []).filter(id => id !== player?.id).map(id => gamePlayers[id]?.name || '?').join(', ')
                         const locName = m.location_id ? gameLocations[m.location_id]?.name : null
                         const date = new Date(m.played_at)
@@ -292,7 +292,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontFamily: fonts.body, fontSize: 14, fontWeight: 600, color: C.midnight }}>
-                                {isWall ? 'Wall Game' : isWinner ? 'You won!' : `${gamePlayers[m.winner_id]?.name || 'Someone'} won`}
+                                {isWall ? 'Wall game' : isWinner ? 'You won!' : `${gamePlayers[m.winner_id]?.name || 'Someone'} won`}
                               </div>
                               <div style={{ fontFamily: fonts.body, fontSize: 12, color: C.slate, marginTop: 2 }}>
                                 vs {otherPlayers || 'unknown'}
