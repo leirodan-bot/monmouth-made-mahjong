@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import jsQR from 'jsqr'
 import { supabase } from '../supabase'
 import { C, fonts, shadows } from '../theme'
 import useFriends from '../useFriends'
@@ -120,6 +121,7 @@ export function AddFriendModal({ player, onClose, onAdded }) {
   const [status, setStatus] = useState(null) // null | 'searching' | 'found' | 'sent' | 'error' | 'already' | 'self'
   const [foundPlayer, setFoundPlayer] = useState(null)
   const videoRef = useRef(null)
+  const canvasRef = useRef(null)
   const streamRef = useRef(null)
   const scanIntervalRef = useRef(null)
   const { sendRequest, getStatus } = useFriends(player?.id, player?.name)
@@ -140,6 +142,24 @@ export function AddFriendModal({ player, onClose, onAdded }) {
     }
   }
 
+  function handleScannedValue(value) {
+    if (typeof value !== 'string') return false
+    if (value.startsWith('mahjrank://friend/')) {
+      const id = value.replace('mahjrank://friend/', '')
+      stopCamera()
+      lookupAndAdd(id)
+      return true
+    }
+    // Tolerate a bare UUID or 8-char code in case the QR was generated elsewhere
+    const trimmed = value.trim()
+    if (trimmed.length === 36 || trimmed.length === 8) {
+      stopCamera()
+      lookupAndAdd(trimmed)
+      return true
+    }
+    return false
+  }
+
   async function startCamera() {
     setMode('camera')
     try {
@@ -149,98 +169,113 @@ export function AddFriendModal({ player, onClose, onAdded }) {
       streamRef.current = stream
       if (videoRef.current) {
         videoRef.current.srcObject = stream
-        videoRef.current.play()
+        videoRef.current.setAttribute('playsinline', 'true')
+        await videoRef.current.play().catch(() => {})
       }
 
-      // Check if BarcodeDetector is available
-      if ('BarcodeDetector' in window) {
-        const detector = new BarcodeDetector({ formats: ['qr_code'] })
-        scanIntervalRef.current = setInterval(async () => {
-          if (!videoRef.current || videoRef.current.readyState < 2) return
-          try {
-            const barcodes = await detector.detect(videoRef.current)
-            if (barcodes.length > 0) {
-              const value = barcodes[0].rawValue
-              if (value.startsWith('mahjrank://friend/')) {
-                const id = value.replace('mahjrank://friend/', '')
-                stopCamera()
-                await lookupAndAdd(id)
-              }
-            }
-          } catch (e) {
-            // Detection failed, keep trying
-          }
-        }, 500)
-      } else {
-        // BarcodeDetector not available — inform user to use manual code
-        setTimeout(() => {
-          stopCamera()
-          setMode('manual')
-          setStatus({ type: 'info', message: 'Camera scanning isn\'t supported on this device. Enter a friend code instead.' })
-        }, 1500)
-      }
+      // jsQR-based scan loop — works on iOS WKWebView, Safari, Chrome.
+      // BarcodeDetector is faster when present, but isn't shipped on iOS,
+      // so we use jsQR as the primary path for consistency.
+      const canvas = canvasRef.current || document.createElement('canvas')
+      canvasRef.current = canvas
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })
+
+      scanIntervalRef.current = setInterval(() => {
+        const video = videoRef.current
+        if (!video || video.readyState < 2 || !video.videoWidth) return
+        try {
+          const w = video.videoWidth
+          const h = video.videoHeight
+          if (canvas.width !== w) canvas.width = w
+          if (canvas.height !== h) canvas.height = h
+          ctx.drawImage(video, 0, 0, w, h)
+          const imageData = ctx.getImageData(0, 0, w, h)
+          const code = jsQR(imageData.data, w, h, { inversionAttempts: 'dontInvert' })
+          if (code && code.data) handleScannedValue(code.data)
+        } catch (_) {
+          // Frame decode failed — keep trying
+        }
+      }, 250)
     } catch (err) {
+      console.error('[MahjRank] camera start failed:', err)
       setMode('manual')
-      setStatus({ type: 'info', message: 'Camera access was denied. Enter a friend code instead.' })
+      const denied = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')
+      setStatus({
+        type: 'info',
+        message: denied
+          ? 'Camera access was denied. Enable it in Settings, or enter a friend code instead.'
+          : 'Couldn\'t open the camera. Enter a friend code instead.',
+      })
     }
   }
 
   async function lookupAndAdd(idOrCode) {
     setStatus({ type: 'searching' })
 
-    // Try exact ID match first, then prefix match for short codes
-    let targetPlayer = null
+    try {
+      // Try exact ID match first, then prefix match for short codes
+      let targetPlayer = null
 
-    if (idOrCode.length === 36) {
-      // Full UUID
-      const { data } = await supabase.from('players').select('id, name, avatar, elo, town').eq('id', idOrCode).single()
-      targetPlayer = data
-    } else {
-      // Short code — match by ID prefix (case-insensitive)
-      const code = idOrCode.toLowerCase()
-      const { data } = await supabase.from('players').select('id, name, avatar, elo, town')
-      if (data) {
-        targetPlayer = data.find(p => p.id.substring(0, 8).toLowerCase() === code)
+      if (idOrCode.length === 36) {
+        // Full UUID
+        const { data } = await supabase.from('players').select('id, name, avatar, elo, town').eq('id', idOrCode).single()
+        targetPlayer = data
+      } else {
+        // Short code — match by ID prefix (case-insensitive)
+        const code = idOrCode.toLowerCase()
+        const { data } = await supabase.from('players').select('id, name, avatar, elo, town')
+        if (data) {
+          targetPlayer = data.find(p => p.id.substring(0, 8).toLowerCase() === code)
+        }
       }
-    }
 
-    if (!targetPlayer) {
-      setStatus({ type: 'error', message: 'No player found with that code. Double-check and try again.' })
-      setFoundPlayer(null)
-      return
-    }
+      if (!targetPlayer) {
+        setStatus({ type: 'error', message: 'No player found with that code. Double-check and try again.' })
+        setFoundPlayer(null)
+        return
+      }
 
-    if (targetPlayer.id === player?.id) {
-      setStatus({ type: 'self', message: 'That\'s your own code!' })
-      setFoundPlayer(null)
-      return
-    }
+      if (targetPlayer.id === player?.id) {
+        setStatus({ type: 'self', message: 'That\'s your own code!' })
+        setFoundPlayer(null)
+        return
+      }
 
-    setFoundPlayer(targetPlayer)
+      setFoundPlayer(targetPlayer)
 
-    // Check existing friendship status
-    const friendStatus = getStatus(targetPlayer.id)
-    if (friendStatus === 'friends') {
-      setStatus({ type: 'already', message: 'You\'re already friends!' })
-      return
-    }
-    if (friendStatus === 'sent') {
-      setStatus({ type: 'already', message: 'Friend request already sent!' })
-      return
-    }
-    if (friendStatus === 'pending') {
+      // Check existing friendship status
+      const friendStatus = getStatus(targetPlayer.id)
+      if (friendStatus === 'friends') {
+        setStatus({ type: 'already', message: 'You\'re already friends!' })
+        return
+      }
+      if (friendStatus === 'sent') {
+        setStatus({ type: 'already', message: 'Friend request already sent!' })
+        return
+      }
+      if (friendStatus === 'pending') {
+        setStatus({ type: 'found' })
+        return
+      }
+
       setStatus({ type: 'found' })
-      return
+    } catch (err) {
+      console.error('[MahjRank] lookupAndAdd failed:', err)
+      setStatus({ type: 'error', message: 'Error looking up player. Please try again.' })
+      setFoundPlayer(null)
     }
-
-    setStatus({ type: 'found' })
   }
 
   async function handleSendRequest() {
     if (!foundPlayer) return
-    await sendRequest(foundPlayer.id)
-    setStatus({ type: 'sent' })
-    if (onAdded) onAdded()
+    try {
+      await sendRequest(foundPlayer.id)
+      setStatus({ type: 'sent' })
+      if (onAdded) onAdded()
+    } catch (err) {
+      console.error('[MahjRank] handleSendRequest failed:', err)
+      setStatus({ type: 'error', message: 'Failed to send friend request. Please try again.' })
+    }
   }
 
   function handleManualSubmit() {
