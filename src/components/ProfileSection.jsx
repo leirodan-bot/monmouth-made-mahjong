@@ -147,8 +147,12 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
         ...cardLg({ padding: '24px 20px', marginBottom: 16 }),
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 4 }}>
-          <div onClick={() => setShowAvatarPicker(true)} style={{ width: 56, height: 56, borderRadius: 14, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: player?.avatar ? 26 : 20, fontWeight: 700, fontFamily: fonts.heading, cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
-            {player?.avatar || initials}
+          <div onClick={() => setShowAvatarPicker(true)} style={{ width: 56, height: 56, borderRadius: 14, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+            {player?.avatar && [...player.avatar].some(ch => ch.codePointAt(0) > 127) ? (
+              <span style={{ fontSize: 30, lineHeight: 1, fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif', display: 'block' }}>{player.avatar}</span>
+            ) : (
+              <span style={{ fontSize: player?.avatar ? 22 : 20, lineHeight: 1, fontWeight: 700, fontFamily: fonts.heading, display: 'block' }}>{player?.avatar || initials}</span>
+            )}
             <div style={{ position: 'absolute', bottom: -2, right: -2, width: 18, height: 18, borderRadius: '50%', background: 'white', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9 }}>✏️</div>
           </div>
           <div style={{ flex: 1, textAlign: 'left' }}>
