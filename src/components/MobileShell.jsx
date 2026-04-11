@@ -747,7 +747,7 @@ export default function MobileShell({ session, player, onSignOut, refreshPlayer 
           {NAV_ITEMS.map(item => {
             const isActive = tab === item.id
             const Icon = item.icon
-            const showBadge = item.id === 'activity' && unreadTotal > 0
+            const showBadge = item.id === 'home' && unreadTotal > 0
             if (item.center) {
               return (
                 <button key={item.id} onClick={() => { haptics.medium(); setTab(item.id) }} style={{
