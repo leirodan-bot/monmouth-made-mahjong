@@ -146,19 +146,21 @@ export default function ProfileSection({ session, player, onSignOut, setTab, onP
       <div style={{
         ...cardLg({ padding: '24px 20px', marginBottom: 16 }),
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 4 }}>
-          <div onClick={() => setShowAvatarPicker(true)} style={{ width: 56, height: 56, borderRadius: 14, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
-            {player?.avatar && [...player.avatar].some(ch => ch.codePointAt(0) > 127) ? (
-              <span style={{ fontSize: 30, lineHeight: 1, fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif', display: 'block' }}>{player.avatar}</span>
-            ) : (
-              <span style={{ fontSize: player?.avatar ? 22 : 20, lineHeight: 1, fontWeight: 700, fontFamily: fonts.heading, display: 'block' }}>{player?.avatar || initials}</span>
-            )}
-            <div style={{ position: 'absolute', bottom: -2, right: -2, width: 18, height: 18, borderRadius: '50%', background: 'white', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9 }}>✏️</div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, marginBottom: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, minWidth: 0 }}>
+            <div onClick={() => setShowAvatarPicker(true)} style={{ width: 56, height: 56, borderRadius: 14, background: C.jade, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+              {player?.avatar && [...player.avatar].some(ch => ch.codePointAt(0) > 127) ? (
+                <span style={{ fontSize: 30, lineHeight: 1, fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif', display: 'block' }}>{player.avatar}</span>
+              ) : (
+                <span style={{ fontSize: player?.avatar ? 22 : 20, lineHeight: 1, fontWeight: 700, fontFamily: fonts.heading, display: 'block' }}>{player?.avatar || initials}</span>
+              )}
+              <div style={{ position: 'absolute', bottom: -2, right: -2, width: 18, height: 18, borderRadius: '50%', background: 'white', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9 }}>✏️</div>
+            </div>
+            <div style={{ textAlign: 'left', minWidth: 0, flex: 1 }}>
+              <div style={{ fontFamily: fonts.heading, fontSize: 20, fontWeight: 700, color: C.midnight, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player?.name || 'Player'}</div>
+            </div>
           </div>
-          <div style={{ flex: 1, textAlign: 'left' }}>
-            <div style={{ fontFamily: fonts.heading, fontSize: 20, fontWeight: 700, color: C.midnight }}>{player?.name || 'Player'}</div>
-            <div style={{ marginTop: 4 }}><TierBadge elo={player?.elo || 800} /></div>
-          </div>
+          <div style={{ flexShrink: 0 }}><TierBadge elo={player?.elo || 800} /></div>
         </div>
 
         {/* Avatar Picker Popup */}
