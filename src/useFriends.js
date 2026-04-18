@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useId } from 'react'
 import { supabase } from './supabase'
 
 /**
@@ -13,15 +13,27 @@ import { supabase } from './supabase'
 export default function useFriends(playerId, playerName) {
   const [friendships, setFriendships] = useState([])
   const [loading, setLoading] = useState(true)
+  // Unique per-hook-instance ID. Without this, two callers of useFriends with the
+  // same playerId (e.g. Social + Players) would create a Supabase channel with the
+  // same name, and the second .on('postgres_changes', …) after .subscribe() throws:
+  //   "cannot add postgres_changes callbacks for realtime:friendships-<uid> after subscribe()"
+  // That uncaught error crashes the Social tab (blank page on web, error screen on iOS).
+  const instanceId = useId()
 
   const fetchFriendships = useCallback(async () => {
     if (!playerId) { setLoading(false); return }
-    const { data } = await supabase
-      .from('friendships')
-      .select('*')
-      .or(`requester_id.eq.${playerId},receiver_id.eq.${playerId}`)
-      .order('created_at', { ascending: false })
-    setFriendships(data || [])
+    try {
+      const { data, error } = await supabase
+        .from('friendships')
+        .select('*')
+        .or(`requester_id.eq.${playerId},receiver_id.eq.${playerId}`)
+        .order('created_at', { ascending: false })
+      if (error) console.warn('[MahjRank] friendships query error:', error.message)
+      setFriendships(data || [])
+    } catch (err) {
+      console.error('[MahjRank] fetchFriendships failed:', err)
+      setFriendships([])
+    }
     setLoading(false)
   }, [playerId])
 
@@ -29,16 +41,23 @@ export default function useFriends(playerId, playerName) {
     fetchFriendships()
     // Realtime subscription
     if (!playerId) return
-    const channel = supabase
-      .channel('friendships-' + playerId)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'friendships',
-      }, () => fetchFriendships())
-      .subscribe()
-    return () => supabase.removeChannel(channel)
-  }, [playerId, fetchFriendships])
+    let channel
+    try {
+      channel = supabase
+        .channel('friendships-' + playerId + '-' + instanceId)
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'friendships',
+        }, () => fetchFriendships())
+        .subscribe((status, err) => {
+          if (err) console.warn('[MahjRank] friendships realtime error:', err.message)
+        })
+    } catch (err) {
+      console.warn('[MahjRank] friendships channel setup failed:', err)
+    }
+    return () => { if (channel) supabase.removeChannel(channel) }
+  }, [playerId, fetchFriendships, instanceId])
 
   // Accepted friends
   const friends = friendships
@@ -74,62 +93,40 @@ export default function useFriends(playerId, playerName) {
 
   async function sendRequest(receiverId) {
     if (!playerId || receiverId === playerId) return
-    // Check for existing friendship in either direction
     const existing = friendships.find(
       f => (f.requester_id === playerId && f.receiver_id === receiverId) ||
            (f.requester_id === receiverId && f.receiver_id === playerId)
     )
-    if (existing) return // already exists
-
-    await supabase.from('friendships').insert({
-      requester_id: playerId,
-      receiver_id: receiverId,
-      status: 'pending',
-    })
-    // Send notification
-    const name = playerName || 'Someone'
-    await supabase.from('notifications').insert({
-      player_id: receiverId,
-      type: 'friend_request',
-      message: `${name} sent you a friend request`,
-      read: false,
-    })
-    fetchFriendships()
+    if (existing) return
+    try {
+      await supabase.from('friendships').insert({ requester_id: playerId, receiver_id: receiverId, status: 'pending' })
+      const name = playerName || 'Someone'
+      await supabase.from('notifications').insert({ player_id: receiverId, type: 'friend_request', message: `${name} sent you a friend request`, read: false })
+      fetchFriendships()
+    } catch (err) { console.error('[MahjRank] sendRequest failed:', err) }
   }
 
   async function acceptRequest(requesterId) {
-    await supabase
-      .from('friendships')
-      .update({ status: 'accepted', accepted_at: new Date().toISOString() })
-      .eq('requester_id', requesterId)
-      .eq('receiver_id', playerId)
-    // Notify the requester
-    const name = playerName || 'Someone'
-    await supabase.from('notifications').insert({
-      player_id: requesterId,
-      type: 'friend_accepted',
-      message: `${name} accepted your friend request!`,
-      read: false,
-    })
-    fetchFriendships()
+    try {
+      await supabase.from('friendships').update({ status: 'accepted', accepted_at: new Date().toISOString() }).eq('requester_id', requesterId).eq('receiver_id', playerId)
+      const name = playerName || 'Someone'
+      await supabase.from('notifications').insert({ player_id: requesterId, type: 'friend_accepted', message: `${name} accepted your friend request!`, read: false })
+      fetchFriendships()
+    } catch (err) { console.error('[MahjRank] acceptRequest failed:', err) }
   }
 
   async function declineRequest(requesterId) {
-    await supabase
-      .from('friendships')
-      .delete()
-      .eq('requester_id', requesterId)
-      .eq('receiver_id', playerId)
-    fetchFriendships()
+    try {
+      await supabase.from('friendships').delete().eq('requester_id', requesterId).eq('receiver_id', playerId)
+      fetchFriendships()
+    } catch (err) { console.error('[MahjRank] declineRequest failed:', err) }
   }
 
   async function removeFriend(targetId) {
-    // Delete in either direction
-    await supabase
-      .from('friendships')
-      .delete()
-      .or(`and(requester_id.eq.${playerId},receiver_id.eq.${targetId}),and(requester_id.eq.${targetId},receiver_id.eq.${playerId})`)
-    fetchFriendships()
+    try {
+      await supabase.from('friendships').delete().or(`and(requester_id.eq.${playerId},receiver_id.eq.${targetId}),and(requester_id.eq.${targetId},receiver_id.eq.${playerId})`)
+      fetchFriendships()
+    } catch (err) { console.error('[MahjRank] removeFriend failed:', err) }
   }
 
   return {
