@@ -56,5 +56,9 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>MahjRank uses the camera to scan friend QR codes so you can quickly add players to your circle.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MahjRank needs photo library access so you can save and share your player card.</string>
 </dict>
 </plist>
